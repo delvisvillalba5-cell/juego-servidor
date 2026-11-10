@@ -3,15 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Zeta Battle</title>
-  <!-- Librería oficial de Socket.io -->
+  <title>Zeta Battle - Estilo Battle Royale</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <!-- Librería de Joystick Virtual -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.2/nipplejs.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-    body { background: #111; color: #fff; font-family: sans-serif; overflow: hidden; text-align: center; }
-    #lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 15px; }
-    button { padding: 15px 25px; font-size: 18px; border: none; border-radius: 8px; background: #ff4757; color: white; font-weight: bold; }
-    #gameCanvas { display: none; background: #222; width: 100vw; height: 100vh; }
+    body { background: #0b0b13; color: #fff; font-family: sans-serif; overflow: hidden; text-align: center; }
+    #lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 15px; background: linear-gradient(135deg, #1f1f3a, #0b0b13); }
+    h1 { font-size: 32px; letter-spacing: 2px; color: #ffcc00; text-shadow: 0 0 10px #ff4757; }
+    button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 8px; background: #ff4757; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
+    button:active { transform: scale(0.95); }
+    #gameCanvas { display: none; background: #13131f; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
+    #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; z-index: 10; display: none; }
+    
+    /* HUD de Juego (Estilo Móvil) */
+    #hud { position: absolute; top: 15px; left: 15px; right: 15px; display: none; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none; }
+    .hud-box { background: rgba(0, 0, 0, 0.6); border: 1px solid #ff4757; padding: 8px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; color: #ffcc00; }
   </style>
 </head>
 <body>
@@ -19,63 +27,146 @@
   <!-- MENÚ DEL JUEGO -->
   <div id="lobby">
     <h1>ZETA BATTLE</h1>
-    <p>Selecciona Modo de Juego:</p>
-    <button onclick="joinRoom('sala_1v1', '1v1', 1)">1v1 ($1 Entrada)</button>
-    <button onclick="joinRoom('sala_4v4', '4v4', 1)">4v4 ($1 Entrada)</button>
-    <button onclick="joinRoom('sala_free', 'BR_FREE', 0)">Battle Royale (Gratis)</button>
+    <p>Modo Supervivencia Móvil</p>
+    <button onclick="joinRoom('sala_1v1', '1v1', 1)">1v1 (Escuadra)</button>
+    <button onclick="joinRoom('sala_4v4', '4v4', 1)">4v4 (Clasificatoria)</button>
+    <button onclick="joinRoom('sala_free', 'BR_FREE', 0)">Battle Royale (Entrada Libre)</button>
     <button onclick="joinRoom('sala_train', 'TRAINING', 0)">Entrenamiento</button>
   </div>
 
-  <!-- PANTALLA DE JUEGO EN TIEMPO REAL -->
+  <!-- INTERFAZ Y PANTALLA DE JUEGO -->
+  <div id="hud">
+    <div class="hud-box" id="mode-display">MODO: CLASIFICATORIA</div>
+    <div class="hud-box">VIVOS: <span id="alive-count">1</span></div>
+  </div>
+
   <canvas id="gameCanvas"></canvas>
+  <div id="joystick-zone"></div>
 
   <script>
-    // Conexión automática a tu servidor desplegado en Render
     const ws = io('https://juego-servidor.onrender.com');
     let canvas = document.getElementById('gameCanvas');
     let ctx = canvas.getContext('2d');
-    let myId = 'player_' + Math.floor(Math.random() * 1000);
+    let myId = 'Player_' + Math.floor(Math.random() * 1000);
     let players = {};
+    let myPos = { x: 300, y: 300 };
+    let moveAngle = 0; // Dirección hacia donde mira el personaje
 
     ws.on('ROOM_JOINED', (data) => {
       document.getElementById('lobby').style.display = 'none';
       canvas.style.display = 'block';
+      document.getElementById('joystick-zone').style.display = 'block';
+      document.getElementById('hud').style.display = 'flex';
+      document.getElementById('mode-display').innerText = `MODO: ${data.mode || 'BATTLE ROYALE'}`;
+      
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      myPos = { x: canvas.width / 2, y: canvas.height / 2 };
+      initJoystick();
     });
 
     ws.on('PLAYER_MOVED', (data) => {
-      players[data.playerId] = { x: data.x, y: data.y };
+      players[data.playerId] = { x: data.x, y: data.y, angle: data.angle || 0 };
       draw();
     });
 
     function joinRoom(roomId, mode, fee) {
-      ws.emit('JOIN_ROOM', {
-        roomId: roomId,
-        mode: mode,
-        entryFee: fee,
-        playerId: myId
+      ws.emit('JOIN_ROOM', { roomId: roomId, mode: mode, entryFee: fee, playerId: myId });
+    }
+
+    function initJoystick() {
+      let manager = nipplejs.create({
+        zone: document.getElementById('joystick-zone'),
+        mode: 'static',
+        position: { left: '75px', bottom: '75px' },
+        color: '#ffcc00',
+        size: 130
+      });
+
+      manager.on('move', (evt, data) => {
+        if (data && data.vector) {
+          let speed = 5;
+          myPos.x += data.vector.x * speed;
+          myPos.y -= data.vector.y * speed; 
+
+          // Guardar el ángulo de movimiento para orientar el personaje
+          if (data.angle && data.angle.radian) {
+            moveAngle = -data.angle.radian;
+          }
+
+          // Limitar dentro de la pantalla
+          myPos.x = Math.max(30, Math.min(canvas.width - 30, myPos.x));
+          myPos.y = Math.max(30, Math.min(canvas.height - 30, myPos.y));
+
+          ws.emit('MOVE', { x: myPos.x, y: myPos.y, angle: moveAngle });
+        }
       });
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let id in players) {
-        ctx.fillStyle = id === myId ? '#2ed573' : '#ff4757';
-        ctx.beginPath();
-        ctx.arc(players[id].x, players[id].y, 20, 0, Math.PI * 2);
-        ctx.fill();
+    function drawTerrain() {
+      // Dibujar estilo de mapa táctil (Arena / Zona segura)
+      ctx.fillStyle = '#111119';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Cuadrícula táctica estilo mapa de juego
+      ctx.strokeStyle = '#1c1c2e';
+      ctx.lineWidth = 1;
+      let step = 60;
+      for (let x = 0; x < canvas.width; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
       }
     }
 
-    // Controles táctiles en pantalla
-    window.addEventListener('touchstart', (e) => {
-      let touch = e.touches[0];
-      ws.emit('MOVE', {
-        x: touch.clientX,
-        y: touch.clientY
-      });
-    });
+    function draw() {
+      drawTerrain();
+
+      let count = 0;
+      for (let id in players) {
+        count++;
+        let p = players[id];
+        let isMe = (id === myId);
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        // Indicador de visión / dirección del personaje (Mirilla)
+        ctx.strokeStyle = isMe ? '#ffcc00' : '#ff4757';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 26, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Cuerpo del personaje (Color táctil)
+        ctx.fillStyle = isMe ? '#2ed573' : '#ff4757';
+        ctx.beginPath();
+        ctx.arc(0, 0, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pequeña línea indicando hacia dónde apunta
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(18, 0);
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Barra de Nombre y HP flotante estilo juego móvil
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(p.x - 40, p.y - 48, 80, 16);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(id, p.x, p.y - 36);
+      }
+
+      document.getElementById('alive-count').innerText = count;
+    }
   </script>
 </body>
 </html>
