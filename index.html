@@ -1,233 +1,243 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ZETA BATTLE - Lobby</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #0b0c10;
-      color: #fff;
-    }
-
-    /* MENÚ DE INICIO */
-    #startMenu {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle, #1f2430 0%, #0b0c10 100%);
-      z-index: 10;
-    }
-    #startMenu h1 {
-      font-size: 2.5rem;
-      color: #ff9900;
-      text-shadow: 0 0 15px rgba(255, 153, 0, 0.7);
-      margin-bottom: 5px;
-    }
-    .enter-btn {
-      margin-top: 25px;
-      padding: 12px 35px;
-      background: #ff4757;
-      border: none;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.5);
-      cursor: pointer;
-    }
-
-    /* PANTALLA DE LOBBY (ESTILO FREE FIRE) */
-    #lobbyScreen {
-      display: none;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: #11141a;
-    }
-
-    #lobbyCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    /* INTERFAZ DEL LOBBY (HUD) */
-    .top-left-profile {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .avatar-icon {
-      width: 35px;
-      height: 35px;
-      background: #ff9900;
-      border-radius: 50%;
-    }
-
-    .side-menu {
-      position: absolute;
-      left: 15px;
-      top: 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .side-btn {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: bold;
-    }
-
-    .bottom-right-panel {
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-    }
-    .mode-selector {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      color: #ff9900;
-      border: 1px solid #ff9900;
-    }
-    .start-match-btn {
-      background: #2ed573;
-      color: #000;
-      border: none;
-      padding: 14px 40px;
-      font-size: 1.2rem;
-      font-weight: 900;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(46, 213, 115, 0.5);
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zeta Battle - Mobile</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b0b0b;
+            font-family: sans-serif;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #111;
+        }
+        /* HUD Superior */
+        #hud-top {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+        .player-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        /* Controles táctiles flotantes */
+        .controls-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .touch-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+        #btn-disparo {
+            bottom: 40px;
+            right: 40px;
+            background: rgba(255, 68, 68, 0.4);
+            border-color: #ff4444;
+            width: 75px;
+            height: 75px;
+        }
+        #btn-recargar {
+            bottom: 120px;
+            right: 50px;
+            width: 50px;
+            height: 50px;
+        }
+        #btn-salto {
+            bottom: 40px;
+            right: 130px;
+        }
+        #joystick-base {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            width: 110px;
+            height: 110px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: auto;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- PANTALLA INICIAL -->
-  <div id="startMenu">
-    <h1>ZETA BATTLE</h1>
-    <p>Toca para ingresar al lobby</p>
-    <button class="enter-btn" onclick="enterLobby()">INICIAR SESIÓN</button>
-  </div>
+    <div id="game-container">
+        <!-- Lienzo del Juego -->
+        <canvas id="gameCanvas"></canvas>
 
-  <!-- PANTALLA DE LOBBY -->
-  <div id="lobbyScreen">
-    <canvas id="lobbyCanvas"></canvas>
+        <!-- Interfaz Superior (HUD) -->
+        <div id="hud-top">
+            <div class="player-card">
+                👤 Jugador_1<br>
+                <span style="font-size: 11px; color: #fff;">Nivel 15</span>
+            </div>
+            <div class="player-card" id="info-partida">
+                vivo: 12 / 50
+            </div>
+        </div>
 
-    <!-- PERFIL -->
-    <div class="top-left-profile">
-      <div class="avatar-icon"></div>
-      <div>
-        <div style="font-weight: bold; font-size: 0.85rem;">Jugador_1</div>
-        <div style="font-size: 0.7rem; color: #aaa;">Nivel 15</div>
-      </div>
+        <!-- Capa de Controles Táctiles -->
+        <div class="controls-layer">
+            <div id="joystick-base"></div>
+            <div class="touch-btn" id="btn-salto">🦘</div>
+            <div class="touch-btn" id="btn-recargar">🔄</div>
+            <div class="touch-btn" id="btn-disparo">🎯</div>
+        </div>
     </div>
 
-    <!-- MENÚ LATERAL IZQUIERDO -->
-    <div class="side-menu">
-      <button class="side-btn">TIENDA</button>
-      <button class="side-btn">ARMAS</button>
-      <button class="side-btn">INVENTARIO</button>
-      <button class="side-btn">MASCOTA</button>
-    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-    <!-- BOTÓN INICIAR Y MODO DE JUEGO -->
-    <div class="bottom-right-panel">
-      <div class="mode-selector">DE-CLASIFICATORIA (4v4)</div>
-      <button class="start-match-btn" onclick="startBattle()">INICIAR</button>
-    </div>
-  </div>
+        function ajustarCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', ajustarCanvas);
+        ajustarCanvas();
 
-  <script>
-    const startMenu = document.getElementById('startMenu');
-    const lobbyScreen = document.getElementById('lobbyScreen');
-    const canvas = document.getElementById('lobbyCanvas');
-    const ctx = canvas.getContext('2d');
+        let jugador = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            angulo: 0,
+            nombre: "Jugador_1"
+        };
 
-    function enterLobby() {
-      startMenu.style.display = 'none';
-      lobbyScreen.style.display = 'block';
+        // Función para dibujar personajes con equipo táctico estilo Free Fire
+        function dibujarPersonajeEstiloFreeFire(x, y, angulo, nombre, esAliado = true) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angulo);
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+            // 1. Sombra circular
+            ctx.beginPath();
+            ctx.arc(0, 0, 24, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+            ctx.fill();
 
-      renderLobbyScene();
-    }
+            // 2. Mochila táctica trasera
+            ctx.fillStyle = "#2d3748";
+            ctx.fillRect(-14, -18, 10, 12);
+            ctx.strokeStyle = "#4a5568";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-14, -18, 10, 12);
 
-    function renderLobbyScene() {
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 3. Uniforme militar principal
+            ctx.beginPath();
+            ctx.arc(0, 0, 16, 0, Math.PI * 2);
+            ctx.fillStyle = esAliado ? "#1a365d" : "#742a2a";
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#ffffff";
+            ctx.stroke();
 
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2 + 50;
+            // 4. Chaleco táctico
+            ctx.fillStyle = "#1a202c";
+            ctx.fillRect(-9, -10, 18, 20);
+            ctx.strokeStyle = "#cbd5e0";
+            ctx.strokeRect(-9, -10, 18, 20);
 
-        // Plataforma central brillante
-        ctx.fillStyle = 'rgba(255, 153, 0, 0.2)';
-        ctx.beginPath();
-        ctx.ellipse(centerX, centerY + 80, 120, 30, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ff9900';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+            // 5. Casco táctico con visor brillante
+            ctx.beginPath();
+            ctx.arc(0, -4, 9, 0, Math.PI * 2);
+            ctx.fillStyle = "#4a5568";
+            ctx.fill();
+            ctx.strokeStyle = "#e2e8f0";
+            ctx.stroke();
 
-        // Avatar (Representación del personaje)
-        ctx.fillStyle = '#ff4757';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 20, 25, 0, Math.PI * 2); // Cabeza
-        ctx.fill();
+            // Visor cian brillante
+            ctx.fillStyle = "#00ffff";
+            ctx.fillRect(2, -7, 6, 4);
 
-        ctx.fillStyle = '#2f3542';
-        ctx.fillRect(centerX - 20, centerY + 5, 40, 60); // Cuerpo
+            // 6. Rifle de asalto
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(6, -4, 20, 6);
+            ctx.fillStyle = '#718096';
+            ctx.fillRect(16, -5, 4, 8);
 
-        // Mascota al lado
-        ctx.fillStyle = '#eccc68';
-        ctx.beginPath();
-        ctx.arc(centerX + 60, centerY + 65, 15, 0, Math.PI * 2);
-        ctx.fill();
+            ctx.restore();
 
-        requestAnimationFrame(draw);
-      }
-      draw();
-    }
+            // 7. Tarjeta de Nombre y Rango del jugador
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(x - 55, y - 46, 110, 20);
+            ctx.strokeStyle = '#4a5568';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - 55, y - 46, 110, 20);
 
-    function startBattle() {
-      alert('¡Buscando partida estilo Battle Royale / 4v4!');
-    }
-  </script>
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`⭐ ${nombre}`, x, y - 32);
+        }
+
+        // Bucle principal de renderizado
+        function loopJuego() {
+            // Limpiar pantalla con color de terreno
+            ctx.fillStyle = "#1a1a1a";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Cuadrícula del mapa de fondo
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for (let j = 0; j < canvas.height; j += 40) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
+
+            // Dibujar al jugador principal con diseño táctico
+            dibujarPersonajeEstiloFreeFire(jugador.x, jugador.y, jugador.angulo, jugador.nombre, true);
+
+            requestAnimationFrame(loopJuego);
+        }
+
+        loopJuego();
+    </script>
 </body>
 </html>
