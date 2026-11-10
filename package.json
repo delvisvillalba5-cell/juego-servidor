@@ -1,7 +1,7 @@
 {
   "name": "juego-servidor",
   "version": "1.0.0",
-  "description": "Servidor de juego en tiempo real",
+  "description": "Servidor de Zeta Battle",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
