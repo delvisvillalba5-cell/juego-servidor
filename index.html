@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Zeta Battle</title>
+  <!-- Librería oficial de Socket.io -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
     body { background: #111; color: #fff; font-family: sans-serif; overflow: hidden; text-align: center; }
@@ -28,34 +30,32 @@
   <canvas id="gameCanvas"></canvas>
 
   <script>
-    const ws = new WebSocket('wss://tu-servidor.onrender.com'); // Aquí se conectará tu servidor
+    // Conexión automática a tu servidor desplegado en Render
+    const ws = io('https://juego-servidor.onrender.com');
     let canvas = document.getElementById('gameCanvas');
     let ctx = canvas.getContext('2d');
     let myId = 'player_' + Math.floor(Math.random() * 1000);
     let players = {};
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'ROOM_JOINED') {
-        document.getElementById('lobby').style.display = 'none';
-        canvas.style.display = 'block';
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      if (data.type === 'PLAYER_MOVED') {
-        players[data.playerId] = { x: data.x, y: data.y };
-        draw();
-      }
-    };
+    ws.on('ROOM_JOINED', (data) => {
+      document.getElementById('lobby').style.display = 'none';
+      canvas.style.display = 'block';
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    ws.on('PLAYER_MOVED', (data) => {
+      players[data.playerId] = { x: data.x, y: data.y };
+      draw();
+    });
 
     function joinRoom(roomId, mode, fee) {
-      ws.send(JSON.stringify({
-        type: 'JOIN_ROOM',
+      ws.emit('JOIN_ROOM', {
         roomId: roomId,
         mode: mode,
         entryFee: fee,
         playerId: myId
-      }));
+      });
     }
 
     function draw() {
@@ -68,14 +68,13 @@
       }
     }
 
-    // Controles táctiles simples en pantalla
+    // Controles táctiles en pantalla
     window.addEventListener('touchstart', (e) => {
       let touch = e.touches[0];
-      ws.send(JSON.stringify({
-        type: 'MOVE',
+      ws.emit('MOVE', {
         x: touch.clientX,
         y: touch.clientY
-      }));
+      });
     });
   </script>
 </body>
