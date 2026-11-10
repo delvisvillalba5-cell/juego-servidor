@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Zeta Battle</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+    body { background: #111; color: #fff; font-family: sans-serif; overflow: hidden; text-align: center; }
+    #lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 15px; }
+    button { padding: 15px 25px; font-size: 18px; border: none; border-radius: 8px; background: #ff4757; color: white; font-weight: bold; }
+    #gameCanvas { display: none; background: #222; width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ DEL JUEGO -->
+  <div id="lobby">
+    <h1>ZETA BATTLE</h1>
+    <p>Selecciona Modo de Juego:</p>
+    <button onclick="joinRoom('sala_1v1', '1v1', 1)">1v1 ($1 Entrada)</button>
+    <button onclick="joinRoom('sala_4v4', '4v4', 1)">4v4 ($1 Entrada)</button>
+    <button onclick="joinRoom('sala_free', 'BR_FREE', 0)">Battle Royale (Gratis)</button>
+    <button onclick="joinRoom('sala_train', 'TRAINING', 0)">Entrenamiento</button>
+  </div>
+
+  <!-- PANTALLA DE JUEGO EN TIEMPO REAL -->
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const ws = new WebSocket('wss://tu-servidor.onrender.com'); // Aquí se conectará tu servidor
+    let canvas = document.getElementById('gameCanvas');
+    let ctx = canvas.getContext('2d');
+    let myId = 'player_' + Math.floor(Math.random() * 1000);
+    let players = {};
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'ROOM_JOINED') {
+        document.getElementById('lobby').style.display = 'none';
+        canvas.style.display = 'block';
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      if (data.type === 'PLAYER_MOVED') {
+        players[data.playerId] = { x: data.x, y: data.y };
+        draw();
+      }
+    };
+
+    function joinRoom(roomId, mode, fee) {
+      ws.send(JSON.stringify({
+        type: 'JOIN_ROOM',
+        roomId: roomId,
+        mode: mode,
+        entryFee: fee,
+        playerId: myId
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let id in players) {
+        ctx.fillStyle = id === myId ? '#2ed573' : '#ff4757';
+        ctx.beginPath();
+        ctx.arc(players[id].x, players[id].y, 20, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Controles táctiles simples en pantalla
+    window.addEventListener('touchstart', (e) => {
+      let touch = e.touches[0];
+      ws.send(JSON.stringify({
+        type: 'MOVE',
+        x: touch.clientX,
+        y: touch.clientY
+      }));
+    });
+  </script>
+</body>
+</html>
