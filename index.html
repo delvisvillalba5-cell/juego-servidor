@@ -3,23 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Zeta Battle - Estilo Battle Royale</title>
+  <title>Zeta Battle - Battle Royale</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <!-- Librería de Joystick Virtual -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.2/nipplejs.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
     body { background: #0b0b13; color: #fff; font-family: sans-serif; overflow: hidden; text-align: center; }
+    
+    /* LOBBY / MENÚ */
     #lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 15px; background: linear-gradient(135deg, #1f1f3a, #0b0b13); }
     h1 { font-size: 32px; letter-spacing: 2px; color: #ffcc00; text-shadow: 0 0 10px #ff4757; }
-    button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 8px; background: #ff4757; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
-    button:active { transform: scale(0.95); }
+    button.lobby-btn { padding: 15px 30px; font-size: 18px; border: none; border-radius: 8px; background: #ff4757; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
+    button.lobby-btn:active { transform: scale(0.95); }
+
+    /* LIENZO DE JUEGO */
     #gameCanvas { display: none; background: #13131f; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
-    #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; z-index: 10; display: none; }
     
-    /* HUD de Juego (Estilo Móvil) */
+    /* HUD SUPERIOR */
     #hud { position: absolute; top: 15px; left: 15px; right: 15px; display: none; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none; }
     .hud-box { background: rgba(0, 0, 0, 0.6); border: 1px solid #ff4757; padding: 8px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; color: #ffcc00; }
+
+    /* ZONA DE JOYSTICK IZQUIERDA */
+    #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; z-index: 10; display: none; }
+
+    /* CONTROLES DERECHOS ESTILO FREE FIRE */
+    #controls-right { position: absolute; bottom: 25px; right: 25px; display: none; flex-direction: column; align-items: flex-end; gap: 12px; z-index: 10; }
+    .btn-action { width: 55px; height: 55px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); border: 2px solid #ffcc00; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); cursor: pointer; }
+    .btn-fire { width: 75px; height: 75px; border: 3px solid #ff4757; background: rgba(255, 71, 87, 0.3); }
+    .action-grid { display: flex; gap: 10px; }
   </style>
 </head>
 <body>
@@ -28,20 +40,30 @@
   <div id="lobby">
     <h1>ZETA BATTLE</h1>
     <p>Modo Supervivencia Móvil</p>
-    <button onclick="joinRoom('sala_1v1', '1v1', 1)">1v1 (Escuadra)</button>
-    <button onclick="joinRoom('sala_4v4', '4v4', 1)">4v4 (Clasificatoria)</button>
-    <button onclick="joinRoom('sala_free', 'BR_FREE', 0)">Battle Royale (Entrada Libre)</button>
-    <button onclick="joinRoom('sala_train', 'TRAINING', 0)">Entrenamiento</button>
+    <button class="lobby-btn" onclick="joinRoom('sala_1v1', '1v1', 1)">1v1 (Escuadra)</button>
+    <button class="lobby-btn" onclick="joinRoom('sala_4v4', '4v4', 1)">4v4 (Clasificatoria)</button>
+    <button class="lobby-btn" onclick="joinRoom('sala_free', 'BR_FREE', 0)">Battle Royale (Entrada Libre)</button>
+    <button class="lobby-btn" onclick="joinRoom('sala_train', 'TRAINING', 0)">Entrenamiento</button>
   </div>
 
-  <!-- INTERFAZ Y PANTALLA DE JUEGO -->
+  <!-- HUD Y CONTROLES EN PANTALLA -->
   <div id="hud">
-    <div class="hud-box" id="mode-display">MODO: CLASIFICATORIA</div>
+    <div class="hud-box" id="mode-display">MODO: BATTLE ROYALE</div>
     <div class="hud-box">VIVOS: <span id="alive-count">1</span></div>
   </div>
 
   <canvas id="gameCanvas"></canvas>
   <div id="joystick-zone"></div>
+
+  <!-- BOTONES DERECHOS ESTILO FREE FIRE -->
+  <div id="controls-right">
+    <button class="btn-action btn-fire" onclick="triggerAction('fire')">💥</button>
+    <div class="action-grid">
+      <button class="btn-action" onclick="triggerAction('grenade')">💣</button>
+      <button class="btn-action" onclick="triggerAction('reload')">🔄</button>
+      <button class="btn-action" onclick="triggerAction('run')">🏃</button>
+    </div>
+  </div>
 
   <script>
     const ws = io('https://juego-servidor.onrender.com');
@@ -50,12 +72,13 @@
     let myId = 'Player_' + Math.floor(Math.random() * 1000);
     let players = {};
     let myPos = { x: 300, y: 300 };
-    let moveAngle = 0; // Dirección hacia donde mira el personaje
+    let moveAngle = 0;
 
     ws.on('ROOM_JOINED', (data) => {
       document.getElementById('lobby').style.display = 'none';
       canvas.style.display = 'block';
       document.getElementById('joystick-zone').style.display = 'block';
+      document.getElementById('controls-right').style.display = 'flex';
       document.getElementById('hud').style.display = 'flex';
       document.getElementById('mode-display').innerText = `MODO: ${data.mode || 'BATTLE ROYALE'}`;
       
@@ -74,6 +97,11 @@
       ws.emit('JOIN_ROOM', { roomId: roomId, mode: mode, entryFee: fee, playerId: myId });
     }
 
+    function triggerAction(action) {
+      console.log('Acción ejecutada:', action);
+      // Aquí puedes programar efectos de disparo o granadas más adelante
+    }
+
     function initJoystick() {
       let manager = nipplejs.create({
         zone: document.getElementById('joystick-zone'),
@@ -89,12 +117,10 @@
           myPos.x += data.vector.x * speed;
           myPos.y -= data.vector.y * speed; 
 
-          // Guardar el ángulo de movimiento para orientar el personaje
           if (data.angle && data.angle.radian) {
             moveAngle = -data.angle.radian;
           }
 
-          // Limitar dentro de la pantalla
           myPos.x = Math.max(30, Math.min(canvas.width - 30, myPos.x));
           myPos.y = Math.max(30, Math.min(canvas.height - 30, myPos.y));
 
@@ -104,11 +130,9 @@
     }
 
     function drawTerrain() {
-      // Dibujar estilo de mapa táctil (Arena / Zona segura)
       ctx.fillStyle = '#111119';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Cuadrícula táctica estilo mapa de juego
       ctx.strokeStyle = '#1c1c2e';
       ctx.lineWidth = 1;
       let step = 60;
@@ -128,41 +152,49 @@
         count++;
         let p = players[id];
         let isMe = (id === myId);
+        let angle = p.angle || 0;
 
         ctx.save();
         ctx.translate(p.x, p.y);
+        ctx.rotate(angle);
 
-        // Indicador de visión / dirección del personaje (Mirilla)
-        ctx.strokeStyle = isMe ? '#ffcc00' : '#ff4757';
-        ctx.lineWidth = 3;
+        // Sombra del personaje
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
         ctx.beginPath();
-        ctx.arc(0, 0, 26, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Cuerpo del personaje (Color táctil)
-        ctx.fillStyle = isMe ? '#2ed573' : '#ff4757';
-        ctx.beginPath();
-        ctx.arc(0, 0, 20, 0, Math.PI * 2);
+        ctx.arc(4, 4, 18, 0, Math.PI * 2);
         ctx.fill();
 
-        // Pequeña línea indicando hacia dónde apunta
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 4;
+        // Cuerpo / Mochila táctica
+        ctx.fillStyle = isMe ? '#1b4d3e' : '#5c1d1d';
         ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(18, 0);
-        ctx.stroke();
+        ctx.roundRect(-14, -12, 28, 24, 6);
+        ctx.fill();
+
+        // Arma / Rifle equipado
+        ctx.fillStyle = '#333';
+        ctx.fillRect(5, -4, 22, 6);
+
+        // Cabeza / Casco
+        ctx.fillStyle = isMe ? '#2ed573' : '#ff4757';
+        ctx.beginPath();
+        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Visor o detalles
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(4, -3, 6, 6);
 
         ctx.restore();
 
-        // Barra de Nombre y HP flotante estilo juego móvil
+        // Barra de Nombre flotante
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(p.x - 40, p.y - 48, 80, 16);
+        ctx.fillRect(p.x - 45, p.y - 42, 90, 16);
         
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#ffcc00';
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(id, p.x, p.y - 36);
+        let displayName = id.length > 12 ? id.substring(0, 10) + '..' : id;
+        ctx.fillText(displayName, p.x, p.y - 30);
       }
 
       document.getElementById('alive-count').innerText = count;
