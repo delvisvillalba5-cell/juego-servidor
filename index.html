@@ -3,201 +3,230 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Zeta Battle - Battle Royale</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <!-- Librería de Joystick Virtual -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.2/nipplejs.min.js"></script>
+  <title>ZETA BATTLE - Lobby</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-    body { background: #0b0b13; color: #fff; font-family: sans-serif; overflow: hidden; text-align: center; }
-    
-    /* LOBBY / MENÚ */
-    #lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 15px; background: linear-gradient(135deg, #1f1f3a, #0b0b13); }
-    h1 { font-size: 32px; letter-spacing: 2px; color: #ffcc00; text-shadow: 0 0 10px #ff4757; }
-    button.lobby-btn { padding: 15px 30px; font-size: 18px; border: none; border-radius: 8px; background: #ff4757; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
-    button.lobby-btn:active { transform: scale(0.95); }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0b0c10;
+      color: #fff;
+    }
 
-    /* LIENZO DE JUEGO */
-    #gameCanvas { display: none; background: #13131f; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
-    
-    /* HUD SUPERIOR */
-    #hud { position: absolute; top: 15px; left: 15px; right: 15px; display: none; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none; }
-    .hud-box { background: rgba(0, 0, 0, 0.6); border: 1px solid #ff4757; padding: 8px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; color: #ffcc00; }
+    /* MENÚ DE INICIO */
+    #startMenu {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, #1f2430 0%, #0b0c10 100%);
+      z-index: 10;
+    }
+    #startMenu h1 {
+      font-size: 2.5rem;
+      color: #ff9900;
+      text-shadow: 0 0 15px rgba(255, 153, 0, 0.7);
+      margin-bottom: 5px;
+    }
+    .enter-btn {
+      margin-top: 25px;
+      padding: 12px 35px;
+      background: #ff4757;
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.5);
+      cursor: pointer;
+    }
 
-    /* ZONA DE JOYSTICK IZQUIERDA */
-    #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; z-index: 10; display: none; }
+    /* PANTALLA DE LOBBY (ESTILO FREE FIRE) */
+    #lobbyScreen {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #11141a;
+    }
 
-    /* CONTROLES DERECHOS ESTILO FREE FIRE */
-    #controls-right { position: absolute; bottom: 25px; right: 25px; display: none; flex-direction: column; align-items: flex-end; gap: 12px; z-index: 10; }
-    .btn-action { width: 55px; height: 55px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); border: 2px solid #ffcc00; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); cursor: pointer; }
-    .btn-fire { width: 75px; height: 75px; border: 3px solid #ff4757; background: rgba(255, 71, 87, 0.3); }
-    .action-grid { display: flex; gap: 10px; }
+    #lobbyCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* INTERFAZ DEL LOBBY (HUD) */
+    .top-left-profile {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .avatar-icon {
+      width: 35px;
+      height: 35px;
+      background: #ff9900;
+      border-radius: 50%;
+    }
+
+    .side-menu {
+      position: absolute;
+      left: 15px;
+      top: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .side-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .bottom-right-panel {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .mode-selector {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #ff9900;
+      border: 1px solid #ff9900;
+    }
+    .start-match-btn {
+      background: #2ed573;
+      color: #000;
+      border: none;
+      padding: 14px 40px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(46, 213, 115, 0.5);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-  <!-- MENÚ DEL JUEGO -->
-  <div id="lobby">
+  <!-- PANTALLA INICIAL -->
+  <div id="startMenu">
     <h1>ZETA BATTLE</h1>
-    <p>Modo Supervivencia Móvil</p>
-    <button class="lobby-btn" onclick="joinRoom('sala_1v1', '1v1', 1)">1v1 (Escuadra)</button>
-    <button class="lobby-btn" onclick="joinRoom('sala_4v4', '4v4', 1)">4v4 (Clasificatoria)</button>
-    <button class="lobby-btn" onclick="joinRoom('sala_free', 'BR_FREE', 0)">Battle Royale (Entrada Libre)</button>
-    <button class="lobby-btn" onclick="joinRoom('sala_train', 'TRAINING', 0)">Entrenamiento</button>
+    <p>Toca para ingresar al lobby</p>
+    <button class="enter-btn" onclick="enterLobby()">INICIAR SESIÓN</button>
   </div>
 
-  <!-- HUD Y CONTROLES EN PANTALLA -->
-  <div id="hud">
-    <div class="hud-box" id="mode-display">MODO: BATTLE ROYALE</div>
-    <div class="hud-box">VIVOS: <span id="alive-count">1</span></div>
-  </div>
+  <!-- PANTALLA DE LOBBY -->
+  <div id="lobbyScreen">
+    <canvas id="lobbyCanvas"></canvas>
 
-  <canvas id="gameCanvas"></canvas>
-  <div id="joystick-zone"></div>
+    <!-- PERFIL -->
+    <div class="top-left-profile">
+      <div class="avatar-icon"></div>
+      <div>
+        <div style="font-weight: bold; font-size: 0.85rem;">Jugador_1</div>
+        <div style="font-size: 0.7rem; color: #aaa;">Nivel 15</div>
+      </div>
+    </div>
 
-  <!-- BOTONES DERECHOS ESTILO FREE FIRE -->
-  <div id="controls-right">
-    <button class="btn-action btn-fire" onclick="triggerAction('fire')">💥</button>
-    <div class="action-grid">
-      <button class="btn-action" onclick="triggerAction('grenade')">💣</button>
-      <button class="btn-action" onclick="triggerAction('reload')">🔄</button>
-      <button class="btn-action" onclick="triggerAction('run')">🏃</button>
+    <!-- MENÚ LATERAL IZQUIERDO -->
+    <div class="side-menu">
+      <button class="side-btn">TIENDA</button>
+      <button class="side-btn">ARMAS</button>
+      <button class="side-btn">INVENTARIO</button>
+      <button class="side-btn">MASCOTA</button>
+    </div>
+
+    <!-- BOTÓN INICIAR Y MODO DE JUEGO -->
+    <div class="bottom-right-panel">
+      <div class="mode-selector">DE-CLASIFICATORIA (4v4)</div>
+      <button class="start-match-btn" onclick="startBattle()">INICIAR</button>
     </div>
   </div>
 
   <script>
-    const ws = io('https://juego-servidor.onrender.com');
-    let canvas = document.getElementById('gameCanvas');
-    let ctx = canvas.getContext('2d');
-    let myId = 'Player_' + Math.floor(Math.random() * 1000);
-    let players = {};
-    let myPos = { x: 300, y: 300 };
-    let moveAngle = 0;
+    const startMenu = document.getElementById('startMenu');
+    const lobbyScreen = document.getElementById('lobbyScreen');
+    const canvas = document.getElementById('lobbyCanvas');
+    const ctx = canvas.getContext('2d');
 
-    ws.on('ROOM_JOINED', (data) => {
-      document.getElementById('lobby').style.display = 'none';
-      canvas.style.display = 'block';
-      document.getElementById('joystick-zone').style.display = 'block';
-      document.getElementById('controls-right').style.display = 'flex';
-      document.getElementById('hud').style.display = 'flex';
-      document.getElementById('mode-display').innerText = `MODO: ${data.mode || 'BATTLE ROYALE'}`;
-      
+    function enterLobby() {
+      startMenu.style.display = 'none';
+      lobbyScreen.style.display = 'block';
+
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      myPos = { x: canvas.width / 2, y: canvas.height / 2 };
-      initJoystick();
-    });
 
-    ws.on('PLAYER_MOVED', (data) => {
-      players[data.playerId] = { x: data.x, y: data.y, angle: data.angle || 0 };
+      renderLobbyScene();
+    }
+
+    function renderLobbyScene() {
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2 + 50;
+
+        // Plataforma central brillante
+        ctx.fillStyle = 'rgba(255, 153, 0, 0.2)';
+        ctx.beginPath();
+        ctx.ellipse(centerX, centerY + 80, 120, 30, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ff9900';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Avatar (Representación del personaje)
+        ctx.fillStyle = '#ff4757';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - 20, 25, 0, Math.PI * 2); // Cabeza
+        ctx.fill();
+
+        ctx.fillStyle = '#2f3542';
+        ctx.fillRect(centerX - 20, centerY + 5, 40, 60); // Cuerpo
+
+        // Mascota al lado
+        ctx.fillStyle = '#eccc68';
+        ctx.beginPath();
+        ctx.arc(centerX + 60, centerY + 65, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        requestAnimationFrame(draw);
+      }
       draw();
-    });
-
-    function joinRoom(roomId, mode, fee) {
-      ws.emit('JOIN_ROOM', { roomId: roomId, mode: mode, entryFee: fee, playerId: myId });
     }
 
-    function triggerAction(action) {
-      console.log('Acción ejecutada:', action);
-      // Aquí puedes programar efectos de disparo o granadas más adelante
-    }
-
-    function initJoystick() {
-      let manager = nipplejs.create({
-        zone: document.getElementById('joystick-zone'),
-        mode: 'static',
-        position: { left: '75px', bottom: '75px' },
-        color: '#ffcc00',
-        size: 130
-      });
-
-      manager.on('move', (evt, data) => {
-        if (data && data.vector) {
-          let speed = 5;
-          myPos.x += data.vector.x * speed;
-          myPos.y -= data.vector.y * speed; 
-
-          if (data.angle && data.angle.radian) {
-            moveAngle = -data.angle.radian;
-          }
-
-          myPos.x = Math.max(30, Math.min(canvas.width - 30, myPos.x));
-          myPos.y = Math.max(30, Math.min(canvas.height - 30, myPos.y));
-
-          ws.emit('MOVE', { x: myPos.x, y: myPos.y, angle: moveAngle });
-        }
-      });
-    }
-
-    function drawTerrain() {
-      ctx.fillStyle = '#111119';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.strokeStyle = '#1c1c2e';
-      ctx.lineWidth = 1;
-      let step = 60;
-      for (let x = 0; x < canvas.width; x += step) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += step) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-      }
-    }
-
-    function draw() {
-      drawTerrain();
-
-      let count = 0;
-      for (let id in players) {
-        count++;
-        let p = players[id];
-        let isMe = (id === myId);
-        let angle = p.angle || 0;
-
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(angle);
-
-        // Sombra del personaje
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-        ctx.beginPath();
-        ctx.arc(4, 4, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Cuerpo / Mochila táctica
-        ctx.fillStyle = isMe ? '#1b4d3e' : '#5c1d1d';
-        ctx.beginPath();
-        ctx.roundRect(-14, -12, 28, 24, 6);
-        ctx.fill();
-
-        // Arma / Rifle equipado
-        ctx.fillStyle = '#333';
-        ctx.fillRect(5, -4, 22, 6);
-
-        // Cabeza / Casco
-        ctx.fillStyle = isMe ? '#2ed573' : '#ff4757';
-        ctx.beginPath();
-        ctx.arc(0, 0, 12, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Visor o detalles
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(4, -3, 6, 6);
-
-        ctx.restore();
-
-        // Barra de Nombre flotante
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(p.x - 45, p.y - 42, 90, 16);
-        
-        ctx.fillStyle = '#ffcc00';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'center';
-        let displayName = id.length > 12 ? id.substring(0, 10) + '..' : id;
-        ctx.fillText(displayName, p.x, p.y - 30);
-      }
-
-      document.getElementById('alive-count').innerText = count;
+    function startBattle() {
+      alert('¡Buscando partida estilo Battle Royale / 4v4!');
     }
   </script>
 </body>
