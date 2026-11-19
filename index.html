@@ -25,6 +25,7 @@
             position: relative;
             width: 100vw;
             height: 100vh;
+            background: linear-gradient(180deg, #1d4ed8 0%, #38bdf8 55%, #2d6a1e 100%);
         }
         canvas {
             position: absolute;
@@ -32,23 +33,24 @@
             display: block;
             width: 100%;
             height: 100%;
-            z-index: 1;
+            z-index: 2;
         }
 
         #error-banner {
             display: none;
             position: absolute;
-            top: 66px;
-            left: 14px;
-            right: 14px;
+            top: 56px;
+            left: 12px;
+            right: 12px;
             z-index: 70;
-            background: rgba(127, 29, 29, 0.94);
-            border: 1px solid #fca5a5;
-            color: #fef2f2;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid #facc15;
+            color: #fef08a;
             border-radius: 10px;
             padding: 8px 12px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
+            text-align: center;
         }
 
         /* ==========================================
@@ -692,36 +694,55 @@
 
     <script>
         const errorBanner = document.getElementById('error-banner');
-        function mostrarError(msg) {
+        function mostrarAviso(msg) {
             errorBanner.textContent = msg;
             errorBanner.style.display = 'block';
         }
         window.addEventListener('error', (e) => {
-            mostrarError('Error en script: ' + (e.message || 'revisa la consola'));
+            if (e && e.message) mostrarAviso('Aviso: ' + e.message);
         });
+
+        let juegoIniciado = false;
 
         function cargarThreeYArrancar() {
             const urls = [
-                'https://unpkg.com/three@0.160.0/build/three.min.js',
-                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js'
+                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
+                'https://unpkg.com/three@0.160.0/build/three.min.js'
             ];
 
+            mostrarAviso('Cargando motor 3D...');
+
             function intentar(idx) {
+                if (juegoIniciado) return;
                 if (window.THREE) {
+                    errorBanner.style.display = 'none';
+                    juegoIniciado = true;
                     iniciarJuego();
                     return;
                 }
                 if (idx >= urls.length) {
-                    mostrarError('No se pudo cargar Three.js desde internet. Revisa tu conexión.');
+                    mostrarAviso('Red lenta o sin acceso al motor 3D. Toca reintentar o recarga la página.');
                     return;
                 }
                 const s = document.createElement('script');
                 s.src = urls[idx];
+                const timer = setTimeout(() => {
+                    if (!window.THREE && !juegoIniciado) {
+                        intentar(idx + 1);
+                    }
+                }, 4500);
                 s.onload = () => {
-                    if (window.THREE) iniciarJuego();
-                    else intentar(idx + 1);
+                    clearTimeout(timer);
+                    if (window.THREE && !juegoIniciado) {
+                        errorBanner.style.display = 'none';
+                        juegoIniciado = true;
+                        iniciarJuego();
+                    }
                 };
-                s.onerror = () => intentar(idx + 1);
+                s.onerror = () => {
+                    clearTimeout(timer);
+                    if (!juegoIniciado) intentar(idx + 1);
+                };
                 document.head.appendChild(s);
             }
 
@@ -994,24 +1015,30 @@
                 entrarPartida();
             }, { passive: false });
 
-            // Escena 3D con máxima compatibilidad en móviles
             const scene = new THREE.Scene();
             scene.background = new THREE.Color(0x4ea8de);
             scene.fog = new THREE.FogExp2(0x90e0ef, 0.0052);
 
-            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 340);
+            const anchoInicial = container.clientWidth || window.innerWidth;
+            const altoInicial = container.clientHeight || window.innerHeight;
+
+            const camera = new THREE.PerspectiveCamera(60, anchoInicial / altoInicial, 0.1, 340);
             camera.position.set(0.25, 1.9, 6.2);
 
-            const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
+            renderer.setSize(anchoInicial, altoInicial, false);
+            renderer.domElement.style.width = '100%';
+            renderer.domElement.style.height = '100%';
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
             window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
+                const w = container.clientWidth || window.innerWidth;
+                const h = container.clientHeight || window.innerHeight;
+                camera.aspect = w / h;
                 camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setSize(w, h, false);
             });
 
             const luzAmbiente = new THREE.HemisphereLight(0xe0f2fe, 0x245437, 1.18);
@@ -1076,7 +1103,6 @@
             suelo.receiveShadow = true;
             scene.add(suelo);
 
-            // Cristal / portal del lobby
             const portalGrupo = new THREE.Group();
             const portalCono = new THREE.Mesh(
                 new THREE.ConeGeometry(2.35, 4.5, 4),
@@ -1098,7 +1124,6 @@
             portalGrupo.position.set(0.85, 0, -2.65);
             scene.add(portalGrupo);
 
-            // Mascota orgánica en el lobby
             const mascotaGrupo = new THREE.Group();
             const mascotaCuerpo = crearMiembroRedondeado(0.21, 0.24, new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.62 }), 14);
             mascotaCuerpo.rotation.x = Math.PI / 2;
@@ -1239,9 +1264,6 @@
             sombraJugador.position.y = 0.03;
             scene.add(sombraJugador);
 
-            // ==========================================
-            // PERSONAJE 3D HUMANO ESTILO FREE FIRE
-            // ==========================================
             const jugadorMesh = new THREE.Group();
 
             const matPiel = new THREE.MeshStandardMaterial({ color: 0xe6b287, roughness: 0.56 });
