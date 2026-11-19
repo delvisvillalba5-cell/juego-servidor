@@ -290,7 +290,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Iluminación estilo día soleado tropical
         const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x2d6a4f, 1.0);
         scene.add(luzAmbiente);
 
@@ -308,7 +307,6 @@
         luzSol.shadow.camera.bottom = -d;
         scene.add(luzSol);
 
-        // Textura procedural de suelo con pasto y motas naturales
         function crearTexturaSuelo() {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
@@ -446,102 +444,157 @@
 
         // Sombra dinámica en el suelo
         const sombraJugador = new THREE.Mesh(
-            new THREE.CircleGeometry(0.78, 24),
+            new THREE.CircleGeometry(0.75, 24),
             new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.36 })
         );
         sombraJugador.rotation.x = -Math.PI / 2;
         sombraJugador.position.y = 0.03;
         scene.add(sombraJugador);
 
-        // Personaje 3D articulado estilo battle royale
+        // ==========================================
+        // PERSONAJE 3D ESTILIZADO Y ARTICULADO
+        // ==========================================
         const jugadorMesh = new THREE.Group();
 
-        const piernaIzq = new THREE.Mesh(
-            new THREE.BoxGeometry(0.28, 0.78, 0.32),
-            new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
-        );
-        piernaIzq.position.set(-0.2, 0.39, 0);
-        piernaIzq.castShadow = true;
+        const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
+        const matCabello = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75 });
+        const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.52 });
+        const matChaleco = new THREE.MeshStandardMaterial({ color: 0x27303f, roughness: 0.65 });
+        const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.75 });
+        const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
+        const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
 
-        const piernaDer = new THREE.Mesh(
-            new THREE.BoxGeometry(0.28, 0.78, 0.32),
-            new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
-        );
-        piernaDer.position.set(0.2, 0.39, 0);
-        piernaDer.castShadow = true;
+        // Pivote de pierna izquierda (cadera)
+        const pivotePiernaIzq = new THREE.Group();
+        pivotePiernaIzq.position.set(-0.18, 0.84, 0);
+        const musloIzq = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.32, 6, 10), matPantalon);
+        musloIzq.position.y = -0.22;
+        musloIzq.castShadow = true;
+        const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.24, 0.34), matBota);
+        botaIzq.position.set(0, -0.72, 0.04);
+        botaIzq.castShadow = true;
+        pivotePiernaIzq.add(musloIzq, botaIzq);
 
-        const torso = new THREE.Mesh(
-            new THREE.BoxGeometry(0.86, 0.95, 0.48),
-            new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.55 })
-        );
-        torso.position.y = 1.24;
-        torso.castShadow = true;
+        // Pivote de pierna derecha (cadera)
+        const pivotePiernaDer = new THREE.Group();
+        pivotePiernaDer.position.set(0.18, 0.84, 0);
+        const musloDer = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.32, 6, 10), matPantalon);
+        musloDer.position.y = -0.22;
+        musloDer.castShadow = true;
+        const botaDer = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.24, 0.34), matBota);
+        botaDer.position.set(0, -0.72, 0.04);
+        botaDer.castShadow = true;
+        pivotePiernaDer.add(musloDer, botaDer);
 
-        const chaleco = new THREE.Mesh(
-            new THREE.BoxGeometry(0.92, 0.58, 0.54),
-            new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 })
-        );
-        chaleco.position.y = 1.32;
-        chaleco.castShadow = true;
+        // Grupo superior (torso, cabeza, brazos y arma)
+        const torsoGrupo = new THREE.Group();
+        torsoGrupo.position.set(0, 0.86, 0);
 
-        const cabeza = new THREE.Mesh(
-            new THREE.BoxGeometry(0.58, 0.58, 0.58),
-            new THREE.MeshStandardMaterial({ color: 0xf1c27d, roughness: 0.65 })
-        );
-        cabeza.position.y = 2.04;
-        cabeza.castShadow = true;
+        const pecho = new THREE.Mesh(new THREE.CapsuleGeometry(0.27, 0.42, 8, 12), matCamisa);
+        pecho.rotation.z = Math.PI / 2;
+        pecho.scale.set(0.75, 1.15, 0.95);
+        pecho.position.y = 0.42;
+        pecho.castShadow = true;
 
-        const cabello = new THREE.Mesh(
-            new THREE.BoxGeometry(0.62, 0.24, 0.62),
-            new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.8 })
-        );
-        cabello.position.set(0, 2.34, -0.02);
-        cabello.castShadow = true;
+        const chalecoTactico = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.46, 0.44), matChaleco);
+        chalecoTactico.position.set(0, 0.46, 0.02);
+        chalecoTactico.castShadow = true;
 
-        const mochila = new THREE.Mesh(
-            new THREE.BoxGeometry(0.58, 0.76, 0.28),
-            new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 })
-        );
-        mochila.position.set(0, 1.3, -0.36);
-        mochila.castShadow = true;
+        const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.14, 10), matPiel);
+        cuello.position.set(0, 0.78, 0.02);
 
-        const brazoIzq = new THREE.Mesh(
-            new THREE.BoxGeometry(0.22, 0.66, 0.24),
-            new THREE.MeshStandardMaterial({ color: 0xf1c27d, roughness: 0.65 })
-        );
-        brazoIzq.position.set(-0.56, 1.35, 0.12);
-        brazoIzq.castShadow = true;
+        // Cabeza redondeada estilizada + rasgos
+        const cabezaGrupo = new THREE.Group();
+        cabezaGrupo.position.set(0, 1.04, 0.03);
 
-        const brazoDer = new THREE.Mesh(
-            new THREE.BoxGeometry(0.22, 0.66, 0.24),
-            new THREE.MeshStandardMaterial({ color: 0xf1c27d, roughness: 0.65 })
-        );
-        brazoDer.position.set(0.56, 1.35, 0.15);
-        brazoDer.castShadow = true;
+        const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), matPiel);
+        craneo.scale.set(0.92, 1.06, 0.98);
+        craneo.castShadow = true;
+
+        const cabelloVolumen = new THREE.Mesh(new THREE.SphereGeometry(0.295, 16, 14), matCabello);
+        cabelloVolumen.scale.set(0.95, 0.95, 1.02);
+        cabelloVolumen.position.set(0, 0.06, -0.02);
+        cabelloVolumen.castShadow = true;
+
+        const flequillo = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.11, 0.16), matCabello);
+        flequillo.position.set(0, 0.14, 0.22);
+
+        const ojoIzq = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+        ojoIzq.position.set(-0.09, 0.01, 0.265);
+        const ojoDer = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+        ojoDer.position.set(0.09, 0.01, 0.265);
+
+        cabezaGrupo.add(craneo, cabelloVolumen, flequillo, ojoIzq, ojoDer);
+
+        // Mochila táctica con detalle
+        const mochilaGrupo = new THREE.Group();
+        mochilaGrupo.position.set(0, 0.44, -0.28);
+        const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.56, 0.22), matMochila);
+        bolsaPrincipal.castShadow = true;
+        const bolsillo = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.26, 0.08), new THREE.MeshStandardMaterial({ color: 0xc2410c, roughness: 0.55 }));
+        bolsillo.position.set(0, -0.08, -0.13);
+        mochilaGrupo.add(bolsaPrincipal, bolsillo);
+
+        // Brazo izquierdo
+        const pivoteBrazoIzq = new THREE.Group();
+        pivoteBrazoIzq.position.set(-0.42, 0.64, 0.02);
+        const brazoIzqMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.36, 6, 8), matPiel);
+        brazoIzqMesh.position.y = -0.24;
+        brazoIzqMesh.castShadow = true;
+        pivoteBrazoIzq.add(brazoIzqMesh);
+
+        // Brazo derecho + Rifle de asalto detallado
+        const pivoteBrazoDer = new THREE.Group();
+        pivoteBrazoDer.position.set(0.42, 0.64, 0.02);
+        const brazoDerMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.36, 6, 8), matPiel);
+        brazoDerMesh.position.y = -0.24;
+        brazoDerMesh.castShadow = true;
 
         const rifleGrupo = new THREE.Group();
-        const cuerpoRifle = new THREE.Mesh(
-            new THREE.BoxGeometry(0.13, 0.16, 1.15),
-            new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.45, roughness: 0.4 })
+        rifleGrupo.position.set(-0.04, -0.34, 0.38);
+
+        const receptor = new THREE.Mesh(
+            new THREE.BoxGeometry(0.09, 0.13, 0.72),
+            new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.55, roughness: 0.35 })
         );
+        const culata = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.15, 0.26),
+            new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 })
+        );
+        culata.position.set(0, -0.02, -0.44);
+
+        const cargador = new THREE.Mesh(
+            new THREE.BoxGeometry(0.06, 0.22, 0.12),
+            new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
+        );
+        cargador.rotation.x = 0.22;
+        cargador.position.set(0, -0.14, 0.08);
+
         const canion = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.035, 0.035, 0.4, 8),
-            new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.3 })
+            new THREE.CylinderGeometry(0.026, 0.026, 0.36, 8),
+            new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.75, roughness: 0.25 })
         );
         canion.rotation.x = Math.PI / 2;
-        canion.position.set(0, 0.02, 0.72);
+        canion.position.set(0, 0.02, 0.5);
+
+        const miraRifle = new THREE.Mesh(
+            new THREE.BoxGeometry(0.05, 0.06, 0.12),
+            new THREE.MeshStandardMaterial({ color: 0x09090b, metalness: 0.6, roughness: 0.3 })
+        );
+        miraRifle.position.set(0, 0.09, 0.05);
 
         const destelloDisparo = new THREE.Mesh(
-            new THREE.SphereGeometry(0.16, 8, 8),
-            new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.9 })
+            new THREE.SphereGeometry(0.14, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.92 })
         );
-        destelloDisparo.position.set(0, 0.02, 0.96);
+        destelloDisparo.position.set(0, 0.02, 0.72);
         destelloDisparo.visible = false;
 
-        rifleGrupo.add(cuerpoRifle, canion, destelloDisparo);
-        rifleGrupo.position.set(0.46, 1.32, 0.48);
+        rifleGrupo.add(receptor, culata, cargador, canion, miraRifle, destelloDisparo);
+        pivoteBrazoDer.add(brazoDerMesh, rifleGrupo);
 
-        jugadorMesh.add(piernaIzq, piernaDer, torso, chaleco, cabeza, cabello, mochila, brazoIzq, brazoDer, rifleGrupo);
+        torsoGrupo.add(pecho, chalecoTactico, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
+        jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
         scene.add(jugadorMesh);
 
         // Estado del jugador y cámara
@@ -676,13 +729,13 @@
 
             const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
             const balaMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(0.13, 8, 8),
+                new THREE.SphereGeometry(0.12, 8, 8),
                 new THREE.MeshBasicMaterial({ color: 0xfef08a })
             );
             balaMesh.position.set(
-                jugadorMesh.position.x + dir.x * 1.5,
-                jugadorMesh.position.y + (agachado ? 0.82 : 1.34),
-                jugadorMesh.position.z + dir.z * 1.5
+                jugadorMesh.position.x + dir.x * 1.45,
+                jugadorMesh.position.y + (agachado ? 0.85 : 1.32),
+                jugadorMesh.position.z + dir.z * 1.45
             );
             scene.add(balaMesh);
             proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
@@ -797,17 +850,13 @@
 
         function saltar() {
             if (!enSuelo) return;
-            if (agachado) {
-                agachado = false;
-                jugadorMesh.scale.y = 1;
-            }
+            if (agachado) agachado = false;
             velY = 0.36;
             enSuelo = false;
         }
 
         function toggleAgachar() {
             agachado = !agachado;
-            jugadorMesh.scale.y = agachado ? 0.62 : 1;
         }
 
         function vincularBoton(id, fn) {
@@ -873,19 +922,26 @@
 
             jugadorMesh.rotation.y = camYaw;
 
-            // Animación de piernas y brazos al moverse
+            // Postura agachada suave
+            const targetTorsoY = agachado ? 0.52 : 0.86;
+            torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
+            torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
+
+            // Animación de extremidades al caminar o apuntar
             if (intensidadMov > 0.05 && enSuelo) {
                 cicloPaso += dt * 0.015 * intensidadMov;
-                const angPierna = Math.sin(cicloPaso) * 0.65 * intensidadMov;
-                piernaIzq.rotation.x = angPierna;
-                piernaDer.rotation.x = -angPierna;
-                brazoIzq.rotation.x = -angPierna * 0.6;
-                brazoDer.rotation.x = angPierna * 0.45;
+                const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
+                pivotePiernaIzq.rotation.x = angPierna;
+                pivotePiernaDer.rotation.x = -angPierna;
+                pivoteBrazoIzq.rotation.x = apuntando ? -0.95 : -angPierna * 0.55;
+                pivoteBrazoDer.rotation.x = apuntando ? -1.05 : angPierna * 0.4;
             } else {
-                piernaIzq.rotation.x *= 0.8;
-                piernaDer.rotation.x *= 0.8;
-                brazoIzq.rotation.x *= 0.8;
-                brazoDer.rotation.x *= 0.8;
+                pivotePiernaIzq.rotation.x *= 0.8;
+                pivotePiernaDer.rotation.x *= 0.8;
+                const targetBrazoDer = apuntando ? -1.05 : -0.15;
+                const targetBrazoIzq = apuntando ? -0.95 : 0.1;
+                pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
+                pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
             }
 
             // Salto y gravedad
@@ -918,38 +974,39 @@
             }
 
             // Zoom de mira
-            const targetFov = apuntando ? 36 : 60;
+            const targetFov = apuntando ? 38 : 60;
             if (Math.abs(camera.fov - targetFov) > 0.2) {
                 camera.fov += (targetFov - camera.fov) * 0.18;
                 camera.updateProjectionMatrix();
             }
 
-            // Cámara en tercera persona con anti-choque contra obstáculos
-            const baseDist = apuntando ? 5.2 : 8.4;
-            const alturaCam = 2.15 + Math.sin(camPitch) * baseDist;
+            // Cámara en tercera persona (con desplazamiento al hombro al apuntar)
+            const baseDist = apuntando ? 5.6 : 8.4;
+            const alturaCam = (apuntando ? 2.45 : 2.15) + Math.sin(camPitch) * baseDist;
             let horizDist = Math.cos(camPitch) * baseDist;
 
             const dirAtrasX = -Math.sin(camYaw);
             const dirAtrasZ = -Math.cos(camYaw);
+            const hombroOffset = apuntando ? 0.85 : 0;
 
             for (const obs of obstaculos) {
-                const cx = jugadorMesh.position.x + dirAtrasX * horizDist;
-                const cz = jugadorMesh.position.z + dirAtrasZ * horizDist;
+                const cx = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
+                const cz = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
                 const distObs = Math.hypot(cx - obs.x, cz - obs.z);
                 if (distObs < obs.r + 0.9) {
-                    horizDist = Math.max(2.6, horizDist - (obs.r + 0.9 - distObs));
+                    horizDist = Math.max(2.8, horizDist - (obs.r + 0.9 - distObs));
                 }
             }
 
-            const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist;
+            const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
             const camTargetY = jugadorMesh.position.y + alturaCam;
-            const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist;
+            const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
 
             camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
             camera.lookAt(
-                jugadorMesh.position.x + Math.sin(camYaw) * 6,
-                jugadorMesh.position.y + 1.5 + Math.sin(camPitch) * 3,
-                jugadorMesh.position.z + Math.cos(camYaw) * 6
+                jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.45 : 0),
+                jugadorMesh.position.y + (apuntando ? 1.75 : 1.5) + Math.sin(camPitch) * 3,
+                jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.45 : 0)
             );
 
             renderer.render(scene, camera);
