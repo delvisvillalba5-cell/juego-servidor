@@ -650,12 +650,12 @@
                 ultimoDisparoTime = ahora;
             }
 
-            // Movimiento relativo a la dirección de la cámara/mira
+            // Movimiento relativo a la dirección de la cámara/mira (corregido izq/der)
             const velocidad = agachado ? 0.14 : 0.22;
             const forwardX = Math.sin(camYaw);
             const forwardZ = Math.cos(camYaw);
-            const rightX = Math.cos(camYaw);
-            const rightZ = -Math.sin(camYaw);
+            const rightX = -Math.cos(camYaw);
+            const rightZ = Math.sin(camYaw);
 
             // joyY negativo es empujar joystick hacia arriba (avanzar)
             const moveForward = -joyY;
