@@ -25,7 +25,7 @@
             position: relative;
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(180deg, #1d4ed8 0%, #38bdf8 55%, #2d6a1e 100%);
+            background: linear-gradient(180deg, #1e40af 0%, #38bdf8 56%, #2f6f22 100%);
         }
         canvas {
             position: absolute;
@@ -36,21 +36,21 @@
             z-index: 2;
         }
 
-        #error-banner {
+        #status-pill {
             display: none;
             position: absolute;
-            top: 56px;
-            left: 12px;
-            right: 12px;
+            top: 52px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 70;
-            background: rgba(15, 23, 42, 0.92);
-            border: 1px solid #facc15;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(250, 204, 21, 0.75);
             color: #fef08a;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 11.5px;
-            font-weight: 700;
-            text-align: center;
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 10.5px;
+            font-weight: 800;
+            white-space: nowrap;
         }
 
         /* ==========================================
@@ -279,8 +279,8 @@
             display: none;
             position: absolute;
             inset: 0;
-            z-index: 45;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 27, 75, 0.96));
+            z-index: 50;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.97), rgba(30, 27, 75, 0.97));
             flex-direction: column;
             padding: 12px 14px;
             color: #f8fafc;
@@ -588,7 +588,7 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="error-banner"></div>
+        <div id="status-pill"></div>
 
         <!-- LOBBY -->
         <div id="lobby-screen">
@@ -693,87 +693,17 @@
     </div>
 
     <script>
-        const errorBanner = document.getElementById('error-banner');
-        function mostrarAviso(msg) {
-            errorBanner.textContent = msg;
-            errorBanner.style.display = 'block';
-        }
-        window.addEventListener('error', (e) => {
-            if (e && e.message) mostrarAviso('Aviso: ' + e.message);
-        });
-
-        let juegoIniciado = false;
-
-        function cargarThreeYArrancar() {
-            const urls = [
-                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
-                'https://unpkg.com/three@0.160.0/build/three.min.js'
-            ];
-
-            mostrarAviso('Cargando motor 3D...');
-
-            function intentar(idx) {
-                if (juegoIniciado) return;
-                if (window.THREE) {
-                    errorBanner.style.display = 'none';
-                    juegoIniciado = true;
-                    iniciarJuego();
-                    return;
-                }
-                if (idx >= urls.length) {
-                    mostrarAviso('Red lenta o sin acceso al motor 3D. Toca reintentar o recarga la página.');
-                    return;
-                }
-                const s = document.createElement('script');
-                s.src = urls[idx];
-                const timer = setTimeout(() => {
-                    if (!window.THREE && !juegoIniciado) {
-                        intentar(idx + 1);
-                    }
-                }, 4500);
-                s.onload = () => {
-                    clearTimeout(timer);
-                    if (window.THREE && !juegoIniciado) {
-                        errorBanner.style.display = 'none';
-                        juegoIniciado = true;
-                        iniciarJuego();
-                    }
-                };
-                s.onerror = () => {
-                    clearTimeout(timer);
-                    if (!juegoIniciado) intentar(idx + 1);
-                };
-                document.head.appendChild(s);
-            }
-
-            intentar(0);
-        }
-
-        function crearMiembroRedondeado(radio, alto, material, segs = 12) {
-            const grupo = new THREE.Group();
-            const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radio, radio, alto, segs), material);
-            const sup = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 10), material);
-            sup.position.y = alto / 2;
-            const inf = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 10), material);
-            inf.position.y = -alto / 2;
-            grupo.add(cyl, sup, inf);
-            return grupo;
-        }
-
-        function setCastShadow(obj, cast = true, receive = false) {
-            obj.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = cast;
-                    child.receiveShadow = receive;
-                }
-            });
-        }
-
-        function iniciarJuego() {
+        (function () {
             const container = document.getElementById('game-container');
             const lobbyScreen = document.getElementById('lobby-screen');
             const gameplayUi = document.getElementById('gameplay-ui');
             const crosshair = document.getElementById('crosshair');
+            const statusPill = document.getElementById('status-pill');
+
+            function setEstado(texto, visible = true) {
+                statusPill.textContent = texto;
+                statusPill.style.display = visible ? 'block' : 'none';
+            }
 
             let enLobby = true;
             let menuAbierto = false;
@@ -783,6 +713,9 @@
             let diamantes = 85;
             let armaEquipada = 'Rifle AR Zeta';
             let presetActivo = 'Táctico 3 Dedos';
+            let balas = 30;
+            const maxBalas = 30;
+            let glooRestantes = 3;
 
             const lobbyOroEl = document.getElementById('lobby-oro');
             const lobbyDiaEl = document.getElementById('lobby-diamantes');
@@ -795,6 +728,10 @@
                 modalOroEl.textContent = oroFmt;
                 lobbyDiaEl.textContent = diamantes;
                 modalDiaEl.textContent = diamantes;
+            }
+
+            function actualizarHUD() {
+                document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
             }
 
             const datosMenus = {
@@ -941,7 +878,8 @@
                         <div class="item-desc">${item.desc}</div>
                         <button class="item-action">${item.btn}</button>
                     `;
-                    card.querySelector('.item-action').addEventListener('click', () => {
+                    card.querySelector('.item-action').addEventListener('click', (e) => {
+                        e.stopPropagation();
                         modalStatus.textContent = item.action();
                     });
                     modalGrid.appendChild(card);
@@ -959,7 +897,10 @@
                     btn.className = 'cat-item' + (idx === 0 ? ' activa' : '');
                     btn.dataset.cat = cat;
                     btn.textContent = cat;
-                    btn.addEventListener('click', () => renderizarCategoria(menuKey, cat));
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        renderizarCategoria(menuKey, cat);
+                    });
                     modalCats.appendChild(btn);
                 });
                 renderizarCategoria(menuKey, cfg.cats[0]);
@@ -972,9 +913,17 @@
                 menuAbierto = false;
             }
 
-            document.getElementById('btn-cerrar-modal').addEventListener('click', cerrarMenu);
+            document.getElementById('btn-cerrar-modal').addEventListener('click', (e) => {
+                e.stopPropagation();
+                cerrarMenu();
+            });
+
             document.querySelectorAll('[data-menu]').forEach((btn) => {
-                btn.addEventListener('click', () => abrirMenu(btn.dataset.menu));
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    abrirMenu(btn.dataset.menu);
+                });
             });
 
             const lobbyNombreEl = document.getElementById('lobby-nombre');
@@ -982,7 +931,8 @@
             const hudVivosEl = document.getElementById('hud-vivos');
             const lobbySubmodo = document.getElementById('lobby-submodo');
 
-            document.getElementById('lobby-player-btn').addEventListener('click', () => {
+            document.getElementById('lobby-player-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
                 const nuevo = prompt('Escribe tu nombre de jugador:', nombreJugador);
                 if (nuevo && nuevo.trim()) {
                     nombreJugador = nuevo.trim().slice(0, 16);
@@ -992,7 +942,8 @@
             });
 
             document.querySelectorAll('.mode-pill').forEach((btn) => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     document.querySelectorAll('.mode-pill').forEach((b) => b.classList.remove('activo'));
                     btn.classList.add('activo');
                     modoActual = btn.dataset.modo;
@@ -1009,896 +960,948 @@
             }
 
             const btnIniciar = document.getElementById('btn-iniciar-juego');
-            btnIniciar.addEventListener('click', entrarPartida);
-            btnIniciar.addEventListener('touchstart', (e) => {
-                e.preventDefault();
+            btnIniciar.addEventListener('click', (e) => {
+                e.stopPropagation();
                 entrarPartida();
-            }, { passive: false });
-
-            const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x4ea8de);
-            scene.fog = new THREE.FogExp2(0x90e0ef, 0.0052);
-
-            const anchoInicial = container.clientWidth || window.innerWidth;
-            const altoInicial = container.clientHeight || window.innerHeight;
-
-            const camera = new THREE.PerspectiveCamera(60, anchoInicial / altoInicial, 0.1, 340);
-            camera.position.set(0.25, 1.9, 6.2);
-
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
-            renderer.setSize(anchoInicial, altoInicial, false);
-            renderer.domElement.style.width = '100%';
-            renderer.domElement.style.height = '100%';
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-            renderer.shadowMap.enabled = true;
-            container.appendChild(renderer.domElement);
-
-            window.addEventListener('resize', () => {
-                const w = container.clientWidth || window.innerWidth;
-                const h = container.clientHeight || window.innerHeight;
-                camera.aspect = w / h;
-                camera.updateProjectionMatrix();
-                renderer.setSize(w, h, false);
             });
 
-            const luzAmbiente = new THREE.HemisphereLight(0xe0f2fe, 0x245437, 1.18);
-            scene.add(luzAmbiente);
+            // API de juego que se enlaza cuando Three.js termina de cargar
+            let api3D = null;
 
-            const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.45);
-            luzSol.position.set(35, 55, 28);
-            luzSol.castShadow = true;
-            scene.add(luzSol);
-
-            function crearTexturaSuelo() {
-                const canvas = document.createElement('canvas');
-                canvas.width = 512;
-                canvas.height = 512;
-                const ctx = canvas.getContext('2d');
-
-                ctx.fillStyle = '#346b1e';
-                ctx.fillRect(0, 0, 512, 512);
-
-                for (let i = 0; i < 120; i++) {
-                    const x = Math.random() * 512;
-                    const y = Math.random() * 512;
-                    const rad = 16 + Math.random() * 36;
-                    const grad = ctx.createRadialGradient(x, y, 2, x, y, rad);
-                    if (i % 3 === 0) {
-                        grad.addColorStop(0, 'rgba(120, 92, 56, 0.24)');
-                        grad.addColorStop(1, 'rgba(120, 92, 56, 0)');
-                    } else {
-                        grad.addColorStop(0, 'rgba(84, 158, 44, 0.22)');
-                        grad.addColorStop(1, 'rgba(84, 158, 44, 0)');
-                    }
-                    ctx.fillStyle = grad;
-                    ctx.beginPath();
-                    ctx.arc(x, y, rad, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                for (let i = 0; i < 4500; i++) {
-                    const x = Math.random() * 512;
-                    const y = Math.random() * 512;
-                    const len = 3 + Math.random() * 4;
-                    ctx.strokeStyle = i % 2 === 0 ? 'rgba(42, 92, 22, 0.55)' : 'rgba(107, 178, 56, 0.45)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + (Math.random() - 0.5) * 2.5, y - len);
-                    ctx.stroke();
-                }
-
-                const tex = new THREE.CanvasTexture(canvas);
-                tex.wrapS = THREE.RepeatWrapping;
-                tex.wrapT = THREE.RepeatWrapping;
-                tex.repeat.set(24, 24);
-                return tex;
-            }
-
-            const suelo = new THREE.Mesh(
-                new THREE.PlaneGeometry(180, 180),
-                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.9 })
-            );
-            suelo.rotation.x = -Math.PI / 2;
-            suelo.receiveShadow = true;
-            scene.add(suelo);
-
-            const portalGrupo = new THREE.Group();
-            const portalCono = new THREE.Mesh(
-                new THREE.ConeGeometry(2.35, 4.5, 4),
-                new THREE.MeshStandardMaterial({
-                    color: 0x7c3aed,
-                    emissive: 0x5b21b6,
-                    emissiveIntensity: 0.55,
-                    transparent: true,
-                    opacity: 0.62
-                })
-            );
-            portalCono.position.y = 2.25;
-            const portalBase = new THREE.Mesh(
-                new THREE.CylinderGeometry(2.5, 2.75, 0.22, 20),
-                new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.5 })
-            );
-            portalBase.position.y = 0.11;
-            portalGrupo.add(portalCono, portalBase);
-            portalGrupo.position.set(0.85, 0, -2.65);
-            scene.add(portalGrupo);
-
-            const mascotaGrupo = new THREE.Group();
-            const mascotaCuerpo = crearMiembroRedondeado(0.21, 0.24, new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.62 }), 14);
-            mascotaCuerpo.rotation.x = Math.PI / 2;
-            mascotaCuerpo.position.set(0, 0.28, 0);
-
-            const mascotaCabeza = new THREE.Mesh(
-                new THREE.SphereGeometry(0.22, 16, 14),
-                new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.58 })
-            );
-            mascotaCabeza.scale.set(1.05, 0.95, 1.12);
-            mascotaCabeza.position.set(0, 0.49, 0.24);
-
-            const orejaIzq = new THREE.Mesh(
-                new THREE.ConeGeometry(0.08, 0.18, 10),
-                new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7 })
-            );
-            orejaIzq.position.set(-0.13, 0.68, 0.22);
-            orejaIzq.rotation.z = 0.22;
-
-            const orejaDer = orejaIzq.clone();
-            orejaDer.position.x = 0.13;
-            orejaDer.rotation.z = -0.22;
-
-            const ojoMascotaIzq = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshBasicMaterial({ color: 0x111827 }));
-            ojoMascotaIzq.position.set(-0.08, 0.52, 0.43);
-            const ojoMascotaDer = ojoMascotaIzq.clone();
-            ojoMascotaDer.position.x = 0.08;
-
-            const pataM1 = crearMiembroRedondeado(0.055, 0.08, new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.7 }), 10);
-            pataM1.position.set(-0.13, 0.09, 0.16);
-            const pataM2 = pataM1.clone();
-            pataM2.position.x = 0.13;
-            const pataM3 = pataM1.clone();
-            pataM3.position.z = -0.15;
-            const pataM4 = pataM1.clone();
-            pataM4.position.set(0.13, 0.09, -0.15);
-
-            mascotaGrupo.add(mascotaCuerpo, mascotaCabeza, orejaIzq, orejaDer, ojoMascotaIzq, ojoMascotaDer, pataM1, pataM2, pataM3, pataM4);
-            setCastShadow(mascotaGrupo, true, false);
-            mascotaGrupo.position.set(1.05, 0, 0.25);
-            scene.add(mascotaGrupo);
-
-            const obstaculos = [];
-
-            function crearArbolRealista(x, z, escala = 1) {
+            function crearMiembroRedondeado(radio, alto, material, segs = 12) {
                 const grupo = new THREE.Group();
-
-                const tronco = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.28 * escala, 0.48 * escala, 3.0 * escala, 12),
-                    new THREE.MeshStandardMaterial({ color: 0x54331b, roughness: 0.94 })
-                );
-                tronco.position.y = 1.5 * escala;
-
-                const copaBaja = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(2.1 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x1a5922, roughness: 0.82 })
-                );
-                copaBaja.position.set(0, 3.4 * escala, 0);
-                copaBaja.scale.set(1.15, 0.74, 1.12);
-
-                const copaMedia = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.65 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x26732d, roughness: 0.78 })
-                );
-                copaMedia.position.set(0.25 * escala, 4.25 * escala, -0.15 * escala);
-
-                const copaAlta = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.2 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x358f3b, roughness: 0.74 })
-                );
-                copaAlta.position.set(-0.2 * escala, 4.95 * escala, 0.15 * escala);
-
-                grupo.add(tronco, copaBaja, copaMedia, copaAlta);
-                setCastShadow(grupo, true, true);
-                grupo.position.set(x, 0, z);
-                scene.add(grupo);
-                obstaculos.push({ x, z, r: 0.85 * escala });
+                const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radio, radio, alto, segs), material);
+                const sup = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 10), material);
+                sup.position.y = alto / 2;
+                const inf = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 10), material);
+                inf.position.y = -alto / 2;
+                grupo.add(cyl, sup, inf);
+                return grupo;
             }
 
-            function crearCajaSuministro(x, z, rotY = 0) {
-                const grupo = new THREE.Group();
-                const base = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.4, 1.5, 2.4),
-                    new THREE.MeshStandardMaterial({ color: 0x8f3d1d, roughness: 0.72, metalness: 0.08 })
-                );
-                base.position.y = 0.75;
-
-                const marcoSup = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.48, 0.16, 2.48),
-                    new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.45, metalness: 0.25 })
-                );
-                marcoSup.position.y = 1.44;
-
-                const marcoInf = marcoSup.clone();
-                marcoInf.position.y = 0.1;
-
-                grupo.add(base, marcoSup, marcoInf);
-                setCastShadow(grupo, true, true);
-                grupo.position.set(x, 0, z);
-                grupo.rotation.y = rotY;
-                scene.add(grupo);
-                obstaculos.push({ x, z, r: 1.55 });
-            }
-
-            function crearRoca(x, z, escala = 1) {
-                const roca = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.35 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x5c6b7e, roughness: 0.9, metalness: 0.08 })
-                );
-                roca.position.set(x, 0.68 * escala, z);
-                roca.scale.set(1.28, 0.76, 1.08);
-                roca.castShadow = true;
-                roca.receiveShadow = true;
-                scene.add(roca);
-                obstaculos.push({ x, z, r: 1.2 * escala });
-            }
-
-            for (let i = 0; i < 30; i++) {
-                const ang = (i / 30) * Math.PI * 2;
-                const dist = 15 + (i % 3) * 14;
-                const esc = 0.85 + (i % 4) * 0.14;
-                crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
-            }
-
-            crearCajaSuministro(6, 6, 0.25);
-            crearCajaSuministro(-8, 10, -0.4);
-            crearCajaSuministro(10, -8, 0.7);
-            crearCajaSuministro(-6, -6, 0.1);
-            crearRoca(13, 4, 1.1);
-            crearRoca(-12, -3, 1.35);
-            crearRoca(3, -15, 0.95);
-
-            const sombraJugador = new THREE.Mesh(
-                new THREE.CircleGeometry(0.75, 24),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.36 })
-            );
-            sombraJugador.rotation.x = -Math.PI / 2;
-            sombraJugador.position.y = 0.03;
-            scene.add(sombraJugador);
-
-            const jugadorMesh = new THREE.Group();
-
-            const matPiel = new THREE.MeshStandardMaterial({ color: 0xe6b287, roughness: 0.56 });
-            const matCabello = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.68 });
-            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.52 });
-            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.56, metalness: 0.18 });
-            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.76 });
-            const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.42, metalness: 0.16 });
-            const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.46, metalness: 0.1 });
-
-            function crearPiernaHumana(ladoX) {
-                const pivote = new THREE.Group();
-                pivote.position.set(ladoX, 0.86, 0);
-
-                const cadera = new THREE.Mesh(new THREE.SphereGeometry(0.115, 14, 12), matPantalon);
-                cadera.scale.set(1.05, 0.95, 1.15);
-
-                const muslo = crearMiembroRedondeado(0.105, 0.22, matPantalon, 14);
-                muslo.position.set(0, -0.19, 0.01);
-
-                const rodilla = new THREE.Mesh(new THREE.SphereGeometry(0.098, 12, 10), matPantalon);
-                rodilla.position.set(0, -0.36, 0.02);
-
-                const pantorrilla = crearMiembroRedondeado(0.088, 0.22, matPantalon, 14);
-                pantorrilla.position.set(0, -0.53, -0.01);
-
-                const botaCuerpo = crearMiembroRedondeado(0.095, 0.09, matBota, 12);
-                botaCuerpo.position.set(0, -0.71, 0.01);
-
-                const puntera = new THREE.Mesh(new THREE.SphereGeometry(0.096, 12, 10), matBota);
-                puntera.scale.set(1.02, 0.72, 1.48);
-                puntera.position.set(0, -0.75, 0.08);
-
-                pivote.add(cadera, muslo, rodilla, pantorrilla, botaCuerpo, puntera);
-                setCastShadow(pivote, true, false);
-                return pivote;
-            }
-
-            const pivotePiernaIzq = crearPiernaHumana(-0.165);
-            const pivotePiernaDer = crearPiernaHumana(0.165);
-
-            const torsoGrupo = new THREE.Group();
-            torsoGrupo.position.set(0, 0.86, 0);
-
-            const cintura = crearMiembroRedondeado(0.18, 0.14, matCamisa, 16);
-            cintura.rotation.z = Math.PI / 2;
-            cintura.scale.set(0.75, 1.05, 1.0);
-            cintura.position.set(0, 0.14, 0);
-
-            const pecho = crearMiembroRedondeado(0.22, 0.34, matCamisa, 18);
-            pecho.rotation.z = Math.PI / 2;
-            pecho.scale.set(0.72, 1.15, 1.02);
-            pecho.position.set(0, 0.44, 0.01);
-
-            const chalecoTactico = crearMiembroRedondeado(0.23, 0.2, matChaleco, 16);
-            chalecoTactico.rotation.z = Math.PI / 2;
-            chalecoTactico.scale.set(0.78, 1.16, 1.04);
-            chalecoTactico.position.set(0, 0.48, 0.015);
-
-            const cinturon = crearMiembroRedondeado(0.185, 0.22, matBota, 14);
-            cinturon.rotation.z = Math.PI / 2;
-            cinturon.scale.set(0.78, 1.06, 0.32);
-            cinturon.position.set(0, 0.05, 0);
-
-            const cuello = crearMiembroRedondeado(0.085, 0.08, matPiel, 12);
-            cuello.position.set(0, 0.77, 0.01);
-
-            const cabezaGrupo = new THREE.Group();
-            cabezaGrupo.position.set(0, 1.03, 0.02);
-
-            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.235, 20, 18), matPiel);
-            craneo.scale.set(0.88, 1.08, 0.96);
-
-            const mandibula = new THREE.Mesh(new THREE.SphereGeometry(0.175, 16, 14), matPiel);
-            mandibula.scale.set(0.86, 0.72, 0.92);
-            mandibula.position.set(0, -0.11, 0.03);
-
-            const nariz = new THREE.Mesh(new THREE.ConeGeometry(0.032, 0.075, 8), matPiel);
-            nariz.rotation.x = Math.PI * 0.42;
-            nariz.position.set(0, -0.01, 0.235);
-
-            const orejaIzq = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10), matPiel);
-            orejaIzq.scale.set(0.45, 1.15, 0.85);
-            orejaIzq.position.set(-0.205, -0.01, -0.01);
-
-            const orejaDer = orejaIzq.clone();
-            orejaDer.position.x = 0.205;
-
-            const cabelloBase = new THREE.Mesh(new THREE.SphereGeometry(0.248, 20, 18), matCabello);
-            cabelloBase.scale.set(0.92, 0.96, 1.03);
-            cabelloBase.position.set(0, 0.055, -0.025);
-
-            const mechon1 = crearMiembroRedondeado(0.055, 0.1, matCabello, 10);
-            mechon1.rotation.x = 0.85;
-            mechon1.rotation.z = 0.18;
-            mechon1.position.set(-0.07, 0.16, 0.19);
-
-            const mechon2 = crearMiembroRedondeado(0.052, 0.09, matCabello, 10);
-            mechon2.rotation.x = 0.82;
-            mechon2.rotation.z = -0.16;
-            mechon2.position.set(0.06, 0.15, 0.195);
-
-            const cejaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.022, 0.025), matCabello);
-            cejaIzq.position.set(-0.078, 0.058, 0.215);
-            cejaIzq.rotation.z = -0.08;
-            const cejaDer = cejaIzq.clone();
-            cejaDer.position.x = 0.078;
-            cejaDer.rotation.z = 0.08;
-
-            const ojoBlancoIzq = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 10), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
-            ojoBlancoIzq.scale.set(1.15, 0.8, 0.5);
-            ojoBlancoIzq.position.set(-0.076, 0.022, 0.218);
-
-            const irisIzq = new THREE.Mesh(new THREE.SphereGeometry(0.019, 8, 8), new THREE.MeshBasicMaterial({ color: 0x1e1b18 }));
-            irisIzq.position.set(-0.076, 0.022, 0.23);
-
-            const ojoBlancoDer = ojoBlancoIzq.clone();
-            ojoBlancoDer.position.x = 0.076;
-            const irisDer = irisIzq.clone();
-            irisDer.position.x = 0.076;
-
-            cabezaGrupo.add(
-                craneo, mandibula, nariz, orejaIzq, orejaDer,
-                cabelloBase, mechon1, mechon2,
-                cejaIzq, cejaDer, ojoBlancoIzq, irisIzq, ojoBlancoDer, irisDer
-            );
-
-            const mochilaGrupo = new THREE.Group();
-            mochilaGrupo.position.set(0, 0.42, -0.22);
-            const bolsaPrincipal = crearMiembroRedondeado(0.16, 0.22, matMochila, 14);
-            bolsaPrincipal.scale.set(1.15, 1.0, 0.65);
-            const bolsilloSuperior = crearMiembroRedondeado(0.11, 0.09, matChaleco, 12);
-            bolsilloSuperior.scale.set(1.1, 1.0, 0.6);
-            bolsilloSuperior.position.set(0, 0.08, -0.09);
-            mochilaGrupo.add(bolsaPrincipal, bolsilloSuperior);
-
-            function crearBrazoHumano(ladoX) {
-                const pivote = new THREE.Group();
-                pivote.position.set(ladoX, 0.63, 0);
-
-                const hombro = new THREE.Mesh(new THREE.SphereGeometry(0.095, 12, 12), matCamisa);
-                const brazoSup = crearMiembroRedondeado(0.075, 0.16, matCamisa, 12);
-                brazoSup.position.set(0, -0.14, 0);
-
-                const codo = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), matPiel);
-                codo.position.set(0, -0.26, 0.01);
-
-                const antebrazo = crearMiembroRedondeado(0.065, 0.16, matPiel, 12);
-                antebrazo.position.set(0, -0.39, 0.02);
-
-                const mano = new THREE.Mesh(new THREE.SphereGeometry(0.064, 10, 10), matPiel);
-                mano.scale.set(0.85, 1.1, 1.15);
-                mano.position.set(0, -0.51, 0.03);
-
-                pivote.add(hombro, brazoSup, codo, antebrazo, mano);
-                setCastShadow(pivote, true, false);
-                return pivote;
-            }
-
-            const pivoteBrazoIzq = crearBrazoHumano(-0.35);
-            const pivoteBrazoDer = crearBrazoHumano(0.35);
-
-            const rifleGrupo = new THREE.Group();
-            rifleGrupo.position.set(-0.03, -0.47, 0.24);
-
-            const receptor = new THREE.Mesh(
-                new THREE.BoxGeometry(0.075, 0.105, 0.66),
-                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.65, roughness: 0.28 })
-            );
-            const culata = crearMiembroRedondeado(0.048, 0.12, new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 }), 10);
-            culata.rotation.x = Math.PI / 2;
-            culata.position.set(0, -0.02, -0.39);
-
-            const cargador = new THREE.Mesh(
-                new THREE.BoxGeometry(0.048, 0.19, 0.1),
-                new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.45, metalness: 0.3 })
-            );
-            cargador.rotation.x = 0.22;
-            cargador.position.set(0, -0.12, 0.08);
-
-            const canion = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.022, 0.022, 0.34, 10),
-                new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 })
-            );
-            canion.rotation.x = Math.PI / 2;
-            canion.position.set(0, 0.02, 0.46);
-
-            const destelloDisparo = new THREE.Mesh(
-                new THREE.SphereGeometry(0.14, 8, 8),
-                new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.94 })
-            );
-            destelloDisparo.position.set(0, 0.02, 0.66);
-            destelloDisparo.visible = false;
-
-            rifleGrupo.add(receptor, culata, cargador, canion, destelloDisparo);
-            setCastShadow(rifleGrupo, true, false);
-            pivoteBrazoDer.add(rifleGrupo);
-
-            torsoGrupo.add(cintura, pecho, chalecoTactico, cinturon, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
-            setCastShadow(torsoGrupo, true, false);
-            jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
-            scene.add(jugadorMesh);
-
-            let velY = 0;
-            let enSuelo = true;
-            let agachado = false;
-            let apuntando = false;
-            let balas = 30;
-            const maxBalas = 30;
-            let glooRestantes = 3;
-            let tiempoDestello = 0;
-            let cicloPaso = 0;
-            const proyectiles = [];
-
-            let camYaw = 0;
-            let camPitch = 0.22;
-            const sensibilidad = 0.0055;
-
-            function actualizarHUD() {
-                document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
-            }
-
-            const joystickBase = document.getElementById('joystick-base');
-            const joystickStick = document.getElementById('joystick-stick');
-            let joyActivo = false, joyTouchId = null, joyX = 0, joyY = 0;
-            const maxRadio = 36;
-
-            function actualizarJoystick(touch) {
-                const rect = joystickBase.getBoundingClientRect();
-                let dx = touch.clientX - (rect.left + rect.width / 2);
-                let dy = touch.clientY - (rect.top + rect.height / 2);
-                const dist = Math.hypot(dx, dy);
-                if (dist > maxRadio) {
-                    dx = (dx / dist) * maxRadio;
-                    dy = (dy / dist) * maxRadio;
-                }
-                joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
-                joyX = dx / maxRadio;
-                joyY = dy / maxRadio;
-            }
-
-            joystickBase.addEventListener('touchstart', (e) => {
-                if (enLobby || menuAbierto) return;
-                e.preventDefault();
-                e.stopPropagation();
-                joyActivo = true;
-                joyTouchId = e.changedTouches[0].identifier;
-                actualizarJoystick(e.changedTouches[0]);
-            }, { passive: false });
-
-            joystickBase.addEventListener('touchmove', (e) => {
-                if (enLobby || menuAbierto) return;
-                e.preventDefault();
-                e.stopPropagation();
-                if (!joyActivo) return;
-                for (const t of e.changedTouches) {
-                    if (t.identifier === joyTouchId) actualizarJoystick(t);
-                }
-            }, { passive: false });
-
-            function soltarJoystick(e) {
-                for (const t of e.changedTouches) {
-                    if (t.identifier === joyTouchId) {
-                        joyActivo = false; joyTouchId = null; joyX = 0; joyY = 0;
-                        joystickStick.style.transform = 'translate(0px, 0px)';
+            function setCastShadow(obj, cast = true, receive = false) {
+                obj.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = cast;
+                        child.receiveShadow = receive;
                     }
-                }
-            }
-            joystickBase.addEventListener('touchend', soltarJoystick);
-            joystickBase.addEventListener('touchcancel', soltarJoystick);
-
-            const aimZone = document.getElementById('aim-zone');
-            let aimTouchId = null;
-            let lastAimX = 0;
-            let lastAimY = 0;
-
-            function aplicarRotacionMira(deltaX, deltaY, factorVertical = 1) {
-                camYaw -= deltaX * sensibilidad;
-                camPitch = Math.max(-0.22, Math.min(0.72, camPitch + deltaY * sensibilidad * factorVertical));
-                jugadorMesh.rotation.y = camYaw;
+                });
             }
 
-            aimZone.addEventListener('touchstart', (e) => {
-                if (enLobby || menuAbierto) return;
-                e.preventDefault();
-                if (aimTouchId !== null) return;
-                const t = e.changedTouches[0];
-                aimTouchId = t.identifier;
-                lastAimX = t.clientX;
-                lastAimY = t.clientY;
-            }, { passive: false });
+            function montarEscena3D() {
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x4ea8de);
+                scene.fog = new THREE.FogExp2(0x90e0ef, 0.0052);
 
-            aimZone.addEventListener('touchmove', (e) => {
-                if (enLobby || menuAbierto) return;
-                e.preventDefault();
-                if (aimTouchId === null) return;
-                for (const t of e.changedTouches) {
-                    if (t.identifier === aimTouchId) {
-                        const dx = t.clientX - lastAimX;
-                        const dy = t.clientY - lastAimY;
-                        lastAimX = t.clientX;
-                        lastAimY = t.clientY;
-                        aplicarRotacionMira(dx, dy, 1);
+                const w0 = container.clientWidth || window.innerWidth;
+                const h0 = container.clientHeight || window.innerHeight;
+
+                const camera = new THREE.PerspectiveCamera(60, w0 / h0, 0.1, 340);
+                camera.position.set(0.25, 1.9, 6.2);
+
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
+                renderer.setSize(w0, h0, false);
+                renderer.domElement.style.width = '100%';
+                renderer.domElement.style.height = '100%';
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                renderer.shadowMap.enabled = true;
+                container.appendChild(renderer.domElement);
+
+                window.addEventListener('resize', () => {
+                    const w = container.clientWidth || window.innerWidth;
+                    const h = container.clientHeight || window.innerHeight;
+                    camera.aspect = w / h;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(w, h, false);
+                });
+
+                const luzAmbiente = new THREE.HemisphereLight(0xe0f2fe, 0x245437, 1.18);
+                scene.add(luzAmbiente);
+
+                const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.45);
+                luzSol.position.set(35, 55, 28);
+                luzSol.castShadow = true;
+                scene.add(luzSol);
+
+                function crearTexturaSuelo() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 512;
+                    canvas.height = 512;
+                    const ctx = canvas.getContext('2d');
+
+                    ctx.fillStyle = '#346b1e';
+                    ctx.fillRect(0, 0, 512, 512);
+
+                    for (let i = 0; i < 120; i++) {
+                        const x = Math.random() * 512;
+                        const y = Math.random() * 512;
+                        const rad = 16 + Math.random() * 36;
+                        const grad = ctx.createRadialGradient(x, y, 2, x, y, rad);
+                        if (i % 3 === 0) {
+                            grad.addColorStop(0, 'rgba(120, 92, 56, 0.24)');
+                            grad.addColorStop(1, 'rgba(120, 92, 56, 0)');
+                        } else {
+                            grad.addColorStop(0, 'rgba(84, 158, 44, 0.22)');
+                            grad.addColorStop(1, 'rgba(84, 158, 44, 0)');
+                        }
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(x, y, rad, 0, Math.PI * 2);
+                        ctx.fill();
                     }
-                }
-            }, { passive: false });
 
-            function soltarMira(e) {
-                for (const t of e.changedTouches) {
-                    if (t.identifier === aimTouchId) {
-                        aimTouchId = null;
+                    for (let i = 0; i < 4500; i++) {
+                        const x = Math.random() * 512;
+                        const y = Math.random() * 512;
+                        const len = 3 + Math.random() * 4;
+                        ctx.strokeStyle = i % 2 === 0 ? 'rgba(42, 92, 22, 0.55)' : 'rgba(107, 178, 56, 0.45)';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + (Math.random() - 0.5) * 2.5, y - len);
+                        ctx.stroke();
                     }
+
+                    const tex = new THREE.CanvasTexture(canvas);
+                    tex.wrapS = THREE.RepeatWrapping;
+                    tex.wrapT = THREE.RepeatWrapping;
+                    tex.repeat.set(24, 24);
+                    return tex;
                 }
-            }
-            aimZone.addEventListener('touchend', soltarMira);
-            aimZone.addEventListener('touchcancel', soltarMira);
 
-            const btnDisparo = document.getElementById('btn-disparo');
-            let disparando = false;
-            let fireTouchId = null;
-            let lastFireX = 0;
-            let lastFireY = 0;
-            let ultimoDisparoTime = 0;
-            const intervaloDisparo = 140;
-
-            function disparar() {
-                if (enLobby || menuAbierto || balas <= 0) return;
-                balas--;
-                actualizarHUD();
-
-                destelloDisparo.visible = true;
-                tiempoDestello = 45;
-
-                const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
-                const balaMesh = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.12, 8, 8),
-                    new THREE.MeshBasicMaterial({ color: 0xfef08a })
+                const suelo = new THREE.Mesh(
+                    new THREE.PlaneGeometry(180, 180),
+                    new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.9 })
                 );
-                balaMesh.position.set(
-                    jugadorMesh.position.x + dir.x * 1.45,
-                    jugadorMesh.position.y + (agachado ? 0.85 : 1.32),
-                    jugadorMesh.position.z + dir.z * 1.45
-                );
-                scene.add(balaMesh);
-                proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
-            }
+                suelo.rotation.x = -Math.PI / 2;
+                suelo.receiveShadow = true;
+                scene.add(suelo);
 
-            btnDisparo.addEventListener('touchstart', (e) => {
-                if (enLobby || menuAbierto) return;
-                e.preventDefault();
-                e.stopPropagation();
-                if (fireTouchId !== null) return;
-                const t = e.changedTouches[0];
-                fireTouchId = t.identifier;
-                lastFireX = t.clientX;
-                lastFireY = t.clientY;
-                disparando = true;
-                btnDisparo.classList.add('active');
-                disparar();
-                ultimoDisparoTime = performance.now();
-            }, { passive: false });
-
-            btnDisparo.addEventListener('touchmove', (e) => {
-                if (enLobby || menuAbierto) return;
-                e.preventDefault();
-                e.stopPropagation();
-                if (!disparando || fireTouchId === null) return;
-                for (const t of e.changedTouches) {
-                    if (t.identifier === fireTouchId) {
-                        const dx = t.clientX - lastFireX;
-                        const dy = t.clientY - lastFireY;
-                        lastFireX = t.clientX;
-                        lastFireY = t.clientY;
-                        aplicarRotacionMira(dx * 0.55, dy * 0.55, 0.85);
-                    }
-                }
-            }, { passive: false });
-
-            function soltarDisparo(e) {
-                for (const t of e.changedTouches) {
-                    if (t.identifier === fireTouchId) {
-                        disparando = false;
-                        fireTouchId = null;
-                        btnDisparo.classList.remove('active');
-                    }
-                }
-            }
-            btnDisparo.addEventListener('touchend', soltarDisparo);
-            btnDisparo.addEventListener('touchcancel', soltarDisparo);
-            btnDisparo.addEventListener('mousedown', () => {
-                if (enLobby || menuAbierto) return;
-                disparando = true;
-                disparar();
-                ultimoDisparoTime = performance.now();
-            });
-            window.addEventListener('mouseup', () => { disparando = false; });
-
-            const btnMira = document.getElementById('btn-mira');
-            function toggleMira() {
-                if (enLobby || menuAbierto) return;
-                apuntando = !apuntando;
-                btnMira.classList.toggle('active', apuntando);
-                crosshair.style.display = apuntando ? 'block' : 'none';
-            }
-            btnMira.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleMira();
-            }, { passive: false });
-            btnMira.addEventListener('click', toggleMira);
-
-            function ponerGloo() {
-                if (enLobby || menuAbierto || glooRestantes <= 0) return;
-                glooRestantes--;
-                actualizarHUD();
-
-                const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
-                const glooGrupo = new THREE.Group();
-
-                const panel = new THREE.Mesh(
-                    new THREE.BoxGeometry(3.3, 2.25, 0.34),
+                const portalGrupo = new THREE.Group();
+                const portalCono = new THREE.Mesh(
+                    new THREE.ConeGeometry(2.35, 4.5, 4),
                     new THREE.MeshStandardMaterial({
-                        color: 0x38bdf8,
-                        emissive: 0x0284c7,
-                        emissiveIntensity: 0.3,
-                        roughness: 0.2,
-                        metalness: 0.15,
+                        color: 0x7c3aed,
+                        emissive: 0x5b21b6,
+                        emissiveIntensity: 0.55,
                         transparent: true,
-                        opacity: 0.72
+                        opacity: 0.62
                     })
                 );
-                panel.position.y = 1.12;
-                panel.castShadow = true;
-                panel.receiveShadow = true;
+                portalCono.position.y = 2.25;
+                const portalBase = new THREE.Mesh(
+                    new THREE.CylinderGeometry(2.5, 2.75, 0.22, 20),
+                    new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.5 })
+                );
+                portalBase.position.y = 0.11;
+                portalGrupo.add(portalCono, portalBase);
+                portalGrupo.position.set(0.85, 0, -2.65);
+                scene.add(portalGrupo);
 
-                glooGrupo.add(panel);
-                const gx = jugadorMesh.position.x + dir.x * 3.1;
-                const gz = jugadorMesh.position.z + dir.z * 3.1;
-                glooGrupo.position.set(gx, 0, gz);
-                glooGrupo.rotation.y = jugadorMesh.rotation.y;
-                scene.add(glooGrupo);
-                obstaculos.push({ x: gx, z: gz, r: 1.45 });
-            }
+                const mascotaGrupo = new THREE.Group();
+                const mascotaCuerpo = crearMiembroRedondeado(0.21, 0.24, new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.62 }), 14);
+                mascotaCuerpo.rotation.x = Math.PI / 2;
+                mascotaCuerpo.position.set(0, 0.28, 0);
 
-            function recargar() {
-                if (enLobby || menuAbierto) return;
-                balas = maxBalas;
-                actualizarHUD();
-            }
+                const mascotaCabeza = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.22, 16, 14),
+                    new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.58 })
+                );
+                mascotaCabeza.scale.set(1.05, 0.95, 1.12);
+                mascotaCabeza.position.set(0, 0.49, 0.24);
 
-            function saltar() {
-                if (enLobby || menuAbierto || !enSuelo) return;
-                if (agachado) agachado = false;
-                velY = 0.36;
-                enSuelo = false;
-            }
+                const orejaIzq = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.08, 0.18, 10),
+                    new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7 })
+                );
+                orejaIzq.position.set(-0.13, 0.68, 0.22);
+                orejaIzq.rotation.z = 0.22;
 
-            function toggleAgachar() {
-                if (enLobby || menuAbierto) return;
-                agachado = !agachado;
-            }
+                const orejaDer = orejaIzq.clone();
+                orejaDer.position.x = 0.13;
+                orejaDer.rotation.z = -0.22;
 
-            function vincularBoton(id, fn) {
-                const el = document.getElementById(id);
-                el.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fn();
-                }, { passive: false });
-                el.addEventListener('click', fn);
-            }
+                const ojoMascotaIzq = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+                ojoMascotaIzq.position.set(-0.08, 0.52, 0.43);
+                const ojoMascotaDer = ojoMascotaIzq.clone();
+                ojoMascotaDer.position.x = 0.08;
 
-            vincularBoton('btn-gloo', ponerGloo);
-            vincularBoton('btn-recargar', recargar);
-            vincularBoton('btn-salto', saltar);
-            vincularBoton('btn-agachar', toggleAgachar);
+                const pataM1 = crearMiembroRedondeado(0.055, 0.08, new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.7 }), 10);
+                pataM1.position.set(-0.13, 0.09, 0.16);
+                const pataM2 = pataM1.clone();
+                pataM2.position.x = 0.13;
+                const pataM3 = pataM1.clone();
+                pataM3.position.z = -0.15;
+                const pataM4 = pataM1.clone();
+                pataM4.position.set(0.13, 0.09, -0.15);
 
-            let ultimoFrame = performance.now();
+                mascotaGrupo.add(mascotaCuerpo, mascotaCabeza, orejaIzq, orejaDer, ojoMascotaIzq, ojoMascotaDer, pataM1, pataM2, pataM3, pataM4);
+                setCastShadow(mascotaGrupo, true, false);
+                mascotaGrupo.position.set(1.05, 0, 0.25);
+                scene.add(mascotaGrupo);
 
-            function animar(ahora = performance.now()) {
-                requestAnimationFrame(animar);
-                const dt = Math.min(50, ahora - ultimoFrame);
-                ultimoFrame = ahora;
+                const obstaculos = [];
 
-                if (tiempoDestello > 0) {
-                    tiempoDestello -= dt;
-                    if (tiempoDestello <= 0) destelloDisparo.visible = false;
+                function crearArbolRealista(x, z, escala = 1) {
+                    const grupo = new THREE.Group();
+
+                    const tronco = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.28 * escala, 0.48 * escala, 3.0 * escala, 12),
+                        new THREE.MeshStandardMaterial({ color: 0x54331b, roughness: 0.94 })
+                    );
+                    tronco.position.y = 1.5 * escala;
+
+                    const copaBaja = new THREE.Mesh(
+                        new THREE.DodecahedronGeometry(2.1 * escala, 1),
+                        new THREE.MeshStandardMaterial({ color: 0x1a5922, roughness: 0.82 })
+                    );
+                    copaBaja.position.set(0, 3.4 * escala, 0);
+                    copaBaja.scale.set(1.15, 0.74, 1.12);
+
+                    const copaMedia = new THREE.Mesh(
+                        new THREE.DodecahedronGeometry(1.65 * escala, 1),
+                        new THREE.MeshStandardMaterial({ color: 0x26732d, roughness: 0.78 })
+                    );
+                    copaMedia.position.set(0.25 * escala, 4.25 * escala, -0.15 * escala);
+
+                    const copaAlta = new THREE.Mesh(
+                        new THREE.DodecahedronGeometry(1.2 * escala, 1),
+                        new THREE.MeshStandardMaterial({ color: 0x358f3b, roughness: 0.74 })
+                    );
+                    copaAlta.position.set(-0.2 * escala, 4.95 * escala, 0.15 * escala);
+
+                    grupo.add(tronco, copaBaja, copaMedia, copaAlta);
+                    setCastShadow(grupo, true, true);
+                    grupo.position.set(x, 0, z);
+                    scene.add(grupo);
+                    obstaculos.push({ x, z, r: 0.85 * escala });
                 }
 
-                if (enLobby) {
-                    portalGrupo.visible = true;
-                    mascotaGrupo.visible = true;
-                    portalCono.rotation.y += dt * 0.0008;
-                    mascotaGrupo.position.y = Math.abs(Math.sin(ahora * 0.004)) * 0.08;
+                function crearCajaSuministro(x, z, rotY = 0) {
+                    const grupo = new THREE.Group();
+                    const base = new THREE.Mesh(
+                        new THREE.BoxGeometry(2.4, 1.5, 2.4),
+                        new THREE.MeshStandardMaterial({ color: 0x8f3d1d, roughness: 0.72, metalness: 0.08 })
+                    );
+                    base.position.y = 0.75;
 
-                    jugadorMesh.rotation.y = 0.12;
-                    pivotePiernaIzq.rotation.x = 0;
-                    pivotePiernaDer.rotation.x = 0;
-                    pivoteBrazoDer.rotation.x = -0.25;
-                    pivoteBrazoIzq.rotation.x = -0.18;
+                    const marcoSup = new THREE.Mesh(
+                        new THREE.BoxGeometry(2.48, 0.16, 2.48),
+                        new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.45, metalness: 0.25 })
+                    );
+                    marcoSup.position.y = 1.44;
 
-                    camera.position.set(0.25, 1.9, 6.2);
-                    camera.lookAt(0.2, 1.15, 0);
+                    const marcoInf = marcoSup.clone();
+                    marcoInf.position.y = 0.1;
 
-                    sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
+                    grupo.add(base, marcoSup, marcoInf);
+                    setCastShadow(grupo, true, true);
+                    grupo.position.set(x, 0, z);
+                    grupo.rotation.y = rotY;
+                    scene.add(grupo);
+                    obstaculos.push({ x, z, r: 1.55 });
+                }
+
+                function crearRoca(x, z, escala = 1) {
+                    const roca = new THREE.Mesh(
+                        new THREE.DodecahedronGeometry(1.35 * escala, 1),
+                        new THREE.MeshStandardMaterial({ color: 0x5c6b7e, roughness: 0.9, metalness: 0.08 })
+                    );
+                    roca.position.set(x, 0.68 * escala, z);
+                    roca.scale.set(1.28, 0.76, 1.08);
+                    roca.castShadow = true;
+                    roca.receiveShadow = true;
+                    scene.add(roca);
+                    obstaculos.push({ x, z, r: 1.2 * escala });
+                }
+
+                for (let i = 0; i < 30; i++) {
+                    const ang = (i / 30) * Math.PI * 2;
+                    const dist = 15 + (i % 3) * 14;
+                    const esc = 0.85 + (i % 4) * 0.14;
+                    crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
+                }
+
+                crearCajaSuministro(6, 6, 0.25);
+                crearCajaSuministro(-8, 10, -0.4);
+                crearCajaSuministro(10, -8, 0.7);
+                crearCajaSuministro(-6, -6, 0.1);
+                crearRoca(13, 4, 1.1);
+                crearRoca(-12, -3, 1.35);
+                crearRoca(3, -15, 0.95);
+
+                const sombraJugador = new THREE.Mesh(
+                    new THREE.CircleGeometry(0.75, 24),
+                    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.36 })
+                );
+                sombraJugador.rotation.x = -Math.PI / 2;
+                sombraJugador.position.y = 0.03;
+                scene.add(sombraJugador);
+
+                const jugadorMesh = new THREE.Group();
+
+                const matPiel = new THREE.MeshStandardMaterial({ color: 0xe6b287, roughness: 0.56 });
+                const matCabello = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.68 });
+                const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.52 });
+                const matChaleco = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.56, metalness: 0.18 });
+                const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.76 });
+                const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.42, metalness: 0.16 });
+                const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.46, metalness: 0.1 });
+
+                function crearPiernaHumana(ladoX) {
+                    const pivote = new THREE.Group();
+                    pivote.position.set(ladoX, 0.86, 0);
+
+                    const cadera = new THREE.Mesh(new THREE.SphereGeometry(0.115, 14, 12), matPantalon);
+                    cadera.scale.set(1.05, 0.95, 1.15);
+
+                    const muslo = crearMiembroRedondeado(0.105, 0.22, matPantalon, 14);
+                    muslo.position.set(0, -0.19, 0.01);
+
+                    const rodilla = new THREE.Mesh(new THREE.SphereGeometry(0.098, 12, 10), matPantalon);
+                    rodilla.position.set(0, -0.36, 0.02);
+
+                    const pantorrilla = crearMiembroRedondeado(0.088, 0.22, matPantalon, 14);
+                    pantorrilla.position.set(0, -0.53, -0.01);
+
+                    const botaCuerpo = crearMiembroRedondeado(0.095, 0.09, matBota, 12);
+                    botaCuerpo.position.set(0, -0.71, 0.01);
+
+                    const puntera = new THREE.Mesh(new THREE.SphereGeometry(0.096, 12, 10), matBota);
+                    puntera.scale.set(1.02, 0.72, 1.48);
+                    puntera.position.set(0, -0.75, 0.08);
+
+                    pivote.add(cadera, muslo, rodilla, pantorrilla, botaCuerpo, puntera);
+                    setCastShadow(pivote, true, false);
+                    return pivote;
+                }
+
+                const pivotePiernaIzq = crearPiernaHumana(-0.165);
+                const pivotePiernaDer = crearPiernaHumana(0.165);
+
+                const torsoGrupo = new THREE.Group();
+                torsoGrupo.position.set(0, 0.86, 0);
+
+                const cintura = crearMiembroRedondeado(0.18, 0.14, matCamisa, 16);
+                cintura.rotation.z = Math.PI / 2;
+                cintura.scale.set(0.75, 1.05, 1.0);
+                cintura.position.set(0, 0.14, 0);
+
+                const pecho = crearMiembroRedondeado(0.22, 0.34, matCamisa, 18);
+                pecho.rotation.z = Math.PI / 2;
+                pecho.scale.set(0.72, 1.15, 1.02);
+                pecho.position.set(0, 0.44, 0.01);
+
+                const chalecoTactico = crearMiembroRedondeado(0.23, 0.2, matChaleco, 16);
+                chalecoTactico.rotation.z = Math.PI / 2;
+                chalecoTactico.scale.set(0.78, 1.16, 1.04);
+                chalecoTactico.position.set(0, 0.48, 0.015);
+
+                const cinturon = crearMiembroRedondeado(0.185, 0.22, matBota, 14);
+                cinturon.rotation.z = Math.PI / 2;
+                cinturon.scale.set(0.78, 1.06, 0.32);
+                cinturon.position.set(0, 0.05, 0);
+
+                const cuello = crearMiembroRedondeado(0.085, 0.08, matPiel, 12);
+                cuello.position.set(0, 0.77, 0.01);
+
+                const cabezaGrupo = new THREE.Group();
+                cabezaGrupo.position.set(0, 1.03, 0.02);
+
+                const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.235, 20, 18), matPiel);
+                craneo.scale.set(0.88, 1.08, 0.96);
+
+                const mandibula = new THREE.Mesh(new THREE.SphereGeometry(0.175, 16, 14), matPiel);
+                mandibula.scale.set(0.86, 0.72, 0.92);
+                mandibula.position.set(0, -0.11, 0.03);
+
+                const nariz = new THREE.Mesh(new THREE.ConeGeometry(0.032, 0.075, 8), matPiel);
+                nariz.rotation.x = Math.PI * 0.42;
+                nariz.position.set(0, -0.01, 0.235);
+
+                const orejaIzq = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10), matPiel);
+                orejaIzq.scale.set(0.45, 1.15, 0.85);
+                orejaIzq.position.set(-0.205, -0.01, -0.01);
+
+                const orejaDer = orejaIzq.clone();
+                orejaDer.position.x = 0.205;
+
+                const cabelloBase = new THREE.Mesh(new THREE.SphereGeometry(0.248, 20, 18), matCabello);
+                cabelloBase.scale.set(0.92, 0.96, 1.03);
+                cabelloBase.position.set(0, 0.055, -0.025);
+
+                const mechon1 = crearMiembroRedondeado(0.055, 0.1, matCabello, 10);
+                mechon1.rotation.x = 0.85;
+                mechon1.rotation.z = 0.18;
+                mechon1.position.set(-0.07, 0.16, 0.19);
+
+                const mechon2 = crearMiembroRedondeado(0.052, 0.09, matCabello, 10);
+                mechon2.rotation.x = 0.82;
+                mechon2.rotation.z = -0.16;
+                mechon2.position.set(0.06, 0.15, 0.195);
+
+                const cejaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.022, 0.025), matCabello);
+                cejaIzq.position.set(-0.078, 0.058, 0.215);
+                cejaIzq.rotation.z = -0.08;
+                const cejaDer = cejaIzq.clone();
+                cejaDer.position.x = 0.078;
+                cejaDer.rotation.z = 0.08;
+
+                const ojoBlancoIzq = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 10), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
+                ojoBlancoIzq.scale.set(1.15, 0.8, 0.5);
+                ojoBlancoIzq.position.set(-0.076, 0.022, 0.218);
+
+                const irisIzq = new THREE.Mesh(new THREE.SphereGeometry(0.019, 8, 8), new THREE.MeshBasicMaterial({ color: 0x1e1b18 }));
+                irisIzq.position.set(-0.076, 0.022, 0.23);
+
+                const ojoBlancoDer = ojoBlancoIzq.clone();
+                ojoBlancoDer.position.x = 0.076;
+                const irisDer = irisIzq.clone();
+                irisDer.position.x = 0.076;
+
+                cabezaGrupo.add(
+                    craneo, mandibula, nariz, orejaIzq, orejaDer,
+                    cabelloBase, mechon1, mechon2,
+                    cejaIzq, cejaDer, ojoBlancoIzq, irisIzq, ojoBlancoDer, irisDer
+                );
+
+                const mochilaGrupo = new THREE.Group();
+                mochilaGrupo.position.set(0, 0.42, -0.22);
+                const bolsaPrincipal = crearMiembroRedondeado(0.16, 0.22, matMochila, 14);
+                bolsaPrincipal.scale.set(1.15, 1.0, 0.65);
+                const bolsilloSuperior = crearMiembroRedondeado(0.11, 0.09, matChaleco, 12);
+                bolsilloSuperior.scale.set(1.1, 1.0, 0.6);
+                bolsilloSuperior.position.set(0, 0.08, -0.09);
+                mochilaGrupo.add(bolsaPrincipal, bolsilloSuperior);
+
+                function crearBrazoHumano(ladoX) {
+                    const pivote = new THREE.Group();
+                    pivote.position.set(ladoX, 0.63, 0);
+
+                    const hombro = new THREE.Mesh(new THREE.SphereGeometry(0.095, 12, 12), matCamisa);
+                    const brazoSup = crearMiembroRedondeado(0.075, 0.16, matCamisa, 12);
+                    brazoSup.position.set(0, -0.14, 0);
+
+                    const codo = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), matPiel);
+                    codo.position.set(0, -0.26, 0.01);
+
+                    const antebrazo = crearMiembroRedondeado(0.065, 0.16, matPiel, 12);
+                    antebrazo.position.set(0, -0.39, 0.02);
+
+                    const mano = new THREE.Mesh(new THREE.SphereGeometry(0.064, 10, 10), matPiel);
+                    mano.scale.set(0.85, 1.1, 1.15);
+                    mano.position.set(0, -0.51, 0.03);
+
+                    pivote.add(hombro, brazoSup, codo, antebrazo, mano);
+                    setCastShadow(pivote, true, false);
+                    return pivote;
+                }
+
+                const pivoteBrazoIzq = crearBrazoHumano(-0.35);
+                const pivoteBrazoDer = crearBrazoHumano(0.35);
+
+                const rifleGrupo = new THREE.Group();
+                rifleGrupo.position.set(-0.03, -0.47, 0.24);
+
+                const receptor = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.075, 0.105, 0.66),
+                    new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.65, roughness: 0.28 })
+                );
+                const culata = crearMiembroRedondeado(0.048, 0.12, new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 }), 10);
+                culata.rotation.x = Math.PI / 2;
+                culata.position.set(0, -0.02, -0.39);
+
+                const cargador = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.048, 0.19, 0.1),
+                    new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.45, metalness: 0.3 })
+                );
+                cargador.rotation.x = 0.22;
+                cargador.position.set(0, -0.12, 0.08);
+
+                const canion = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.022, 0.022, 0.34, 10),
+                    new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 })
+                );
+                canion.rotation.x = Math.PI / 2;
+                canion.position.set(0, 0.02, 0.46);
+
+                const destelloDisparo = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.14, 8, 8),
+                    new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.94 })
+                );
+                destelloDisparo.position.set(0, 0.02, 0.66);
+                destelloDisparo.visible = false;
+
+                rifleGrupo.add(receptor, culata, cargador, canion, destelloDisparo);
+                setCastShadow(rifleGrupo, true, false);
+                pivoteBrazoDer.add(rifleGrupo);
+
+                torsoGrupo.add(cintura, pecho, chalecoTactico, cinturon, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
+                setCastShadow(torsoGrupo, true, false);
+                jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
+                scene.add(jugadorMesh);
+
+                let velY = 0;
+                let enSuelo = true;
+                let agachado = false;
+                let apuntando = false;
+                let tiempoDestello = 0;
+                let cicloPaso = 0;
+                const proyectiles = [];
+
+                let camYaw = 0;
+                let camPitch = 0.22;
+                const sensibilidad = 0.0055;
+
+                const joystickBase = document.getElementById('joystick-base');
+                const joystickStick = document.getElementById('joystick-stick');
+                let joyActivo = false, joyTouchId = null, joyX = 0, joyY = 0;
+                const maxRadio = 36;
+
+                function actualizarJoystick(touch) {
+                    const rect = joystickBase.getBoundingClientRect();
+                    let dx = touch.clientX - (rect.left + rect.width / 2);
+                    let dy = touch.clientY - (rect.top + rect.height / 2);
+                    const dist = Math.hypot(dx, dy);
+                    if (dist > maxRadio) {
+                        dx = (dx / dist) * maxRadio;
+                        dy = (dy / dist) * maxRadio;
+                    }
+                    joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
+                    joyX = dx / maxRadio;
+                    joyY = dy / maxRadio;
+                }
+
+                joystickBase.addEventListener('touchstart', (e) => {
+                    if (enLobby || menuAbierto) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    joyActivo = true;
+                    joyTouchId = e.changedTouches[0].identifier;
+                    actualizarJoystick(e.changedTouches[0]);
+                }, { passive: false });
+
+                joystickBase.addEventListener('touchmove', (e) => {
+                    if (enLobby || menuAbierto) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!joyActivo) return;
+                    for (const t of e.changedTouches) {
+                        if (t.identifier === joyTouchId) actualizarJoystick(t);
+                    }
+                }, { passive: false });
+
+                function soltarJoystick(e) {
+                    for (const t of e.changedTouches) {
+                        if (t.identifier === joyTouchId) {
+                            joyActivo = false; joyTouchId = null; joyX = 0; joyY = 0;
+                            joystickStick.style.transform = 'translate(0px, 0px)';
+                        }
+                    }
+                }
+                joystickBase.addEventListener('touchend', soltarJoystick);
+                joystickBase.addEventListener('touchcancel', soltarJoystick);
+
+                const aimZone = document.getElementById('aim-zone');
+                let aimTouchId = null;
+                let lastAimX = 0;
+                let lastAimY = 0;
+
+                function aplicarRotacionMira(deltaX, deltaY, factorVertical = 1) {
+                    camYaw -= deltaX * sensibilidad;
+                    camPitch = Math.max(-0.22, Math.min(0.72, camPitch + deltaY * sensibilidad * factorVertical));
+                    jugadorMesh.rotation.y = camYaw;
+                }
+
+                aimZone.addEventListener('touchstart', (e) => {
+                    if (enLobby || menuAbierto) return;
+                    e.preventDefault();
+                    if (aimTouchId !== null) return;
+                    const t = e.changedTouches[0];
+                    aimTouchId = t.identifier;
+                    lastAimX = t.clientX;
+                    lastAimY = t.clientY;
+                }, { passive: false });
+
+                aimZone.addEventListener('touchmove', (e) => {
+                    if (enLobby || menuAbierto) return;
+                    e.preventDefault();
+                    if (aimTouchId === null) return;
+                    for (const t of e.changedTouches) {
+                        if (t.identifier === aimTouchId) {
+                            const dx = t.clientX - lastAimX;
+                            const dy = t.clientY - lastAimY;
+                            lastAimX = t.clientX;
+                            lastAimY = t.clientY;
+                            aplicarRotacionMira(dx, dy, 1);
+                        }
+                    }
+                }, { passive: false });
+
+                function soltarMira(e) {
+                    for (const t of e.changedTouches) {
+                        if (t.identifier === aimTouchId) {
+                            aimTouchId = null;
+                        }
+                    }
+                }
+                aimZone.addEventListener('touchend', soltarMira);
+                aimZone.addEventListener('touchcancel', soltarMira);
+
+                const btnDisparo = document.getElementById('btn-disparo');
+                let disparando = false;
+                let fireTouchId = null;
+                let lastFireX = 0;
+                let lastFireY = 0;
+                let ultimoDisparoTime = 0;
+                const intervaloDisparo = 140;
+
+                function disparar() {
+                    if (enLobby || menuAbierto || balas <= 0) return;
+                    balas--;
+                    actualizarHUD();
+
+                    destelloDisparo.visible = true;
+                    tiempoDestello = 45;
+
+                    const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+                    const balaMesh = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.12, 8, 8),
+                        new THREE.MeshBasicMaterial({ color: 0xfef08a })
+                    );
+                    balaMesh.position.set(
+                        jugadorMesh.position.x + dir.x * 1.45,
+                        jugadorMesh.position.y + (agachado ? 0.85 : 1.32),
+                        jugadorMesh.position.z + dir.z * 1.45
+                    );
+                    scene.add(balaMesh);
+                    proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
+                }
+
+                btnDisparo.addEventListener('touchstart', (e) => {
+                    if (enLobby || menuAbierto) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (fireTouchId !== null) return;
+                    const t = e.changedTouches[0];
+                    fireTouchId = t.identifier;
+                    lastFireX = t.clientX;
+                    lastFireY = t.clientY;
+                    disparando = true;
+                    btnDisparo.classList.add('active');
+                    disparar();
+                    ultimoDisparoTime = performance.now();
+                }, { passive: false });
+
+                btnDisparo.addEventListener('touchmove', (e) => {
+                    if (enLobby || menuAbierto) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!disparando || fireTouchId === null) return;
+                    for (const t of e.changedTouches) {
+                        if (t.identifier === fireTouchId) {
+                            const dx = t.clientX - lastFireX;
+                            const dy = t.clientY - lastFireY;
+                            lastFireX = t.clientX;
+                            lastFireY = t.clientY;
+                            aplicarRotacionMira(dx * 0.55, dy * 0.55, 0.85);
+                        }
+                    }
+                }, { passive: false });
+
+                function soltarDisparo(e) {
+                    for (const t of e.changedTouches) {
+                        if (t.identifier === fireTouchId) {
+                            disparando = false;
+                            fireTouchId = null;
+                            btnDisparo.classList.remove('active');
+                        }
+                    }
+                }
+                btnDisparo.addEventListener('touchend', soltarDisparo);
+                btnDisparo.addEventListener('touchcancel', soltarDisparo);
+                btnDisparo.addEventListener('mousedown', () => {
+                    if (enLobby || menuAbierto) return;
+                    disparando = true;
+                    disparar();
+                    ultimoDisparoTime = performance.now();
+                });
+                window.addEventListener('mouseup', () => { disparando = false; });
+
+                const btnMira = document.getElementById('btn-mira');
+                function toggleMira() {
+                    if (enLobby || menuAbierto) return;
+                    apuntando = !apuntando;
+                    btnMira.classList.toggle('active', apuntando);
+                    crosshair.style.display = apuntando ? 'block' : 'none';
+                }
+                btnMira.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMira();
+                });
+
+                function ponerGloo() {
+                    if (enLobby || menuAbierto || glooRestantes <= 0) return;
+                    glooRestantes--;
+                    actualizarHUD();
+
+                    const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+                    const glooGrupo = new THREE.Group();
+
+                    const panel = new THREE.Mesh(
+                        new THREE.BoxGeometry(3.3, 2.25, 0.34),
+                        new THREE.MeshStandardMaterial({
+                            color: 0x38bdf8,
+                            emissive: 0x0284c7,
+                            emissiveIntensity: 0.3,
+                            roughness: 0.2,
+                            metalness: 0.15,
+                            transparent: true,
+                            opacity: 0.72
+                        })
+                    );
+                    panel.position.y = 1.12;
+                    panel.castShadow = true;
+                    panel.receiveShadow = true;
+
+                    glooGrupo.add(panel);
+                    const gx = jugadorMesh.position.x + dir.x * 3.1;
+                    const gz = jugadorMesh.position.z + dir.z * 3.1;
+                    glooGrupo.position.set(gx, 0, gz);
+                    glooGrupo.rotation.y = jugadorMesh.rotation.y;
+                    scene.add(glooGrupo);
+                    obstaculos.push({ x: gx, z: gz, r: 1.45 });
+                }
+
+                function recargar() {
+                    if (enLobby || menuAbierto) return;
+                    balas = maxBalas;
+                    actualizarHUD();
+                }
+
+                function saltar() {
+                    if (enLobby || menuAbierto || !enSuelo) return;
+                    if (agachado) agachado = false;
+                    velY = 0.36;
+                    enSuelo = false;
+                }
+
+                function toggleAgachar() {
+                    if (enLobby || menuAbierto) return;
+                    agachado = !agachado;
+                }
+
+                document.getElementById('btn-gloo').addEventListener('click', (e) => { e.stopPropagation(); ponerGloo(); });
+                document.getElementById('btn-recargar').addEventListener('click', (e) => { e.stopPropagation(); recargar(); });
+                document.getElementById('btn-salto').addEventListener('click', (e) => { e.stopPropagation(); saltar(); });
+                document.getElementById('btn-agachar').addEventListener('click', (e) => { e.stopPropagation(); toggleAgachar(); });
+
+                let ultimoFrame = performance.now();
+
+                function animar(ahora = performance.now()) {
+                    requestAnimationFrame(animar);
+                    const dt = Math.min(50, ahora - ultimoFrame);
+                    ultimoFrame = ahora;
+
+                    if (tiempoDestello > 0) {
+                        tiempoDestello -= dt;
+                        if (tiempoDestello <= 0) destelloDisparo.visible = false;
+                    }
+
+                    if (enLobby) {
+                        portalGrupo.visible = true;
+                        mascotaGrupo.visible = true;
+                        portalCono.rotation.y += dt * 0.0008;
+                        mascotaGrupo.position.y = Math.abs(Math.sin(ahora * 0.004)) * 0.08;
+
+                        jugadorMesh.rotation.y = 0.12;
+                        pivotePiernaIzq.rotation.x = 0;
+                        pivotePiernaDer.rotation.x = 0;
+                        pivoteBrazoDer.rotation.x = -0.25;
+                        pivoteBrazoIzq.rotation.x = -0.18;
+
+                        camera.position.set(0.25, 1.9, 6.2);
+                        camera.lookAt(0.2, 1.15, 0);
+
+                        sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
+                        renderer.render(scene, camera);
+                        return;
+                    }
+
+                    portalGrupo.visible = false;
+                    mascotaGrupo.visible = false;
+
+                    if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
+                        disparar();
+                        ultimoDisparoTime = ahora;
+                    }
+
+                    const velocidad = agachado ? 0.14 : 0.22;
+                    const forwardX = Math.sin(camYaw);
+                    const forwardZ = Math.cos(camYaw);
+                    const rightX = -Math.cos(camYaw);
+                    const rightZ = Math.sin(camYaw);
+
+                    const moveForward = -joyY;
+                    const moveRight = joyX;
+                    const intensidadMov = Math.min(1, Math.hypot(moveForward, moveRight));
+
+                    const moveVecX = forwardX * moveForward + rightX * moveRight;
+                    const moveVecZ = forwardZ * moveForward + rightZ * moveRight;
+
+                    const nextX = jugadorMesh.position.x + moveVecX * velocidad;
+                    const nextZ = jugadorMesh.position.z + moveVecZ * velocidad;
+
+                    let bloqueado = false;
+                    for (const obs of obstaculos) {
+                        if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.52) {
+                            bloqueado = true;
+                            break;
+                        }
+                    }
+
+                    if (!bloqueado) {
+                        jugadorMesh.position.x = Math.max(-72, Math.min(72, nextX));
+                        jugadorMesh.position.z = Math.max(-72, Math.min(72, nextZ));
+                    }
+
+                    jugadorMesh.rotation.y = camYaw;
+
+                    const targetTorsoY = agachado ? 0.52 : 0.86;
+                    torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
+                    torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
+
+                    if (intensidadMov > 0.05 && enSuelo) {
+                        cicloPaso += dt * 0.015 * intensidadMov;
+                        const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
+                        pivotePiernaIzq.rotation.x = angPierna;
+                        pivotePiernaDer.rotation.x = -angPierna;
+                        pivoteBrazoIzq.rotation.x = apuntando ? -1.1 : -angPierna * 0.55;
+                        pivoteBrazoDer.rotation.x = apuntando ? -1.15 : angPierna * 0.4;
+                    } else {
+                        pivotePiernaIzq.rotation.x *= 0.8;
+                        pivotePiernaDer.rotation.x *= 0.8;
+                        const targetBrazoDer = apuntando ? -1.15 : -0.82;
+                        const targetBrazoIzq = apuntando ? -1.1 : -0.75;
+                        pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
+                        pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
+                    }
+
+                    if (!enSuelo) {
+                        jugadorMesh.position.y += velY;
+                        velY -= 0.015;
+                        if (jugadorMesh.position.y <= 0) {
+                            jugadorMesh.position.y = 0;
+                            velY = 0;
+                            enSuelo = true;
+                        }
+                    }
+
+                    sombraJugador.position.x = jugadorMesh.position.x;
+                    sombraJugador.position.z = jugadorMesh.position.z;
+                    const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
+                    sombraJugador.scale.set(escalaSombra, escalaSombra, 1);
+
+                    for (let i = proyectiles.length - 1; i >= 0; i--) {
+                        const p = proyectiles[i];
+                        p.mesh.position.x += p.vx;
+                        p.mesh.position.z += p.vz;
+                        p.vida--;
+                        if (p.vida <= 0) {
+                            scene.remove(p.mesh);
+                            proyectiles.splice(i, 1);
+                        }
+                    }
+
+                    const targetFov = apuntando ? 42 : 60;
+                    if (Math.abs(camera.fov - targetFov) > 0.2) {
+                        camera.fov += (targetFov - camera.fov) * 0.18;
+                        camera.updateProjectionMatrix();
+                    }
+
+                    const baseDist = apuntando ? 6.8 : 8.4;
+                    const alturaCam = (apuntando ? 3.15 : 2.15) + Math.sin(camPitch) * baseDist;
+                    let horizDist = Math.cos(camPitch) * baseDist;
+
+                    const dirAtrasX = -Math.sin(camYaw);
+                    const dirAtrasZ = -Math.cos(camYaw);
+                    const hombroOffset = apuntando ? 1.55 : 0;
+
+                    for (const obs of obstaculos) {
+                        const cx = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
+                        const cz = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
+                        const distObs = Math.hypot(cx - obs.x, cz - obs.z);
+                        if (distObs < obs.r + 0.9) {
+                            horizDist = Math.max(2.8, horizDist - (obs.r + 0.9 - distObs));
+                        }
+                    }
+
+                    const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
+                    const camTargetY = jugadorMesh.position.y + alturaCam;
+                    const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
+
+                    camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
+                    camera.lookAt(
+                        jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.5 : 0),
+                        jugadorMesh.position.y + (apuntando ? 1.9 : 1.5) + Math.sin(camPitch) * 3,
+                        jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.5 : 0)
+                    );
+
                     renderer.render(scene, camera);
+                }
+
+                animar();
+                api3D = { listo: true };
+            }
+
+            function cargarMotor3D() {
+                if (window.THREE) {
+                    setEstado('', false);
+                    montarEscena3D();
                     return;
                 }
 
-                portalGrupo.visible = false;
-                mascotaGrupo.visible = false;
+                const urls = [
+                    'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
+                    'https://unpkg.com/three@0.160.0/build/three.min.js'
+                ];
 
-                if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
-                    disparar();
-                    ultimoDisparoTime = ahora;
-                }
+                setEstado('Cargando 3D...');
 
-                const velocidad = agachado ? 0.14 : 0.22;
-                const forwardX = Math.sin(camYaw);
-                const forwardZ = Math.cos(camYaw);
-                const rightX = -Math.cos(camYaw);
-                const rightZ = Math.sin(camYaw);
-
-                const moveForward = -joyY;
-                const moveRight = joyX;
-                const intensidadMov = Math.min(1, Math.hypot(moveForward, moveRight));
-
-                const moveVecX = forwardX * moveForward + rightX * moveRight;
-                const moveVecZ = forwardZ * moveForward + rightZ * moveRight;
-
-                const nextX = jugadorMesh.position.x + moveVecX * velocidad;
-                const nextZ = jugadorMesh.position.z + moveVecZ * velocidad;
-
-                let bloqueado = false;
-                for (const obs of obstaculos) {
-                    if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.52) {
-                        bloqueado = true;
-                        break;
+                function intentar(idx) {
+                    if (window.THREE) {
+                        setEstado('', false);
+                        montarEscena3D();
+                        return;
                     }
-                }
-
-                if (!bloqueado) {
-                    jugadorMesh.position.x = Math.max(-72, Math.min(72, nextX));
-                    jugadorMesh.position.z = Math.max(-72, Math.min(72, nextZ));
-                }
-
-                jugadorMesh.rotation.y = camYaw;
-
-                const targetTorsoY = agachado ? 0.52 : 0.86;
-                torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
-                torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
-
-                if (intensidadMov > 0.05 && enSuelo) {
-                    cicloPaso += dt * 0.015 * intensidadMov;
-                    const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
-                    pivotePiernaIzq.rotation.x = angPierna;
-                    pivotePiernaDer.rotation.x = -angPierna;
-                    pivoteBrazoIzq.rotation.x = apuntando ? -1.1 : -angPierna * 0.55;
-                    pivoteBrazoDer.rotation.x = apuntando ? -1.15 : angPierna * 0.4;
-                } else {
-                    pivotePiernaIzq.rotation.x *= 0.8;
-                    pivotePiernaDer.rotation.x *= 0.8;
-                    const targetBrazoDer = apuntando ? -1.15 : -0.82;
-                    const targetBrazoIzq = apuntando ? -1.1 : -0.75;
-                    pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
-                    pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
-                }
-
-                if (!enSuelo) {
-                    jugadorMesh.position.y += velY;
-                    velY -= 0.015;
-                    if (jugadorMesh.position.y <= 0) {
-                        jugadorMesh.position.y = 0;
-                        velY = 0;
-                        enSuelo = true;
+                    if (idx >= urls.length) {
+                        setEstado('Modo 2D listo • Sin 3D por red lenta');
+                        return;
                     }
+                    const s = document.createElement('script');
+                    s.src = urls[idx];
+                    const t = setTimeout(() => {
+                        if (!window.THREE) intentar(idx + 1);
+                    }, 4000);
+                    s.onload = () => {
+                        clearTimeout(t);
+                        if (window.THREE && !api3D) {
+                            setEstado('', false);
+                            montarEscena3D();
+                        }
+                    };
+                    s.onerror = () => {
+                        clearTimeout(t);
+                        intentar(idx + 1);
+                    };
+                    document.head.appendChild(s);
                 }
 
-                sombraJugador.position.x = jugadorMesh.position.x;
-                sombraJugador.position.z = jugadorMesh.position.z;
-                const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
-                sombraJugador.scale.set(escalaSombra, escalaSombra, 1);
-
-                for (let i = proyectiles.length - 1; i >= 0; i--) {
-                    const p = proyectiles[i];
-                    p.mesh.position.x += p.vx;
-                    p.mesh.position.z += p.vz;
-                    p.vida--;
-                    if (p.vida <= 0) {
-                        scene.remove(p.mesh);
-                        proyectiles.splice(i, 1);
-                    }
-                }
-
-                const targetFov = apuntando ? 42 : 60;
-                if (Math.abs(camera.fov - targetFov) > 0.2) {
-                    camera.fov += (targetFov - camera.fov) * 0.18;
-                    camera.updateProjectionMatrix();
-                }
-
-                const baseDist = apuntando ? 6.8 : 8.4;
-                const alturaCam = (apuntando ? 3.15 : 2.15) + Math.sin(camPitch) * baseDist;
-                let horizDist = Math.cos(camPitch) * baseDist;
-
-                const dirAtrasX = -Math.sin(camYaw);
-                const dirAtrasZ = -Math.cos(camYaw);
-                const hombroOffset = apuntando ? 1.55 : 0;
-
-                for (const obs of obstaculos) {
-                    const cx = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
-                    const cz = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
-                    const distObs = Math.hypot(cx - obs.x, cz - obs.z);
-                    if (distObs < obs.r + 0.9) {
-                        horizDist = Math.max(2.8, horizDist - (obs.r + 0.9 - distObs));
-                    }
-                }
-
-                const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
-                const camTargetY = jugadorMesh.position.y + alturaCam;
-                const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
-
-                camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
-                camera.lookAt(
-                    jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.5 : 0),
-                    jugadorMesh.position.y + (apuntando ? 1.9 : 1.5) + Math.sin(camPitch) * 3,
-                    jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.5 : 0)
-                );
-
-                renderer.render(scene, camera);
+                intentar(0);
             }
 
-            animar();
-        }
-
-        cargarThreeYArrancar();
+            cargarMotor3D();
+        })();
     </script>
 </body>
 </html>
