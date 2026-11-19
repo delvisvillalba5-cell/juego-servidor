@@ -35,6 +35,22 @@
             z-index: 1;
         }
 
+        #error-banner {
+            display: none;
+            position: absolute;
+            top: 72px;
+            left: 14px;
+            right: 14px;
+            z-index: 30;
+            background: rgba(127, 29, 29, 0.92);
+            border: 1px solid #fca5a5;
+            color: #fef2f2;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         /* ==========================================
            PANTALLA PRINCIPAL (LOBBY)
            ========================================== */
@@ -362,6 +378,8 @@
 </head>
 <body>
     <div id="game-container">
+        <div id="error-banner"></div>
+
         <!-- LOBBY -->
         <div id="lobby-screen">
             <div class="lobby-top">
@@ -425,228 +443,795 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
     <script>
-        const container = document.getElementById('game-container');
-        const lobbyScreen = document.getElementById('lobby-screen');
-        const gameplayUi = document.getElementById('gameplay-ui');
-        const crosshair = document.getElementById('crosshair');
-
-        let enLobby = true;
-        let nombreJugador = 'Jugador_1';
-        let modoActual = 'Battle Royale';
-
-        const lobbyNombreEl = document.getElementById('lobby-nombre');
-        const hudNombreEl = document.getElementById('hud-nombre');
-        const hudVivosEl = document.getElementById('hud-vivos');
-        const lobbyModoLabel = document.getElementById('lobby-modo-label');
-
-        document.getElementById('lobby-player-btn').addEventListener('click', () => {
-            const nuevo = prompt('Escribe tu nombre de jugador:', nombreJugador);
-            if (nuevo && nuevo.trim()) {
-                nombreJugador = nuevo.trim().slice(0, 16);
-                lobbyNombreEl.textContent = nombreJugador;
-                hudNombreEl.textContent = nombreJugador;
-            }
+        const errorBanner = document.getElementById('error-banner');
+        function mostrarError(msg) {
+            errorBanner.textContent = msg;
+            errorBanner.style.display = 'block';
+        }
+        window.addEventListener('error', (e) => {
+            mostrarError('Error en script: ' + (e.message || 'revisa la consola'));
         });
 
-        document.querySelectorAll('.mode-btn').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('activo'));
-                btn.classList.add('activo');
-                modoActual = btn.dataset.modo;
-                lobbyModoLabel.textContent = `Modo: ${modoActual}`;
-                hudVivosEl.textContent = modoActual === '1v1 Duelo' ? 'vivo: 2 / 2' : 'vivo: 12 / 50';
+        function cargarThreeYArrancar() {
+            const urls = [
+                'https://unpkg.com/three@0.160.0/build/three.min.js',
+                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js'
+            ];
+
+            function intentar(idx) {
+                if (window.THREE) {
+                    iniciarJuego();
+                    return;
+                }
+                if (idx >= urls.length) {
+                    mostrarError('No se pudo cargar Three.js desde internet. Revisa tu conexión.');
+                    return;
+                }
+                const s = document.createElement('script');
+                s.src = urls[idx];
+                s.onload = () => {
+                    if (window.THREE) iniciarJuego();
+                    else intentar(idx + 1);
+                };
+                s.onerror = () => intentar(idx + 1);
+                document.head.appendChild(s);
+            }
+
+            intentar(0);
+        }
+
+        function iniciarJuego() {
+            const container = document.getElementById('game-container');
+            const lobbyScreen = document.getElementById('lobby-screen');
+            const gameplayUi = document.getElementById('gameplay-ui');
+            const crosshair = document.getElementById('crosshair');
+
+            let enLobby = true;
+            let nombreJugador = 'Jugador_1';
+            let modoActual = 'Battle Royale';
+
+            const lobbyNombreEl = document.getElementById('lobby-nombre');
+            const hudNombreEl = document.getElementById('hud-nombre');
+            const hudVivosEl = document.getElementById('hud-vivos');
+            const lobbyModoLabel = document.getElementById('lobby-modo-label');
+
+            document.getElementById('lobby-player-btn').addEventListener('click', () => {
+                const nuevo = prompt('Escribe tu nombre de jugador:', nombreJugador);
+                if (nuevo && nuevo.trim()) {
+                    nombreJugador = nuevo.trim().slice(0, 16);
+                    lobbyNombreEl.textContent = nombreJugador;
+                    hudNombreEl.textContent = nombreJugador;
+                }
             });
-        });
 
-        function entrarPartida() {
-            enLobby = false;
-            lobbyScreen.classList.add('oculto');
-            gameplayUi.classList.add('activo');
-        }
+            document.querySelectorAll('.mode-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('activo'));
+                    btn.classList.add('activo');
+                    modoActual = btn.dataset.modo;
+                    lobbyModoLabel.textContent = `Modo: ${modoActual}`;
+                    hudVivosEl.textContent = modoActual === '1v1 Duelo' ? 'vivo: 2 / 2' : 'vivo: 12 / 50';
+                });
+            });
 
-        const btnIniciar = document.getElementById('btn-iniciar-juego');
-        btnIniciar.addEventListener('click', entrarPartida);
-        btnIniciar.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            entrarPartida();
-        }, { passive: false });
-
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x4ea8de);
-        scene.fog = new THREE.FogExp2(0x90e0ef, 0.006);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
-        camera.position.set(0, 2.4, 6.5);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x2d6a4f, 1.05);
-        scene.add(luzAmbiente);
-
-        const luzSol = new THREE.DirectionalLight(0xfff3b0, 1.3);
-        luzSol.position.set(35, 55, 25);
-        luzSol.castShadow = true;
-        scene.add(luzSol);
-
-        function crearTexturaSuelo() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#38761d';
-            ctx.fillRect(0, 0, 512, 512);
-
-            for (let i = 0; i < 4000; i++) {
-                const x = Math.random() * 512;
-                const y = Math.random() * 512;
-                const r = 1 + Math.random() * 3.5;
-                const tonos = ['#2f6617', '#468c26', '#539e2f', '#3d5a27'];
-                ctx.fillStyle = tonos[Math.floor(Math.random() * tonos.length)];
-                ctx.beginPath();
-                ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fill();
+            function entrarPartida() {
+                enLobby = false;
+                lobbyScreen.classList.add('oculto');
+                gameplayUi.classList.add('activo');
             }
 
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.wrapS = THREE.RepeatWrapping;
-            tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(22, 22);
-            return tex;
+            const btnIniciar = document.getElementById('btn-iniciar-juego');
+            btnIniciar.addEventListener('click', entrarPartida);
+            btnIniciar.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                entrarPartida();
+            }, { passive: false });
+
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x4ea8de);
+            scene.fog = new THREE.FogExp2(0x90e0ef, 0.006);
+
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
+            camera.position.set(0, 2.4, 6.5);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x2d6a4f, 1.05);
+            scene.add(luzAmbiente);
+
+            const luzSol = new THREE.DirectionalLight(0xfff3b0, 1.3);
+            luzSol.position.set(35, 55, 25);
+            luzSol.castShadow = true;
+            scene.add(luzSol);
+
+            function crearTexturaSuelo() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512;
+                canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = '#38761d';
+                ctx.fillRect(0, 0, 512, 512);
+
+                for (let i = 0; i < 4000; i++) {
+                    const x = Math.random() * 512;
+                    const y = Math.random() * 512;
+                    const r = 1 + Math.random() * 3.5;
+                    const tonos = ['#2f6617', '#468c26', '#539e2f', '#3d5a27'];
+                    ctx.fillStyle = tonos[Math.floor(Math.random() * tonos.length)];
+                    ctx.beginPath();
+                    ctx.arc(x, y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.wrapS = THREE.RepeatWrapping;
+                tex.wrapT = THREE.RepeatWrapping;
+                tex.repeat.set(22, 22);
+                return tex;
+            }
+
+            const suelo = new THREE.Mesh(
+                new THREE.PlaneGeometry(160, 160),
+                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.88 })
+            );
+            suelo.rotation.x = -Math.PI / 2;
+            suelo.receiveShadow = true;
+            scene.add(suelo);
+
+            const obstaculos = [];
+
+            function crearArbolRealista(x, z, escala = 1) {
+                const grupo = new THREE.Group();
+
+                const tronco = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.28 * escala, 0.45 * escala, 2.8 * escala, 10),
+                    new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.95 })
+                );
+                tronco.position.y = 1.4 * escala;
+                tronco.castShadow = true;
+
+                const copaBaja = new THREE.Mesh(
+                    new THREE.DodecahedronGeometry(2.0 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.8 })
+                );
+                copaBaja.position.set(0, 3.3 * escala, 0);
+                copaBaja.scale.set(1.1, 0.75, 1.1);
+                copaBaja.castShadow = true;
+
+                const copaAlta = new THREE.Mesh(
+                    new THREE.DodecahedronGeometry(1.5 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.75 })
+                );
+                copaAlta.position.set(0.3 * escala, 4.4 * escala, -0.2 * escala);
+                copaAlta.castShadow = true;
+
+                grupo.add(tronco, copaBaja, copaAlta);
+                grupo.position.set(x, 0, z);
+                scene.add(grupo);
+                obstaculos.push({ x, z, r: 0.85 * escala });
+            }
+
+            function crearCajaSuministro(x, z, rotY = 0) {
+                const grupo = new THREE.Group();
+                const base = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.4, 1.5, 2.4),
+                    new THREE.MeshStandardMaterial({ color: 0x9c4221, roughness: 0.7 })
+                );
+                base.position.y = 0.75;
+                base.castShadow = true;
+
+                const marco = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.5, 0.2, 2.5),
+                    new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
+                );
+                marco.position.y = 1.42;
+                grupo.add(base, marco);
+                grupo.position.set(x, 0, z);
+                grupo.rotation.y = rotY;
+                scene.add(grupo);
+                obstaculos.push({ x, z, r: 1.55 });
+            }
+
+            function crearRoca(x, z, escala = 1) {
+                const roca = new THREE.Mesh(
+                    new THREE.DodecahedronGeometry(1.3 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.92 })
+                );
+                roca.position.set(x, 0.65 * escala, z);
+                roca.scale.set(1.25, 0.75, 1.05);
+                roca.castShadow = true;
+                scene.add(roca);
+                obstaculos.push({ x, z, r: 1.2 * escala });
+            }
+
+            for (let i = 0; i < 28; i++) {
+                const ang = (i / 28) * Math.PI * 2;
+                const dist = 15 + (i % 3) * 14;
+                const esc = 0.85 + (i % 4) * 0.14;
+                crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
+            }
+
+            crearCajaSuministro(6, 6, 0.25);
+            crearCajaSuministro(-8, 10, -0.4);
+            crearCajaSuministro(10, -8, 0.7);
+            crearCajaSuministro(-6, -6, 0.1);
+            crearRoca(13, 4, 1.1);
+            crearRoca(-12, -3, 1.35);
+            crearRoca(3, -15, 0.95);
+
+            const sombraJugador = new THREE.Mesh(
+                new THREE.CircleGeometry(0.75, 24),
+                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })
+            );
+            sombraJugador.rotation.x = -Math.PI / 2;
+            sombraJugador.position.y = 0.03;
+            scene.add(sombraJugador);
+
+            const jugadorMesh = new THREE.Group();
+
+            const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
+            const matCabello = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75 });
+            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.52 });
+            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x27303f, roughness: 0.65 });
+            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.75 });
+            const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
+            const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
+
+            const pivotePiernaIzq = new THREE.Group();
+            pivotePiernaIzq.position.set(-0.17, 0.86, 0);
+            const piernaIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
+            piernaIzqMesh.position.set(0, -0.34, 0);
+            piernaIzqMesh.castShadow = true;
+            const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
+            botaIzq.position.set(0, -0.77, 0.04);
+            botaIzq.castShadow = true;
+            pivotePiernaIzq.add(piernaIzqMesh, botaIzq);
+
+            const pivotePiernaDer = new THREE.Group();
+            pivotePiernaDer.position.set(0.17, 0.86, 0);
+            const piernaDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
+            piernaDerMesh.position.set(0, -0.34, 0);
+            piernaDerMesh.castShadow = true;
+            const botaDer = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
+            botaDer.position.set(0, -0.77, 0.04);
+            botaDer.castShadow = true;
+            pivotePiernaDer.add(piernaDerMesh, botaDer);
+
+            const torsoGrupo = new THREE.Group();
+            torsoGrupo.position.set(0, 0.86, 0);
+
+            const pecho = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.74, 0.42), matCamisa);
+            pecho.position.y = 0.37;
+            pecho.castShadow = true;
+
+            const chalecoTactico = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.42, 0.46), matChaleco);
+            chalecoTactico.position.set(0, 0.45, 0.01);
+            chalecoTactico.castShadow = true;
+
+            const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.12, 0.14, 10), matPiel);
+            cuello.position.set(0, 0.78, 0.01);
+
+            const cabezaGrupo = new THREE.Group();
+            cabezaGrupo.position.set(0, 1.04, 0.02);
+
+            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.27, 16, 16), matPiel);
+            craneo.scale.set(0.92, 1.05, 0.96);
+            craneo.castShadow = true;
+
+            const cabelloVolumen = new THREE.Mesh(new THREE.SphereGeometry(0.285, 16, 14), matCabello);
+            cabelloVolumen.scale.set(0.95, 0.95, 1.02);
+            cabelloVolumen.position.set(0, 0.06, -0.02);
+
+            const flequillo = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.14), matCabello);
+            flequillo.position.set(0, 0.14, 0.21);
+
+            const ojoIzq = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+            ojoIzq.position.set(-0.085, 0.01, 0.255);
+            const ojoDer = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+            ojoDer.position.set(0.085, 0.01, 0.255);
+
+            cabezaGrupo.add(craneo, cabelloVolumen, flequillo, ojoIzq, ojoDer);
+
+            const mochilaGrupo = new THREE.Group();
+            mochilaGrupo.position.set(0, 0.42, -0.26);
+            const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.52, 0.2), matMochila);
+            bolsaPrincipal.castShadow = true;
+            mochilaGrupo.add(bolsaPrincipal);
+
+            const pivoteBrazoIzq = new THREE.Group();
+            pivoteBrazoIzq.position.set(-0.4, 0.64, 0);
+            const brazoIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.54, 0.18), matPiel);
+            brazoIzqMesh.position.set(0, -0.27, 0);
+            brazoIzqMesh.castShadow = true;
+            pivoteBrazoIzq.add(brazoIzqMesh);
+
+            const pivoteBrazoDer = new THREE.Group();
+            pivoteBrazoDer.position.set(0.4, 0.64, 0);
+            const brazoDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.54, 0.18), matPiel);
+            brazoDerMesh.position.set(0, -0.27, 0);
+            brazoDerMesh.castShadow = true;
+
+            const rifleGrupo = new THREE.Group();
+            rifleGrupo.position.set(-0.04, -0.44, 0.26);
+
+            const receptor = new THREE.Mesh(
+                new THREE.BoxGeometry(0.085, 0.12, 0.68),
+                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.35 })
+            );
+            const culata = new THREE.Mesh(
+                new THREE.BoxGeometry(0.075, 0.14, 0.24),
+                new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 })
+            );
+            culata.position.set(0, -0.02, -0.42);
+
+            const cargador = new THREE.Mesh(
+                new THREE.BoxGeometry(0.055, 0.2, 0.11),
+                new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
+            );
+            cargador.rotation.x = 0.2;
+            cargador.position.set(0, -0.13, 0.08);
+
+            const canion = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.024, 0.024, 0.32, 8),
+                new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.25 })
+            );
+            canion.rotation.x = Math.PI / 2;
+            canion.position.set(0, 0.02, 0.46);
+
+            const destelloDisparo = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.92 })
+            );
+            destelloDisparo.position.set(0, 0.02, 0.65);
+            destelloDisparo.visible = false;
+
+            rifleGrupo.add(receptor, culata, cargador, canion, destelloDisparo);
+            pivoteBrazoDer.add(brazoDerMesh, rifleGrupo);
+
+            torsoGrupo.add(pecho, chalecoTactico, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
+            jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
+            scene.add(jugadorMesh);
+
+            let velY = 0;
+            let enSuelo = true;
+            let agachado = false;
+            let apuntando = false;
+            let balas = 30;
+            const maxBalas = 30;
+            let glooRestantes = 3;
+            let tiempoDestello = 0;
+            let cicloPaso = 0;
+            let anguloLobby = 0.4;
+            const proyectiles = [];
+
+            let camYaw = 0;
+            let camPitch = 0.22;
+            const sensibilidad = 0.0055;
+
+            function actualizarHUD() {
+                document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
+            }
+
+            const joystickBase = document.getElementById('joystick-base');
+            const joystickStick = document.getElementById('joystick-stick');
+            let joyActivo = false, joyTouchId = null, joyX = 0, joyY = 0;
+            const maxRadio = 36;
+
+            function actualizarJoystick(touch) {
+                const rect = joystickBase.getBoundingClientRect();
+                let dx = touch.clientX - (rect.left + rect.width / 2);
+                let dy = touch.clientY - (rect.top + rect.height / 2);
+                const dist = Math.hypot(dx, dy);
+                if (dist > maxRadio) {
+                    dx = (dx / dist) * maxRadio;
+                    dy = (dy / dist) * maxRadio;
+                }
+                joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
+                joyX = dx / maxRadio;
+                joyY = dy / maxRadio;
+            }
+
+            joystickBase.addEventListener('touchstart', (e) => {
+                if (enLobby) return;
+                e.preventDefault();
+                e.stopPropagation();
+                joyActivo = true;
+                joyTouchId = e.changedTouches[0].identifier;
+                actualizarJoystick(e.changedTouches[0]);
+            }, { passive: false });
+
+            joystickBase.addEventListener('touchmove', (e) => {
+                if (enLobby) return;
+                e.preventDefault();
+                e.stopPropagation();
+                if (!joyActivo) return;
+                for (const t of e.changedTouches) {
+                    if (t.identifier === joyTouchId) actualizarJoystick(t);
+                }
+            }, { passive: false });
+
+            function soltarJoystick(e) {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === joyTouchId) {
+                        joyActivo = false; joyTouchId = null; joyX = 0; joyY = 0;
+                        joystickStick.style.transform = 'translate(0px, 0px)';
+                    }
+                }
+            }
+            joystickBase.addEventListener('touchend', soltarJoystick);
+            joystickBase.addEventListener('touchcancel', soltarJoystick);
+
+            const aimZone = document.getElementById('aim-zone');
+            let aimTouchId = null;
+            let lastAimX = 0;
+            let lastAimY = 0;
+
+            function aplicarRotacionMira(deltaX, deltaY, factorVertical = 1) {
+                camYaw -= deltaX * sensibilidad;
+                camPitch = Math.max(-0.22, Math.min(0.72, camPitch + deltaY * sensibilidad * factorVertical));
+                jugadorMesh.rotation.y = camYaw;
+            }
+
+            aimZone.addEventListener('touchstart', (e) => {
+                if (enLobby) return;
+                e.preventDefault();
+                if (aimTouchId !== null) return;
+                const t = e.changedTouches[0];
+                aimTouchId = t.identifier;
+                lastAimX = t.clientX;
+                lastAimY = t.clientY;
+            }, { passive: false });
+
+            aimZone.addEventListener('touchmove', (e) => {
+                if (enLobby) return;
+                e.preventDefault();
+                if (aimTouchId === null) return;
+                for (const t of e.changedTouches) {
+                    if (t.identifier === aimTouchId) {
+                        const dx = t.clientX - lastAimX;
+                        const dy = t.clientY - lastAimY;
+                        lastAimX = t.clientX;
+                        lastAimY = t.clientY;
+                        aplicarRotacionMira(dx, dy, 1);
+                    }
+                }
+            }, { passive: false });
+
+            function soltarMira(e) {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === aimTouchId) {
+                        aimTouchId = null;
+                    }
+                }
+            }
+            aimZone.addEventListener('touchend', soltarMira);
+            aimZone.addEventListener('touchcancel', soltarMira);
+
+            const btnDisparo = document.getElementById('btn-disparo');
+            let disparando = false;
+            let fireTouchId = null;
+            let lastFireX = 0;
+            let lastFireY = 0;
+            let ultimoDisparoTime = 0;
+            const intervaloDisparo = 140;
+
+            function disparar() {
+                if (enLobby || balas <= 0) return;
+                balas--;
+                actualizarHUD();
+
+                destelloDisparo.visible = true;
+                tiempoDestello = 45;
+
+                const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+                const balaMesh = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.12, 8, 8),
+                    new THREE.MeshBasicMaterial({ color: 0xfef08a })
+                );
+                balaMesh.position.set(
+                    jugadorMesh.position.x + dir.x * 1.45,
+                    jugadorMesh.position.y + (agachado ? 0.85 : 1.32),
+                    jugadorMesh.position.z + dir.z * 1.45
+                );
+                scene.add(balaMesh);
+                proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
+            }
+
+            btnDisparo.addEventListener('touchstart', (e) => {
+                if (enLobby) return;
+                e.preventDefault();
+                e.stopPropagation();
+                if (fireTouchId !== null) return;
+                const t = e.changedTouches[0];
+                fireTouchId = t.identifier;
+                lastFireX = t.clientX;
+                lastFireY = t.clientY;
+                disparando = true;
+                btnDisparo.classList.add('active');
+                disparar();
+                ultimoDisparoTime = performance.now();
+            }, { passive: false });
+
+            btnDisparo.addEventListener('touchmove', (e) => {
+                if (enLobby) return;
+                e.preventDefault();
+                e.stopPropagation();
+                if (!disparando || fireTouchId === null) return;
+                for (const t of e.changedTouches) {
+                    if (t.identifier === fireTouchId) {
+                        const dx = t.clientX - lastFireX;
+                        const dy = t.clientY - lastFireY;
+                        lastFireX = t.clientX;
+                        lastFireY = t.clientY;
+                        aplicarRotacionMira(dx * 0.55, dy * 0.55, 0.85);
+                    }
+                }
+            }, { passive: false });
+
+            function soltarDisparo(e) {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === fireTouchId) {
+                        disparando = false;
+                        fireTouchId = null;
+                        btnDisparo.classList.remove('active');
+                    }
+                }
+            }
+            btnDisparo.addEventListener('touchend', soltarDisparo);
+            btnDisparo.addEventListener('touchcancel', soltarDisparo);
+            btnDisparo.addEventListener('mousedown', () => {
+                if (enLobby) return;
+                disparando = true;
+                disparar();
+                ultimoDisparoTime = performance.now();
+            });
+            window.addEventListener('mouseup', () => { disparando = false; });
+
+            const btnMira = document.getElementById('btn-mira');
+            function toggleMira() {
+                if (enLobby) return;
+                apuntando = !apuntando;
+                btnMira.classList.toggle('active', apuntando);
+                crosshair.style.display = apuntando ? 'block' : 'none';
+            }
+            btnMira.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMira();
+            }, { passive: false });
+            btnMira.addEventListener('click', toggleMira);
+
+            function ponerGloo() {
+                if (enLobby || glooRestantes <= 0) return;
+                glooRestantes--;
+                actualizarHUD();
+
+                const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+                const glooGrupo = new THREE.Group();
+
+                const panel = new THREE.Mesh(
+                    new THREE.BoxGeometry(3.3, 2.25, 0.34),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x38bdf8,
+                        emissive: 0x0284c7,
+                        emissiveIntensity: 0.25,
+                        transparent: true,
+                        opacity: 0.68
+                    })
+                );
+                panel.position.y = 1.12;
+                panel.castShadow = true;
+
+                glooGrupo.add(panel);
+                const gx = jugadorMesh.position.x + dir.x * 3.1;
+                const gz = jugadorMesh.position.z + dir.z * 3.1;
+                glooGrupo.position.set(gx, 0, gz);
+                glooGrupo.rotation.y = jugadorMesh.rotation.y;
+                scene.add(glooGrupo);
+                obstaculos.push({ x: gx, z: gz, r: 1.45 });
+            }
+
+            function recargar() {
+                if (enLobby) return;
+                balas = maxBalas;
+                actualizarHUD();
+            }
+
+            function saltar() {
+                if (enLobby || !enSuelo) return;
+                if (agachado) agachado = false;
+                velY = 0.36;
+                enSuelo = false;
+            }
+
+            function toggleAgachar() {
+                if (enLobby) return;
+                agachado = !agachado;
+            }
+
+            function vincularBoton(id, fn) {
+                const el = document.getElementById(id);
+                el.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fn();
+                }, { passive: false });
+                el.addEventListener('click', fn);
+            }
+
+            vincularBoton('btn-gloo', ponerGloo);
+            vincularBoton('btn-recargar', recargar);
+            vincularBoton('btn-salto', saltar);
+            vincularBoton('btn-agachar', toggleAgachar);
+
+            let ultimoFrame = performance.now();
+
+            function animar(ahora = performance.now()) {
+                requestAnimationFrame(animar);
+                const dt = Math.min(50, ahora - ultimoFrame);
+                ultimoFrame = ahora;
+
+                if (tiempoDestello > 0) {
+                    tiempoDestello -= dt;
+                    if (tiempoDestello <= 0) destelloDisparo.visible = false;
+                }
+
+                if (enLobby) {
+                    anguloLobby += dt * 0.0005;
+                    jugadorMesh.rotation.y = 0.2;
+                    pivotePiernaIzq.rotation.x = 0;
+                    pivotePiernaDer.rotation.x = 0;
+                    pivoteBrazoDer.rotation.x = -0.82;
+                    pivoteBrazoIzq.rotation.x = -0.75;
+
+                    const radioLobby = 5.2;
+                    camera.position.set(
+                        jugadorMesh.position.x + Math.sin(anguloLobby) * radioLobby,
+                        2.15,
+                        jugadorMesh.position.z + Math.cos(anguloLobby) * radioLobby
+                    );
+                    camera.lookAt(jugadorMesh.position.x, 1.35, jugadorMesh.position.z);
+
+                    sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
+                    renderer.render(scene, camera);
+                    return;
+                }
+
+                if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
+                    disparar();
+                    ultimoDisparoTime = ahora;
+                }
+
+                const velocidad = agachado ? 0.14 : 0.22;
+                const forwardX = Math.sin(camYaw);
+                const forwardZ = Math.cos(camYaw);
+                const rightX = -Math.cos(camYaw);
+                const rightZ = Math.sin(camYaw);
+
+                const moveForward = -joyY;
+                const moveRight = joyX;
+                const intensidadMov = Math.min(1, Math.hypot(moveForward, moveRight));
+
+                const moveVecX = forwardX * moveForward + rightX * moveRight;
+                const moveVecZ = forwardZ * moveForward + rightZ * moveRight;
+
+                const nextX = jugadorMesh.position.x + moveVecX * velocidad;
+                const nextZ = jugadorMesh.position.z + moveVecZ * velocidad;
+
+                let bloqueado = false;
+                for (const obs of obstaculos) {
+                    if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.52) {
+                        bloqueado = true;
+                        break;
+                    }
+                }
+
+                if (!bloqueado) {
+                    jugadorMesh.position.x = Math.max(-72, Math.min(72, nextX));
+                    jugadorMesh.position.z = Math.max(-72, Math.min(72, nextZ));
+                }
+
+                jugadorMesh.rotation.y = camYaw;
+
+                const targetTorsoY = agachado ? 0.52 : 0.86;
+                torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
+                torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
+
+                if (intensidadMov > 0.05 && enSuelo) {
+                    cicloPaso += dt * 0.015 * intensidadMov;
+                    const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
+                    pivotePiernaIzq.rotation.x = angPierna;
+                    pivotePiernaDer.rotation.x = -angPierna;
+                    pivoteBrazoIzq.rotation.x = apuntando ? -1.1 : -angPierna * 0.55;
+                    pivoteBrazoDer.rotation.x = apuntando ? -1.15 : angPierna * 0.4;
+                } else {
+                    pivotePiernaIzq.rotation.x *= 0.8;
+                    pivotePiernaDer.rotation.x *= 0.8;
+                    const targetBrazoDer = apuntando ? -1.15 : -0.82;
+                    const targetBrazoIzq = apuntando ? -1.1 : -0.75;
+                    pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
+                    pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
+                }
+
+                if (!enSuelo) {
+                    jugadorMesh.position.y += velY;
+                    velY -= 0.015;
+                    if (jugadorMesh.position.y <= 0) {
+                        jugadorMesh.position.y = 0;
+                        velY = 0;
+                        enSuelo = true;
+                    }
+                }
+
+                sombraJugador.position.x = jugadorMesh.position.x;
+                sombraJugador.position.z = jugadorMesh.position.z;
+                const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
+                sombraJugador.scale.set(escalaSombra, escalaSombra, 1);
+
+                for (let i = proyectiles.length - 1; i >= 0; i--) {
+                    const p = proyectiles[i];
+                    p.mesh.position.x += p.vx;
+                    p.mesh.position.z += p.vz;
+                    p.vida--;
+                    if (p.vida <= 0) {
+                        scene.remove(p.mesh);
+                        proyectiles.splice(i, 1);
+                    }
+                }
+
+                const targetFov = apuntando ? 42 : 60;
+                if (Math.abs(camera.fov - targetFov) > 0.2) {
+                    camera.fov += (targetFov - camera.fov) * 0.18;
+                    camera.updateProjectionMatrix();
+                }
+
+                const baseDist = apuntando ? 6.8 : 8.4;
+                const alturaCam = (apuntando ? 3.15 : 2.15) + Math.sin(camPitch) * baseDist;
+                let horizDist = Math.cos(camPitch) * baseDist;
+
+                const dirAtrasX = -Math.sin(camYaw);
+                const dirAtrasZ = -Math.cos(camYaw);
+                const hombroOffset = apuntando ? 1.55 : 0;
+
+                for (const obs of obstaculos) {
+                    const cx = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
+                    const cz = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
+                    const distObs = Math.hypot(cx - obs.x, cz - obs.z);
+                    if (distObs < obs.r + 0.9) {
+                        horizDist = Math.max(2.8, horizDist - (obs.r + 0.9 - distObs));
+                    }
+                }
+
+                const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
+                const camTargetY = jugadorMesh.position.y + alturaCam;
+                const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
+
+                camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
+                camera.lookAt(
+                    jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.5 : 0),
+                    jugadorMesh.position.y + (apuntando ? 1.9 : 1.5) + Math.sin(camPitch) * 3,
+                    jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.5 : 0)
+                );
+
+                renderer.render(scene, camera);
+            }
+
+            animar();
         }
 
-        const suelo = new THREE.Mesh(
-            new THREE.PlaneGeometry(160, 160),
-            new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.88 })
-        );
-        suelo.rotation.x = -Math.PI / 2;
-        suelo.receiveShadow = true;
-        scene.add(suelo);
-
-        const obstaculos = [];
-
-        function crearArbolRealista(x, z, escala = 1) {
-            const grupo = new THREE.Group();
-
-            const tronco = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.28 * escala, 0.45 * escala, 2.8 * escala, 10),
-                new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.95 })
-            );
-            tronco.position.y = 1.4 * escala;
-            tronco.castShadow = true;
-
-            const copaBaja = new THREE.Mesh(
-                new THREE.DodecahedronGeometry(2.0 * escala, 1),
-                new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.8 })
-            );
-            copaBaja.position.set(0, 3.3 * escala, 0);
-            copaBaja.scale.set(1.1, 0.75, 1.1);
-            copaBaja.castShadow = true;
-
-            const copaAlta = new THREE.Mesh(
-                new THREE.DodecahedronGeometry(1.5 * escala, 1),
-                new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.75 })
-            );
-            copaAlta.position.set(0.3 * escala, 4.4 * escala, -0.2 * escala);
-            copaAlta.castShadow = true;
-
-            grupo.add(tronco, copaBaja, copaAlta);
-            grupo.position.set(x, 0, z);
-            scene.add(grupo);
-            obstaculos.push({ x, z, r: 0.85 * escala });
-        }
-
-        function crearCajaSuministro(x, z, rotY = 0) {
-            const grupo = new THREE.Group();
-            const base = new THREE.Mesh(
-                new THREE.BoxGeometry(2.4, 1.5, 2.4),
-                new THREE.MeshStandardMaterial({ color: 0x9c4221, roughness: 0.7 })
-            );
-            base.position.y = 0.75;
-            base.castShadow = true;
-
-            const marco = new THREE.Mesh(
-                new THREE.BoxGeometry(2.5, 0.2, 2.5),
-                new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
-            );
-            marco.position.y = 1.42;
-            grupo.add(base, marco);
-            grupo.position.set(x, 0, z);
-            grupo.rotation.y = rotY;
-            scene.add(grupo);
-            obstaculos.push({ x, z, r: 1.55 });
-        }
-
-        function crearRoca(x, z, escala = 1) {
-            const roca = new THREE.Mesh(
-                new THREE.DodecahedronGeometry(1.3 * escala, 1),
-                new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.92 })
-            );
-            roca.position.set(x, 0.65 * escala, z);
-            roca.scale.set(1.25, 0.75, 1.05);
-            roca.castShadow = true;
-            scene.add(roca);
-            obstaculos.push({ x, z, r: 1.2 * escala });
-        }
-
-        for (let i = 0; i < 28; i++) {
-            const ang = (i / 28) * Math.PI * 2;
-            const dist = 15 + (i % 3) * 14;
-            const esc = 0.85 + (i % 4) * 0.14;
-            crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
-        }
-
-        crearCajaSuministro(6, 6, 0.25);
-        crearCajaSuministro(-8, 10, -0.4);
-        crearCajaSuministro(10, -8, 0.7);
-        crearCajaSuministro(-6, -6, 0.1);
-        crearRoca(13, 4, 1.1);
-        crearRoca(-12, -3, 1.35);
-        crearRoca(3, -15, 0.95);
-
-        const sombraJugador = new THREE.Mesh(
-            new THREE.CircleGeometry(0.75, 24),
-            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })
-        );
-        sombraJugador.rotation.x = -Math.PI / 2;
-        sombraJugador.position.y = 0.03;
-        scene.add(sombraJugador);
-
-        const jugadorMesh = new THREE.Group();
-
-        const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
-        const matCabello = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75 });
-        const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.52 });
-        const matChaleco = new THREE.MeshStandardMaterial({ color: 0x27303f, roughness: 0.65 });
-        const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.75 });
-        const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
-        const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
-
-        const pivotePiernaIzq = new THREE.Group();
-        pivotePiernaIzq.position.set(-0.17, 0.86, 0);
-        const piernaIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
-        piernaIzqMesh.position.set(0, -0.34, 0);
-        piernaIzqMesh.castShadow = true;
-        const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
-        botaIzq.position.set(0, -0.77, 0.04);
-        botaIzq.castShadow = true;
-        pivotePiernaIzq.add(piernaIzqMesh, botaIzq);
-
-        const pivotePiernaDer = new THREE.Group();
-        pivotePiernaDer.position.set(0.17, 0.86, 0);
-        const piernaDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
-        piernaDerMesh.position.set(0, -0.34, 0);
-        piernaDerMesh.castShadow = true;
-        const bota
+        cargarThreeYArrancar();
+    </script>
+</body>
+</html>
