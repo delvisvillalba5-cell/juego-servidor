@@ -41,8 +41,8 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 16px 20px;
-            background: radial-gradient(circle at 75% 45%, rgba(15, 23, 42, 0.08) 0%, rgba(2, 6, 23, 0.65) 100%);
+            padding: 14px 16px 22px;
+            background: radial-gradient(circle at 50% 45%, rgba(15, 23, 42, 0.05) 0%, rgba(2, 6, 23, 0.68) 100%);
             pointer-events: auto;
         }
         #lobby-screen.oculto {
@@ -53,7 +53,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
         .brand-box {
@@ -64,7 +64,7 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
         }
         .brand-title {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 900;
             letter-spacing: 1.5px;
             color: #facc15;
@@ -78,14 +78,14 @@
         .lobby-stats {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             flex-wrap: wrap;
         }
         .stat-pill {
-            background: rgba(15, 23, 42, 0.84);
+            background: rgba(15, 23, 42, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.22);
             border-radius: 999px;
-            padding: 6px 12px;
+            padding: 6px 11px;
             color: #f8fafc;
             font-size: 12px;
             font-weight: 700;
@@ -106,54 +106,60 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            gap: 16px;
+            gap: 12px;
             flex-wrap: wrap;
+            width: 100%;
         }
         .lobby-tip {
-            background: rgba(15, 23, 42, 0.72);
+            background: rgba(15, 23, 42, 0.78);
             border-left: 3px solid #facc15;
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 8px 11px;
             color: #e2e8f0;
-            font-size: 12px;
-            max-width: 280px;
+            font-size: 11px;
+            max-width: 240px;
+            line-height: 1.35;
         }
         .launch-panel {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            gap: 10px;
+            align-items: stretch;
+            gap: 8px;
             margin-left: auto;
+            min-width: 185px;
         }
         .mode-selector {
             display: flex;
-            gap: 8px;
-            background: rgba(15, 23, 42, 0.82);
-            padding: 5px;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.86);
+            padding: 4px;
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
         .mode-btn {
+            flex: 1;
             border: none;
             background: transparent;
             color: #cbd5e1;
             font-weight: 700;
-            font-size: 12px;
-            padding: 6px 12px;
+            font-size: 11px;
+            padding: 6px 8px;
             border-radius: 7px;
             cursor: pointer;
+            white-space: nowrap;
         }
         .mode-btn.activo {
             background: linear-gradient(135deg, #f59e0b, #eab308);
             color: #0f172a;
         }
         #btn-iniciar-juego {
+            width: 100%;
             background: linear-gradient(135deg, #facc15, #f97316);
             color: #0f172a;
             border: 2px solid #fef08a;
             border-radius: 12px;
-            padding: 13px 34px;
-            font-size: 18px;
+            padding: 12px 24px;
+            font-size: 17px;
             font-weight: 900;
             letter-spacing: 1px;
             cursor: pointer;
@@ -448,7 +454,6 @@
         let nombreJugador = 'Jugador_1';
         let modoActual = 'Battle Royale';
 
-        // Controles del lobby
         const lobbyNombreEl = document.getElementById('lobby-nombre');
         const hudNombreEl = document.getElementById('hud-nombre');
         const hudVivosEl = document.getElementById('hud-vivos');
@@ -479,7 +484,6 @@
             gameplayUi.classList.add('activo');
         });
 
-        // Escena 3D
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x4ea8de);
         scene.fog = new THREE.FogExp2(0x90e0ef, 0.0065);
@@ -661,7 +665,9 @@
         sombraJugador.position.y = 0.03;
         scene.add(sombraJugador);
 
-        // Personaje 3D articulado
+        // ==========================================
+        // PERSONAJE 3D CON PIERNAS Y BRAZOS UNIDOS
+        // ==========================================
         const jugadorMesh = new THREE.Group();
 
         const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
@@ -672,25 +678,27 @@
         const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
         const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
 
+        // Pierna izquierda unida de cadera a bota
         const pivotePiernaIzq = new THREE.Group();
-        pivotePiernaIzq.position.set(-0.18, 0.84, 0);
-        const musloIzq = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.32, 6, 10), matPantalon);
-        musloIzq.position.y = -0.22;
-        musloIzq.castShadow = true;
-        const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.24, 0.34), matBota);
-        botaIzq.position.set(0, -0.72, 0.04);
+        pivotePiernaIzq.position.set(-0.18, 0.86, 0);
+        const piernaIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.66, 0.26), matPantalon);
+        piernaIzqMesh.position.set(0, -0.33, 0);
+        piernaIzqMesh.castShadow = true;
+        const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.36), matBota);
+        botaIzq.position.set(0, -0.76, 0.05);
         botaIzq.castShadow = true;
-        pivotePiernaIzq.add(musloIzq, botaIzq);
+        pivotePiernaIzq.add(piernaIzqMesh, botaIzq);
 
+        // Pierna derecha unida de cadera a bota
         const pivotePiernaDer = new THREE.Group();
-        pivotePiernaDer.position.set(0.18, 0.84, 0);
-        const musloDer = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.32, 6, 10), matPantalon);
-        musloDer.position.y = -0.22;
-        musloDer.castShadow = true;
-        const botaDer = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.24, 0.34), matBota);
-        botaDer.position.set(0, -0.72, 0.04);
+        pivotePiernaDer.position.set(0.18, 0.86, 0);
+        const piernaDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.66, 0.26), matPantalon);
+        piernaDerMesh.position.set(0, -0.33, 0);
+        piernaDerMesh.castShadow = true;
+        const botaDer = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.36), matBota);
+        botaDer.position.set(0, -0.76, 0.05);
         botaDer.castShadow = true;
-        pivotePiernaDer.add(musloDer, botaDer);
+        pivotePiernaDer.add(piernaDerMesh, botaDer);
 
         const torsoGrupo = new THREE.Group();
         torsoGrupo.position.set(0, 0.86, 0);
@@ -740,19 +748,19 @@
 
         const pivoteBrazoIzq = new THREE.Group();
         pivoteBrazoIzq.position.set(-0.42, 0.64, 0.02);
-        const brazoIzqMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.36, 6, 8), matPiel);
-        brazoIzqMesh.position.y = -0.24;
+        const brazoIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.54, 0.2), matPiel);
+        brazoIzqMesh.position.set(0, -0.27, 0);
         brazoIzqMesh.castShadow = true;
         pivoteBrazoIzq.add(brazoIzqMesh);
 
         const pivoteBrazoDer = new THREE.Group();
         pivoteBrazoDer.position.set(0.42, 0.64, 0.02);
-        const brazoDerMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.36, 6, 8), matPiel);
-        brazoDerMesh.position.y = -0.24;
+        const brazoDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.54, 0.2), matPiel);
+        brazoDerMesh.position.set(0, -0.27, 0);
         brazoDerMesh.castShadow = true;
 
         const rifleGrupo = new THREE.Group();
-        rifleGrupo.position.set(-0.04, -0.34, 0.38);
+        rifleGrupo.position.set(-0.04, -0.44, 0.34);
 
         const receptor = new THREE.Mesh(
             new THREE.BoxGeometry(0.09, 0.13, 0.72),
@@ -791,462 +799,4 @@
         destelloDisparo.position.set(0, 0.02, 0.72);
         destelloDisparo.visible = false;
 
-        rifleGrupo.add(receptor, culata, cargador, canion, miraRifle, destelloDisparo);
-        pivoteBrazoDer.add(brazoDerMesh, rifleGrupo);
-
-        torsoGrupo.add(pecho, chalecoTactico, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
-        jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
-        scene.add(jugadorMesh);
-
-        // Estado del jugador y cámara
-        let velY = 0;
-        let enSuelo = true;
-        let agachado = false;
-        let apuntando = false;
-        let balas = 30;
-        const maxBalas = 30;
-        let glooRestantes = 3;
-        let tiempoDestello = 0;
-        let cicloPaso = 0;
-        let anguloLobby = 0.45;
-        const proyectiles = [];
-
-        let camYaw = 0;
-        let camPitch = 0.22;
-        const sensibilidad = 0.0055;
-
-        function actualizarHUD() {
-            document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
-        }
-
-        // 1. Joystick izquierdo
-        const joystickBase = document.getElementById('joystick-base');
-        const joystickStick = document.getElementById('joystick-stick');
-        let joyActivo = false, joyTouchId = null, joyX = 0, joyY = 0;
-        const maxRadio = 36;
-
-        function actualizarJoystick(touch) {
-            const rect = joystickBase.getBoundingClientRect();
-            let dx = touch.clientX - (rect.left + rect.width / 2);
-            let dy = touch.clientY - (rect.top + rect.height / 2);
-            const dist = Math.hypot(dx, dy);
-            if (dist > maxRadio) {
-                dx = (dx / dist) * maxRadio;
-                dy = (dy / dist) * maxRadio;
-            }
-            joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
-            joyX = dx / maxRadio;
-            joyY = dy / maxRadio;
-        }
-
-        joystickBase.addEventListener('touchstart', (e) => {
-            if (enLobby) return;
-            e.preventDefault();
-            e.stopPropagation();
-            joyActivo = true;
-            joyTouchId = e.changedTouches[0].identifier;
-            actualizarJoystick(e.changedTouches[0]);
-        }, { passive: false });
-
-        joystickBase.addEventListener('touchmove', (e) => {
-            if (enLobby) return;
-            e.preventDefault();
-            e.stopPropagation();
-            if (!joyActivo) return;
-            for (const t of e.changedTouches) {
-                if (t.identifier === joyTouchId) actualizarJoystick(t);
-            }
-        }, { passive: false });
-
-        function soltarJoystick(e) {
-            for (const t of e.changedTouches) {
-                if (t.identifier === joyTouchId) {
-                    joyActivo = false; joyTouchId = null; joyX = 0; joyY = 0;
-                    joystickStick.style.transform = `translate(0px, 0px)`;
-                }
-            }
-        }
-        joystickBase.addEventListener('touchend', soltarJoystick);
-        joystickBase.addEventListener('touchcancel', soltarJoystick);
-
-        // 2. Zona derecha de cámara / mira
-        const aimZone = document.getElementById('aim-zone');
-        let aimTouchId = null;
-        let lastAimX = 0;
-        let lastAimY = 0;
-
-        function aplicarRotacionMira(deltaX, deltaY, factorVertical = 1) {
-            camYaw -= deltaX * sensibilidad;
-            camPitch = Math.max(-0.25, Math.min(0.75, camPitch + deltaY * sensibilidad * factorVertical));
-            jugadorMesh.rotation.y = camYaw;
-        }
-
-        aimZone.addEventListener('touchstart', (e) => {
-            if (enLobby) return;
-            e.preventDefault();
-            if (aimTouchId !== null) return;
-            const t = e.changedTouches[0];
-            aimTouchId = t.identifier;
-            lastAimX = t.clientX;
-            lastAimY = t.clientY;
-        }, { passive: false });
-
-        aimZone.addEventListener('touchmove', (e) => {
-            if (enLobby) return;
-            e.preventDefault();
-            if (aimTouchId === null) return;
-            for (const t of e.changedTouches) {
-                if (t.identifier === aimTouchId) {
-                    const dx = t.clientX - lastAimX;
-                    const dy = t.clientY - lastAimY;
-                    lastAimX = t.clientX;
-                    lastAimY = t.clientY;
-                    aplicarRotacionMira(dx, dy, 1);
-                }
-            }
-        }, { passive: false });
-
-        function soltarMira(e) {
-            for (const t of e.changedTouches) {
-                if (t.identifier === aimTouchId) {
-                    aimTouchId = null;
-                }
-            }
-        }
-        aimZone.addEventListener('touchend', soltarMira);
-        aimZone.addEventListener('touchcancel', soltarMira);
-
-        // 3. Disparo continuo + arrastre de mira
-        const btnDisparo = document.getElementById('btn-disparo');
-        let disparando = false;
-        let fireTouchId = null;
-        let lastFireX = 0;
-        let lastFireY = 0;
-        let ultimoDisparoTime = 0;
-        const intervaloDisparo = 135;
-
-        function disparar() {
-            if (enLobby || balas <= 0) return;
-            balas--;
-            actualizarHUD();
-
-            destelloDisparo.visible = true;
-            tiempoDestello = 45;
-
-            const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
-            const balaMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(0.12, 8, 8),
-                new THREE.MeshBasicMaterial({ color: 0xfef08a })
-            );
-            balaMesh.position.set(
-                jugadorMesh.position.x + dir.x * 1.45,
-                jugadorMesh.position.y + (agachado ? 0.85 : 1.32),
-                jugadorMesh.position.z + dir.z * 1.45
-            );
-            scene.add(balaMesh);
-            proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
-        }
-
-        btnDisparo.addEventListener('touchstart', (e) => {
-            if (enLobby) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const t = e.changedTouches[0];
-            fireTouchId = t.identifier;
-            lastFireX = t.clientX;
-            lastFireY = t.clientY;
-            disparando = true;
-            btnDisparo.classList.add('active');
-            disparar();
-            ultimoDisparoTime = performance.now();
-        }, { passive: false });
-
-        btnDisparo.addEventListener('touchmove', (e) => {
-            if (enLobby) return;
-            e.preventDefault();
-            e.stopPropagation();
-            if (!disparando) return;
-            for (const t of e.changedTouches) {
-                if (t.identifier === fireTouchId) {
-                    const dx = t.clientX - lastFireX;
-                    const dy = t.clientY - lastFireY;
-                    lastFireX = t.clientX;
-                    lastFireY = t.clientY;
-                    aplicarRotacionMira(dx * 0.75, dy * 0.75, 1.15);
-                }
-            }
-        }, { passive: false });
-
-        function soltarDisparo(e) {
-            for (const t of e.changedTouches) {
-                if (t.identifier === fireTouchId) {
-                    disparando = false;
-                    fireTouchId = null;
-                    btnDisparo.classList.remove('active');
-                }
-            }
-        }
-        btnDisparo.addEventListener('touchend', soltarDisparo);
-        btnDisparo.addEventListener('touchcancel', soltarDisparo);
-        btnDisparo.addEventListener('mousedown', () => {
-            if (enLobby) return;
-            disparando = true;
-            disparar();
-            ultimoDisparoTime = performance.now();
-        });
-        window.addEventListener('mouseup', () => { disparando = false; });
-
-        // 4. Mira / Zoom
-        const btnMira = document.getElementById('btn-mira');
-        function toggleMira() {
-            if (enLobby) return;
-            apuntando = !apuntando;
-            btnMira.classList.toggle('active', apuntando);
-            crosshair.style.display = apuntando ? 'block' : 'none';
-        }
-        btnMira.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleMira();
-        }, { passive: false });
-        btnMira.addEventListener('click', toggleMira);
-
-        // 5. Acciones
-        function ponerGloo() {
-            if (enLobby || glooRestantes <= 0) return;
-            glooRestantes--;
-            actualizarHUD();
-
-            const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
-            const glooGrupo = new THREE.Group();
-
-            const panel = new THREE.Mesh(
-                new THREE.BoxGeometry(3.3, 2.25, 0.34),
-                new THREE.MeshStandardMaterial({
-                    color: 0x38bdf8,
-                    emissive: 0x0284c7,
-                    emissiveIntensity: 0.25,
-                    transparent: true,
-                    opacity: 0.68,
-                    roughness: 0.15
-                })
-            );
-            panel.position.y = 1.12;
-            panel.castShadow = true;
-
-            const borde = new THREE.Mesh(
-                new THREE.BoxGeometry(3.36, 0.14, 0.4),
-                new THREE.MeshStandardMaterial({
-                    color: 0xbae6fd,
-                    transparent: true,
-                    opacity: 0.85
-                })
-            );
-            borde.position.y = 2.18;
-
-            glooGrupo.add(panel, borde);
-            const gx = jugadorMesh.position.x + dir.x * 3.1;
-            const gz = jugadorMesh.position.z + dir.z * 3.1;
-            glooGrupo.position.set(gx, 0, gz);
-            glooGrupo.rotation.y = jugadorMesh.rotation.y;
-            scene.add(glooGrupo);
-            obstaculos.push({ x: gx, z: gz, r: 1.45 });
-        }
-
-        function recargar() {
-            if (enLobby) return;
-            balas = maxBalas;
-            actualizarHUD();
-        }
-
-        function saltar() {
-            if (enLobby || !enSuelo) return;
-            if (agachado) agachado = false;
-            velY = 0.36;
-            enSuelo = false;
-        }
-
-        function toggleAgachar() {
-            if (enLobby) return;
-            agachado = !agachado;
-        }
-
-        function vincularBoton(id, fn) {
-            const el = document.getElementById(id);
-            el.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                fn();
-            }, { passive: false });
-            el.addEventListener('click', fn);
-        }
-
-        vincularBoton('btn-gloo', ponerGloo);
-        vincularBoton('btn-recargar', recargar);
-        vincularBoton('btn-salto', saltar);
-        vincularBoton('btn-agachar', toggleAgachar);
-
-        let ultimoFrame = performance.now();
-
-        function animar(ahora = performance.now()) {
-            requestAnimationFrame(animar);
-            const dt = Math.min(50, ahora - ultimoFrame);
-            ultimoFrame = ahora;
-
-            if (tiempoDestello > 0) {
-                tiempoDestello -= dt;
-                if (tiempoDestello <= 0) destelloDisparo.visible = false;
-            }
-
-            if (enLobby) {
-                // Vista panorámica suave en el lobby con el personaje de frente/perfil
-                anguloLobby += dt * 0.00045;
-                jugadorMesh.rotation.y = 0.25;
-                pivotePiernaIzq.rotation.x *= 0.85;
-                pivotePiernaDer.rotation.x *= 0.85;
-                pivoteBrazoDer.rotation.x += (-0.55 - pivoteBrazoDer.rotation.x) * 0.15;
-                pivoteBrazoIzq.rotation.x += (-0.45 - pivoteBrazoIzq.rotation.x) * 0.15;
-
-                const radioLobby = 5.4;
-                camera.position.lerp(
-                    new THREE.Vector3(
-                        jugadorMesh.position.x + Math.sin(anguloLobby) * radioLobby,
-                        2.15,
-                        jugadorMesh.position.z + Math.cos(anguloLobby) * radioLobby
-                    ),
-                    0.08
-                );
-                camera.lookAt(
-                    jugadorMesh.position.x - 0.55,
-                    1.35,
-                    jugadorMesh.position.z
-                );
-
-                sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
-                renderer.render(scene, camera);
-                return;
-            }
-
-            if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
-                disparar();
-                ultimoDisparoTime = ahora;
-            }
-
-            const velocidad = agachado ? 0.14 : 0.22;
-            const forwardX = Math.sin(camYaw);
-            const forwardZ = Math.cos(camYaw);
-            const rightX = -Math.cos(camYaw);
-            const rightZ = Math.sin(camYaw);
-
-            const moveForward = -joyY;
-            const moveRight = joyX;
-            const intensidadMov = Math.min(1, Math.hypot(moveForward, moveRight));
-
-            const moveVecX = forwardX * moveForward + rightX * moveRight;
-            const moveVecZ = forwardZ * moveForward + rightZ * moveRight;
-
-            const nextX = jugadorMesh.position.x + moveVecX * velocidad;
-            const nextZ = jugadorMesh.position.z + moveVecZ * velocidad;
-
-            let bloqueado = false;
-            for (const obs of obstaculos) {
-                if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.52) {
-                    bloqueado = true;
-                    break;
-                }
-            }
-
-            if (!bloqueado) {
-                jugadorMesh.position.x = Math.max(-72, Math.min(72, nextX));
-                jugadorMesh.position.z = Math.max(-72, Math.min(72, nextZ));
-            }
-
-            jugadorMesh.rotation.y = camYaw;
-
-            const targetTorsoY = agachado ? 0.52 : 0.86;
-            torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
-            torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
-
-            if (intensidadMov > 0.05 && enSuelo) {
-                cicloPaso += dt * 0.015 * intensidadMov;
-                const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
-                pivotePiernaIzq.rotation.x = angPierna;
-                pivotePiernaDer.rotation.x = -angPierna;
-                pivoteBrazoIzq.rotation.x = apuntando ? -1.35 : -angPierna * 0.55;
-                pivoteBrazoDer.rotation.x = apuntando ? -1.42 : angPierna * 0.4;
-            } else {
-                pivotePiernaIzq.rotation.x *= 0.8;
-                pivotePiernaDer.rotation.x *= 0.8;
-                const targetBrazoDer = apuntando ? -1.42 : -0.25;
-                const targetBrazoIzq = apuntando ? -1.35 : -0.1;
-                pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
-                pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
-            }
-
-            if (!enSuelo) {
-                jugadorMesh.position.y += velY;
-                velY -= 0.015;
-                if (jugadorMesh.position.y <= 0) {
-                    jugadorMesh.position.y = 0;
-                    velY = 0;
-                    enSuelo = true;
-                }
-            }
-
-            sombraJugador.position.x = jugadorMesh.position.x;
-            sombraJugador.position.z = jugadorMesh.position.z;
-            const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
-            sombraJugador.scale.set(escalaSombra, escalaSombra, 1);
-
-            for (let i = proyectiles.length - 1; i >= 0; i--) {
-                const p = proyectiles[i];
-                p.mesh.position.x += p.vx;
-                p.mesh.position.z += p.vz;
-                p.vida--;
-                if (p.vida <= 0) {
-                    scene.remove(p.mesh);
-                    proyectiles.splice(i, 1);
-                }
-            }
-
-            const targetFov = apuntando ? 38 : 60;
-            if (Math.abs(camera.fov - targetFov) > 0.2) {
-                camera.fov += (targetFov - camera.fov) * 0.18;
-                camera.updateProjectionMatrix();
-            }
-
-            const baseDist = apuntando ? 5.8 : 8.4;
-            const alturaCam = (apuntando ? 2.75 : 2.15) + Math.sin(camPitch) * baseDist;
-            let horizDist = Math.cos(camPitch) * baseDist;
-
-            const dirAtrasX = -Math.sin(camYaw);
-            const dirAtrasZ = -Math.cos(camYaw);
-            const hombroOffset = apuntando ? 1.35 : 0;
-
-            for (const obs of obstaculos) {
-                const cx = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
-                const cz = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
-                const distObs = Math.hypot(cx - obs.x, cz - obs.z);
-                if (distObs < obs.r + 0.9) {
-                    horizDist = Math.max(2.8, horizDist - (obs.r + 0.9 - distObs));
-                }
-            }
-
-            const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
-            const camTargetY = jugadorMesh.position.y + alturaCam;
-            const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist + rightZ * hombroOffset;
-
-            camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
-            camera.lookAt(
-                jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.65 : 0),
-                jugadorMesh.position.y + (apuntando ? 1.85 : 1.5) + Math.sin(camPitch) * 3,
-                jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.65 : 0)
-            );
-
-            renderer.render(scene, camera);
-        }
-
-        animar();
-    </script>
-</body>
-</html>
+        
