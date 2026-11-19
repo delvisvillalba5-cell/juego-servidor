@@ -44,7 +44,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 14px 16px 24px;
+            padding: 14px 14px 36px;
             background: transparent;
             pointer-events: none;
         }
@@ -60,8 +60,8 @@
             pointer-events: auto;
         }
         .brand-box {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(250, 204, 21, 0.8);
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(250, 204, 21, 0.85);
             border-radius: 10px;
             padding: 7px 12px;
         }
@@ -83,7 +83,7 @@
             flex-wrap: wrap;
         }
         .stat-pill {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 999px;
             padding: 5px 10px;
@@ -116,21 +116,21 @@
             flex-wrap: wrap;
         }
         .lobby-tip {
-            background: rgba(15, 23, 42, 0.82);
+            background: rgba(15, 23, 42, 0.85);
             border-left: 3px solid #facc15;
             border-radius: 8px;
-            padding: 7px 10px;
+            padding: 6px 10px;
             color: #f1f5f9;
             font-size: 11px;
-            max-width: 240px;
+            max-width: 220px;
         }
         .mode-selector {
             display: flex;
             gap: 5px;
-            background: rgba(15, 23, 42, 0.88);
+            background: rgba(15, 23, 42, 0.9);
             padding: 4px;
             border-radius: 9px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.22);
         }
         .mode-btn {
             border: none;
@@ -147,17 +147,19 @@
             color: #0f172a;
         }
         #btn-iniciar-juego {
+            display: block;
             width: 100%;
+            min-height: 48px;
             background: linear-gradient(135deg, #facc15, #f97316);
             color: #0f172a;
             border: 2px solid #fef9c3;
             border-radius: 12px;
-            padding: 14px 20px;
+            padding: 12px 18px;
             font-size: 18px;
             font-weight: 900;
             letter-spacing: 1.2px;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
         }
         #btn-iniciar-juego:active {
             transform: scale(0.97);
@@ -218,7 +220,7 @@
         }
         #hud-hp {
             position: absolute;
-            bottom: 22px;
+            bottom: 34px;
             left: 50%;
             transform: translateX(-50%);
             width: 175px;
@@ -284,7 +286,7 @@
             border-color: #facc15;
         }
         #btn-disparo {
-            bottom: 34px;
+            bottom: 42px;
             right: 24px;
             background: rgba(220, 38, 38, 0.78);
             border-color: #ff6b6b;
@@ -293,7 +295,7 @@
             font-size: 28px;
         }
         #btn-mira {
-            bottom: 52px;
+            bottom: 60px;
             right: 116px;
             width: 50px;
             height: 50px;
@@ -302,13 +304,13 @@
             font-size: 18px;
         }
         #btn-salto {
-            bottom: 124px;
+            bottom: 132px;
             right: 26px;
             width: 50px;
             height: 50px;
         }
         #btn-agachar {
-            bottom: 118px;
+            bottom: 126px;
             right: 90px;
             width: 48px;
             height: 48px;
@@ -317,7 +319,7 @@
             font-size: 18px;
         }
         #btn-gloo {
-            bottom: 176px;
+            bottom: 184px;
             right: 48px;
             width: 50px;
             height: 50px;
@@ -325,7 +327,7 @@
             background: rgba(14, 165, 233, 0.42);
         }
         #btn-recargar {
-            bottom: 174px;
+            bottom: 182px;
             right: 112px;
             width: 46px;
             height: 46px;
@@ -333,7 +335,7 @@
         }
         #joystick-base {
             position: absolute;
-            bottom: 42px;
+            bottom: 50px;
             left: 34px;
             width: 114px;
             height: 114px;
@@ -377,17 +379,17 @@
             </div>
 
             <div class="lobby-bottom">
+                <button id="btn-iniciar-juego">INICIAR</button>
+
                 <div class="lobby-row-actions">
                     <div class="lobby-tip">
-                        Toca <b>INICIAR</b> para jugar. Joystick izquierdo camina y zona derecha gira/apunta.
+                        Joystick izquierdo camina y zona derecha gira/apunta.
                     </div>
                     <div class="mode-selector">
                         <button class="mode-btn activo" data-modo="Battle Royale">Battle Royale</button>
                         <button class="mode-btn" data-modo="1v1 Duelo">1v1 Duelo</button>
                     </div>
                 </div>
-
-                <button id="btn-iniciar-juego">INICIAR</button>
             </div>
         </div>
 
@@ -457,11 +459,18 @@
             });
         });
 
-        document.getElementById('btn-iniciar-juego').addEventListener('click', () => {
+        function entrarPartida() {
             enLobby = false;
             lobbyScreen.classList.add('oculto');
             gameplayUi.classList.add('activo');
-        });
+        }
+
+        const btnIniciar = document.getElementById('btn-iniciar-juego');
+        btnIniciar.addEventListener('click', entrarPartida);
+        btnIniciar.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            entrarPartida();
+        }, { passive: false });
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x4ea8de);
@@ -614,7 +623,6 @@
         sombraJugador.position.y = 0.03;
         scene.add(sombraJugador);
 
-        // Personaje 3D con extremidades bien conectadas
         const jugadorMesh = new THREE.Group();
 
         const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
@@ -740,7 +748,6 @@
         jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
         scene.add(jugadorMesh);
 
-        // Estado del jugador y cámara
         let velY = 0;
         let enSuelo = true;
         let agachado = false;
@@ -1029,8 +1036,8 @@
                 jugadorMesh.rotation.y = 0.2;
                 pivotePiernaIzq.rotation.x = 0;
                 pivotePiernaDer.rotation.x = 0;
-                pivoteBrazoDer.rotation.x = -1.25;
-                pivoteBrazoIzq.rotation.x = -1.15;
+                pivoteBrazoDer.rotation.x = -0.82;
+                pivoteBrazoIzq.rotation.x = -0.75;
 
                 const radioLobby = 5.2;
                 camera.position.set(
@@ -1090,13 +1097,13 @@
                 const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
                 pivotePiernaIzq.rotation.x = angPierna;
                 pivotePiernaDer.rotation.x = -angPierna;
-                pivoteBrazoIzq.rotation.x = apuntando ? -1.45 : -angPierna * 0.55;
-                pivoteBrazoDer.rotation.x = apuntando ? -1.52 : angPierna * 0.4;
+                pivoteBrazoIzq.rotation.x = apuntando ? -1.1 : -angPierna * 0.55;
+                pivoteBrazoDer.rotation.x = apuntando ? -1.15 : angPierna * 0.4;
             } else {
                 pivotePiernaIzq.rotation.x *= 0.8;
                 pivotePiernaDer.rotation.x *= 0.8;
-                const targetBrazoDer = apuntando ? -1.52 : -1.25;
-                const targetBrazoIzq = apuntando ? -1.45 : -1.15;
+                const targetBrazoDer = apuntando ? -1.15 : -0.82;
+                const targetBrazoIzq = apuntando ? -1.1 : -0.75;
                 pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
                 pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
             }
