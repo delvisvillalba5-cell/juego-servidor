@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zeta Battle - Mobile</title>
+    <title>Zeta Battle - Battle Royale</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #0b0b0b;
+            background-color: #1b4d3e;
             font-family: sans-serif;
             touch-action: none;
         }
@@ -29,7 +29,6 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: #111;
         }
         /* HUD Superior */
         #hud-top {
@@ -39,75 +38,140 @@
             right: 10px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             pointer-events: none;
         }
-        .player-card {
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 6px 12px;
-            color: #ffcc00;
-            font-weight: bold;
-            font-size: 14px;
+        #minimap {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            background: rgba(20, 45, 30, 0.85);
+            box-shadow: 0 0 10px rgba(0,0,0,0.6);
         }
-        /* Controles táctiles flotantes */
+        .status-pills {
+            display: flex;
+            gap: 8px;
+        }
+        .pill {
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(255, 204, 0, 0.5);
+            border-radius: 6px;
+            padding: 5px 10px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .pill span {
+            color: #ffcc00;
+        }
+        /* Barras HP / EP abajo al centro */
+        #hud-bars {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        #ep-fill { width: 75%; height: 100%; background: #ff9800; }
+        #hp-fill { width: 100%; height: 100%; background: #ffffff; }
+        .hp-text {
+            text-align: center;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+        }
+        /* Tarjeta de arma arriba a la derecha */
+        #weapon-box {
+            position: absolute;
+            top: 52px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.65);
+            border-right: 4px solid #ffcc00;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            text-align: right;
+            pointer-events: none;
+        }
+        /* Controles táctiles */
         .controls-layer {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
         }
         .touch-btn {
             position: absolute;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.55);
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 22px;
+            font-size: 20px;
             pointer-events: auto;
             touch-action: none;
         }
         .touch-btn:active {
-            transform: scale(0.92);
-            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.9);
+            background: rgba(255, 204, 0, 0.35);
         }
         #btn-disparo {
-            bottom: 40px;
-            right: 40px;
-            background: rgba(255, 68, 68, 0.4);
-            border-color: #ff4444;
-            width: 75px;
-            height: 75px;
+            bottom: 38px;
+            right: 32px;
+            background: rgba(220, 38, 38, 0.55);
+            border-color: #ff5252;
+            width: 76px;
+            height: 76px;
             font-size: 28px;
         }
-        #btn-recargar {
-            bottom: 125px;
-            right: 50px;
+        #btn-salto {
+            bottom: 124px;
+            right: 36px;
             width: 50px;
             height: 50px;
-            font-size: 18px;
         }
-        #btn-salto {
-            bottom: 40px;
-            right: 130px;
+        #btn-recargar {
+            bottom: 38px;
+            right: 122px;
+            width: 50px;
+            height: 50px;
+        }
+        #btn-gloo {
+            bottom: 102px;
+            right: 106px;
+            width: 52px;
+            height: 52px;
+            border-color: #38bdf8;
+            background: rgba(14, 165, 233, 0.35);
+            font-size: 18px;
         }
         #joystick-base {
             position: absolute;
-            bottom: 40px;
-            left: 40px;
-            width: 110px;
-            height: 110px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            bottom: 38px;
+            left: 35px;
+            width: 112px;
+            height: 112px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.35);
             border-radius: 50%;
             pointer-events: auto;
             touch-action: none;
@@ -118,35 +182,42 @@
         #joystick-stick {
             width: 46px;
             height: 46px;
-            background: rgba(255, 204, 0, 0.75);
+            background: radial-gradient(circle, #ffe066, #f59e0b);
             border: 2px solid #fff;
             border-radius: 50%;
             pointer-events: none;
-            transform: translate(0px, 0px);
         }
     </style>
 </head>
 <body>
-
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Interfaz Superior (HUD) -->
+        <!-- HUD Superior -->
         <div id="hud-top">
-            <div class="player-card">
-                👤 Jugador_1<br>
-                <span id="hud-municion" style="font-size: 11px; color: #fff;">Nivel 15 | Balas: 30/30</span>
-            </div>
-            <div class="player-card" id="info-partida">
-                vivo: 12 / 50
+            <canvas id="minimap" width="95" height="95"></canvas>
+            <div class="status-pills">
+                <div class="pill">VIVOS <span id="vivos-txt">12</span></div>
+                <div class="pill">BAJAS <span id="kills-txt">0</span></div>
             </div>
         </div>
 
-        <!-- Capa de Controles Táctiles -->
+        <div id="weapon-box">
+            <div style="color:#ffcc00; font-weight:bold;">M4A1 - TÁCTICA</div>
+            <div id="hud-municion">30 / 120</div>
+        </div>
+
+        <!-- Barras EP / HP estilo Free Fire -->
+        <div id="hud-bars">
+            <div class="bar-bg"><div id="ep-fill"></div></div>
+            <div class="bar-bg"><div id="hp-fill"></div></div>
+            <div class="hp-text">HP 200/200 | Gloo: <span id="gloo-count">3</span></div>
+        </div>
+
+        <!-- Controles Táctiles -->
         <div class="controls-layer">
-            <div id="joystick-base">
-                <div id="joystick-stick"></div>
-            </div>
+            <div id="joystick-base"><div id="joystick-stick"></div></div>
+            <div class="touch-btn" id="btn-gloo">🧊</div>
             <div class="touch-btn" id="btn-salto">🦘</div>
             <div class="touch-btn" id="btn-recargar">🔄</div>
             <div class="touch-btn" id="btn-disparo">🎯</div>
@@ -156,6 +227,8 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const miniCanvas = document.getElementById('minimap');
+        const miniCtx = miniCanvas.getContext('2d');
 
         function ajustarCanvas() {
             canvas.width = window.innerWidth;
@@ -164,243 +237,299 @@
         window.addEventListener('resize', ajustarCanvas);
         ajustarCanvas();
 
-        // Estado del jugador
+        const MAPA = 2400;
+
         let jugador = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            velocidad: 4,
+            x: MAPA / 2,
+            y: MAPA / 2,
+            velocidad: 4.5,
             angulo: 0,
             nombre: "Jugador_1",
             escalaSalto: 1,
             saltando: false,
             balas: 30,
-            maxBalas: 30
+            maxBalas: 30,
+            gloo: 3,
+            kills: 0,
+            fogonazo: 0
         };
 
         let balas = [];
+        let paredesGloo = [];
 
-        // Estado del Joystick
+        // Generar árboles, rocas y cajas de botín en la isla
+        const arboles = Array.from({ length: 45 }, () => ({
+            x: 150 + Math.random() * (MAPA - 300),
+            y: 150 + Math.random() * (MAPA - 300),
+            r: 32 + Math.random() * 18
+        }));
+
+        const cajasLoot = Array.from({ length: 18 }, () => ({
+            x: 200 + Math.random() * (MAPA - 400),
+            y: 200 + Math.random() * (MAPA - 400),
+            abierta: false
+        }));
+
+        // Joystick
         const joystickBase = document.getElementById('joystick-base');
         const joystickStick = document.getElementById('joystick-stick');
-        let joyActivo = false;
-        let joyTouchId = null;
-        let joyDx = 0;
-        let joyDy = 0;
+        let joyActivo = false, joyTouchId = null, joyDx = 0, joyDy = 0;
         const maxRadio = 35;
 
         function actualizarJoystick(touch) {
             const rect = joystickBase.getBoundingClientRect();
-            const centroX = rect.left + rect.width / 2;
-            const centroY = rect.top + rect.height / 2;
-
-            let dx = touch.clientX - centroX;
-            let dy = touch.clientY - centroY;
-            const distancia = Math.hypot(dx, dy);
-
-            if (distancia > maxRadio) {
-                dx = (dx / distancia) * maxRadio;
-                dy = (dy / distancia) * maxRadio;
+            let dx = touch.clientX - (rect.left + rect.width / 2);
+            let dy = touch.clientY - (rect.top + rect.height / 2);
+            const dist = Math.hypot(dx, dy);
+            if (dist > maxRadio) {
+                dx = (dx / dist) * maxRadio;
+                dy = (dy / dist) * maxRadio;
             }
-
             joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
-
             joyDx = dx / maxRadio;
             joyDy = dy / maxRadio;
-
-            if (distancia > 5) {
-                jugador.angulo = Math.atan2(dy, dx);
-            }
+            if (dist > 5) jugador.angulo = Math.atan2(dy, dx);
         }
 
         joystickBase.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            const touch = e.changedTouches[0];
             joyActivo = true;
-            joyTouchId = touch.identifier;
-            actualizarJoystick(touch);
+            joyTouchId = e.changedTouches[0].identifier;
+            actualizarJoystick(e.changedTouches[0]);
         }, { passive: false });
 
         joystickBase.addEventListener('touchmove', (e) => {
             e.preventDefault();
             if (!joyActivo) return;
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === joyTouchId) {
-                    actualizarJoystick(e.changedTouches[i]);
-                    break;
-                }
+            for (const t of e.changedTouches) {
+                if (t.identifier === joyTouchId) actualizarJoystick(t);
             }
         }, { passive: false });
 
         function soltarJoystick(e) {
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === joyTouchId) {
-                    joyActivo = false;
-                    joyTouchId = null;
-                    joyDx = 0;
-                    joyDy = 0;
+            for (const t of e.changedTouches) {
+                if (t.identifier === joyTouchId) {
+                    joyActivo = false; joyTouchId = null; joyDx = 0; joyDy = 0;
                     joystickStick.style.transform = `translate(0px, 0px)`;
-                    break;
                 }
             }
         }
         joystickBase.addEventListener('touchend', soltarJoystick);
         joystickBase.addEventListener('touchcancel', soltarJoystick);
 
-        // Soporte con ratón para probar en PC
-        joystickBase.addEventListener('mousedown', (e) => {
-            joyActivo = true;
-            actualizarJoystick(e);
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (joyActivo && joyTouchId === null) actualizarJoystick(e);
-        });
-        window.addEventListener('mouseup', () => {
-            if (joyActivo && joyTouchId === null) {
-                joyActivo = false;
-                joyDx = 0;
-                joyDy = 0;
-                joystickStick.style.transform = `translate(0px, 0px)`;
-            }
-        });
-
-        // Botones de Acción
+        // Acciones
         function actualizarHUD() {
-            document.getElementById('hud-municion').textContent = `Nivel 15 | Balas: ${jugador.balas}/${jugador.maxBalas}`;
+            document.getElementById('hud-municion').textContent = `${jugador.balas} / 120`;
+            document.getElementById('gloo-count').textContent = jugador.gloo;
         }
 
         function disparar() {
             if (jugador.balas <= 0) return;
             jugador.balas--;
+            jugador.fogonazo = 3;
             actualizarHUD();
-
             balas.push({
-                x: jugador.x + Math.cos(jugador.angulo) * 28,
-                y: jugador.y + Math.sin(jugador.angulo) * 28,
-                vx: Math.cos(jugador.angulo) * 11,
-                vy: Math.sin(jugador.angulo) * 11,
-                vida: 60
+                x: jugador.x + Math.cos(jugador.angulo) * 32,
+                y: jugador.y + Math.sin(jugador.angulo) * 32,
+                vx: Math.cos(jugador.angulo) * 14,
+                vy: Math.sin(jugador.angulo) * 14,
+                vida: 55
             });
         }
 
-        function recargar() {
-            jugador.balas = jugador.maxBalas;
+        function ponerGloo() {
+            if (jugador.gloo <= 0) return;
+            jugador.gloo--;
             actualizarHUD();
+            paredesGloo.push({
+                x: jugador.x + Math.cos(jugador.angulo) * 55,
+                y: jugador.y + Math.sin(jugador.angulo) * 55,
+                angulo: jugador.angulo
+            });
         }
 
+        function recargar() { jugador.balas = jugador.maxBalas; actualizarHUD(); }
         function saltar() {
             if (jugador.saltando) return;
             jugador.saltando = true;
-            jugador.escalaSalto = 1.35;
-            setTimeout(() => {
-                jugador.escalaSalto = 1;
-                jugador.saltando = false;
-            }, 300);
+            jugador.escalaSalto = 1.3;
+            setTimeout(() => { jugador.escalaSalto = 1; jugador.saltando = false; }, 280);
         }
 
         document.getElementById('btn-disparo').addEventListener('touchstart', (e) => { e.preventDefault(); disparar(); });
-        document.getElementById('btn-disparo').addEventListener('click', disparar);
-
+        document.getElementById('btn-gloo').addEventListener('touchstart', (e) => { e.preventDefault(); ponerGloo(); });
         document.getElementById('btn-recargar').addEventListener('touchstart', (e) => { e.preventDefault(); recargar(); });
-        document.getElementById('btn-recargar').addEventListener('click', recargar);
-
         document.getElementById('btn-salto').addEventListener('touchstart', (e) => { e.preventDefault(); saltar(); });
-        document.getElementById('btn-salto').addEventListener('click', saltar);
 
-        // Dibujar personaje táctico con arma
-        function dibujarPersonaje(x, y, angulo, nombre, escala) {
+        // Personaje estilo Free Fire (vista superior con mochila, chaleco, casco y rifle)
+        function dibujarSoldadoFF(x, y, angulo, escala) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(escala, escala);
 
-            // Sombra en el suelo
+            // Sombra
             ctx.beginPath();
-            ctx.arc(0, 4, 24, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.arc(3, 5, 24, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
             ctx.fill();
 
             ctx.rotate(angulo);
 
-            // Arma
-            ctx.fillStyle = "#888";
-            ctx.fillRect(10, -4, 22, 8);
-            ctx.fillStyle = "#ffcc00";
-            ctx.fillRect(28, -3, 5, 6);
+            // Mochila nivel 3 atrás
+            ctx.fillStyle = "#374151";
+            ctx.strokeStyle = "#111";
+            ctx.lineWidth = 2;
+            ctx.fillRect(-20, -11, 10, 22);
+            ctx.strokeRect(-20, -11, 10, 22);
 
-            // Cuerpo / hombros
+            // Brazos y rifle táctico
+            ctx.fillStyle = "#d97706";
+            ctx.fillRect(4, 6, 16, 6);
+            ctx.fillRect(4, -12, 16, 6);
+
+            ctx.fillStyle = "#1f2937";
+            ctx.fillRect(8, -3, 28, 6);
+            ctx.fillStyle = "#fbbf24";
+            ctx.fillRect(16, -2, 8, 4);
+
+            // Fogonazo de disparo
+            if (jugador.fogonazo > 0) {
+                ctx.beginPath();
+                ctx.arc(40, 0, 8, 0, Math.PI * 2);
+                ctx.fillStyle = "#fef08a";
+                ctx.fill();
+                jugador.fogonazo--;
+            }
+
+            // Chaleco táctico
             ctx.beginPath();
-            ctx.arc(0, 0, 18, 0, Math.PI * 2);
-            ctx.fillStyle = "#1e88e5";
+            ctx.arc(0, 0, 17, 0, Math.PI * 2);
+            ctx.fillStyle = "#111827";
             ctx.fill();
             ctx.lineWidth = 2.5;
-            ctx.strokeStyle = "#ffffff";
+            ctx.strokeStyle = "#f59e0b";
             ctx.stroke();
 
-            // Cabeza / casco
+            // Cabeza con banda roja estilo personaje FF
             ctx.beginPath();
-            ctx.arc(2, 0, 10, 0, Math.PI * 2);
-            ctx.fillStyle = "#ffcc00";
+            ctx.arc(1, 0, 10, 0, Math.PI * 2);
+            ctx.fillStyle = "#f3c69f";
             ctx.fill();
+            ctx.fillStyle = "#dc2626";
+            ctx.fillRect(-3, -10, 5, 20);
 
             ctx.restore();
 
-            // Tarjeta de Nombre flotante
-            const offsetNombre = 42 * escala;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            ctx.fillRect(x - 55, y - offsetNombre - 16, 110, 20);
-            ctx.strokeStyle = '#ffcc00';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(x - 55, y - offsetNombre - 16, 110, 20);
-
+            // Etiqueta de nombre
+            const off = 42 * escala;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(x - 50, y - off - 14, 100, 18);
             ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 12px sans-serif';
+            ctx.font = 'bold 11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`🔥 ${nombre}`, x, y - offsetNombre - 2);
+            ctx.fillText(`🔥 ${jugador.nombre}`, x, y - off - 1);
         }
 
-        // Bucle principal
+        function dibujarMinimapa() {
+            miniCtx.clearRect(0, 0, 95, 95);
+            // Zona segura blanca
+            miniCtx.strokeStyle = "#ffffff";
+            miniCtx.lineWidth = 2;
+            miniCtx.beginPath();
+            miniCtx.arc(47.5, 47.5, 34, 0, Math.PI * 2);
+            miniCtx.stroke();
+
+            // Posición del jugador
+            const mx = (jugador.x / MAPA) * 95;
+            const my = (jugador.y / MAPA) * 95;
+            miniCtx.fillStyle = "#ffcc00";
+            miniCtx.beginPath();
+            miniCtx.arc(mx, my, 3.5, 0, Math.PI * 2);
+            miniCtx.fill();
+        }
+
         function loopJuego() {
-            // Mover jugador según joystick
-            jugador.x += joyDx * jugador.velocidad;
-            jugador.y += joyDy * jugador.velocidad;
+            jugador.x = Math.max(40, Math.min(MAPA - 40, jugador.x + joyDx * jugador.velocidad));
+            jugador.y = Math.max(40, Math.min(MAPA - 40, jugador.y + joyDy * jugador.velocidad));
 
-            // Evitar que salga de los bordes de la pantalla
-            const margen = 25;
-            jugador.x = Math.max(margen, Math.min(canvas.width - margen, jugador.x));
-            jugador.y = Math.max(margen, Math.min(canvas.height - margen, jugador.y));
+            // Cámara centrada en el jugador
+            const camX = jugador.x - canvas.width / 2;
+            const camY = jugador.y - canvas.height / 2;
 
-            // Fondo y cuadrícula
-            ctx.fillStyle = "#121212";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(-camX, -camY);
 
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-            for (let j = 0; j < canvas.height; j += 40) {
-                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-            }
+            // Mar alrededor de la isla
+            ctx.fillStyle = "#0e7490";
+            ctx.fillRect(camX, camY, canvas.width, canvas.height);
 
-            // Actualizar y dibujar balas
-            for (let i = balas.length - 1; i >= 0; i--) {
-                const b = balas[i];
-                b.x += b.vx;
-                b.y += b.vy;
-                b.vida--;
+            // Arena de playa e isla de césped
+            ctx.fillStyle = "#eab308";
+            ctx.fillRect(0, 0, MAPA, MAPA);
+            ctx.fillStyle = "#2d5a27";
+            ctx.fillRect(60, 60, MAPA - 120, MAPA - 120);
 
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = "#ff4444";
-                ctx.fill();
+            // Camino de tierra cruzando el mapa
+            ctx.fillStyle = "#855e42";
+            ctx.fillRect(MAPA / 2 - 45, 60, 90, MAPA - 120);
+            ctx.fillRect(60, MAPA / 2 - 45, MAPA - 120, 90);
 
-                if (b.vida <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
-                    balas.splice(i, 1);
+            // Cajas de loot
+            for (const c of cajasLoot) {
+                if (!c.abierta && Math.hypot(jugador.x - c.x, jugador.y - c.y) < 35) {
+                    c.abierta = true;
+                    jugador.gloo++;
+                    jugador.balas = jugador.maxBalas;
+                    actualizarHUD();
+                }
+                if (!c.abierta) {
+                    ctx.fillStyle = "#f59e0b";
+                    ctx.fillRect(c.x - 12, c.y - 12, 24, 24);
+                    ctx.strokeStyle = "#fff";
+                    ctx.strokeRect(c.x - 12, c.y - 12, 24, 24);
                 }
             }
 
-            // Dibujar jugador
-            dibujarPersonaje(jugador.x, jugador.y, jugador.angulo, jugador.nombre, jugador.escalaSalto);
+            // Paredes Gloo
+            for (const p of paredesGloo) {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angulo + Math.PI / 2);
+                ctx.fillStyle = "rgba(56, 189, 248, 0.85)";
+                ctx.strokeStyle = "#e0f2fe";
+                ctx.lineWidth = 3;
+                ctx.fillRect(-32, -8, 64, 16);
+                ctx.strokeRect(-32, -8, 64, 16);
+                ctx.restore();
+            }
 
+            // Balas
+            for (let i = balas.length - 1; i >= 0; i--) {
+                const b = balas[i];
+                b.x += b.vx; b.y += b.vy; b.vida--;
+                ctx.fillStyle = "#fef08a";
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                if (b.vida <= 0) balas.splice(i, 1);
+            }
+
+            // Jugador
+            dibujarSoldadoFF(jugador.x, jugador.y, jugador.angulo, jugador.escalaSalto);
+
+            // Árboles (copas por encima)
+            for (const a of arboles) {
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(20, 83, 45, 0.92)";
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#14532d";
+                ctx.stroke();
+            }
+
+            ctx.restore();
+            dibujarMinimapa();
             requestAnimationFrame(loopJuego);
         }
 
