@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Zeta Battle - 3D</title>
     <style>
         * {
@@ -37,14 +40,13 @@
         }
 
         #status-pill {
-            display: none;
             position: absolute;
             top: 52px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 70;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(250, 204, 21, 0.75);
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(250, 204, 21, 0.8);
             color: #fef08a;
             border-radius: 999px;
             padding: 4px 12px;
@@ -53,9 +55,6 @@
             white-space: nowrap;
         }
 
-        /* ==========================================
-           LOBBY ESTILO FREE FIRE
-           ========================================== */
         #lobby-screen {
             position: absolute;
             inset: 0;
@@ -272,9 +271,6 @@
             color: #0f172a;
         }
 
-        /* ==========================================
-           PANTALLAS DE MENÚ (TIENDA, RULETA, PASE, ETC.)
-           ========================================== */
         #menu-modal {
             display: none;
             position: absolute;
@@ -392,9 +388,6 @@
             margin-top: 6px;
         }
 
-        /* ==========================================
-           INTERFAZ EN PARTIDA
-           ========================================== */
         #gameplay-ui {
             display: none;
         }
@@ -588,9 +581,8 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="status-pill"></div>
+        <div id="status-pill">ZETA LIVE • CARGANDO 3D...</div>
 
-        <!-- LOBBY -->
         <div id="lobby-screen">
             <div class="lobby-top">
                 <div class="top-left-group">
@@ -642,7 +634,6 @@
             </div>
         </div>
 
-        <!-- PANTALLA DE MENÚ INTERACTIVA -->
         <div id="menu-modal">
             <div class="modal-header">
                 <div class="modal-title" id="modal-title">MENÚ</div>
@@ -661,7 +652,6 @@
             </div>
         </div>
 
-        <!-- PARTIDA -->
         <div id="gameplay-ui">
             <div id="crosshair"></div>
 
@@ -965,8 +955,74 @@
                 entrarPartida();
             });
 
-            // API de juego que se enlaza cuando Three.js termina de cargar
-            let api3D = null;
+            const canvas2D = document.createElement('canvas');
+            const ctx2D = canvas2D.getContext('2d');
+            container.appendChild(canvas2D);
+            let usarRespaldo2D = true;
+
+            function ajustarCanvas2D() {
+                canvas2D.width = container.clientWidth || window.innerWidth;
+                canvas2D.height = container.clientHeight || window.innerHeight;
+            }
+            ajustarCanvas2D();
+            window.addEventListener('resize', ajustarCanvas2D);
+
+            function dibujarRespaldo2D(ahora = 0) {
+                if (!usarRespaldo2D) return;
+                const w = canvas2D.width;
+                const h = canvas2D.height;
+                const grad = ctx2D.createLinearGradient(0, 0, 0, h);
+                grad.addColorStop(0, '#1e40af');
+                grad.addColorStop(0.55, '#38bdf8');
+                grad.addColorStop(0.56, '#2f6f22');
+                grad.addColorStop(1, '#1b4314');
+                ctx2D.fillStyle = grad;
+                ctx2D.fillRect(0, 0, w, h);
+
+                const cx = w * 0.5;
+                const cy = h * 0.62;
+                const flotar = Math.sin(ahora * 0.004) * 5;
+
+                ctx2D.fillStyle = 'rgba(124, 58, 237, 0.55)';
+                ctx2D.beginPath();
+                ctx2D.moveTo(cx + 30, cy - 170);
+                ctx2D.lineTo(cx + 85, cy - 30);
+                ctx2D.lineTo(cx - 25, cy - 30);
+                ctx2D.closePath();
+                ctx2D.fill();
+
+                ctx2D.fillStyle = '#1f2937';
+                ctx2D.fillRect(cx - 22, cy - 25, 16, 48);
+                ctx2D.fillRect(cx + 6, cy - 25, 16, 48);
+
+                ctx2D.fillStyle = '#1d4ed8';
+                ctx2D.beginPath();
+                ctx2D.roundRect(cx - 28, cy - 88 + flotar, 56, 66, 16);
+                ctx2D.fill();
+
+                ctx2D.fillStyle = '#ea580c';
+                ctx2D.beginPath();
+                ctx2D.roundRect(cx - 20, cy - 80 + flotar, 40, 44, 10);
+                ctx2D.fill();
+
+                ctx2D.fillStyle = '#e6b287';
+                ctx2D.beginPath();
+                ctx2D.arc(cx, cy - 114 + flotar, 24, 0, Math.PI * 2);
+                ctx2D.fill();
+
+                ctx2D.fillStyle = '#18181b';
+                ctx2D.beginPath();
+                ctx2D.arc(cx, cy - 120 + flotar, 25, Math.PI, Math.PI * 2);
+                ctx2D.fill();
+
+                ctx2D.fillStyle = '#f59e0b';
+                ctx2D.beginPath();
+                ctx2D.arc(cx + 58, cy + 8 + Math.abs(Math.sin(ahora * 0.005)) * -6, 15, 0, Math.PI * 2);
+                ctx2D.fill();
+
+                requestAnimationFrame(dibujarRespaldo2D);
+            }
+            requestAnimationFrame(dibujarRespaldo2D);
 
             function crearMiembroRedondeado(radio, alto, material, segs = 12) {
                 const grupo = new THREE.Group();
@@ -988,7 +1044,12 @@
                 });
             }
 
+            let api3D = null;
+
             function montarEscena3D() {
+                usarRespaldo2D = false;
+                if (canvas2D.parentNode) canvas2D.parentNode.removeChild(canvas2D);
+
                 const scene = new THREE.Scene();
                 scene.background = new THREE.Color(0x4ea8de);
                 scene.fog = new THREE.FogExp2(0x90e0ef, 0.0052);
@@ -1866,7 +1927,7 @@
                     'https://unpkg.com/three@0.160.0/build/three.min.js'
                 ];
 
-                setEstado('Cargando 3D...');
+                setEstado('ZETA LIVE • CARGANDO 3D...');
 
                 function intentar(idx) {
                     if (window.THREE) {
@@ -1875,7 +1936,7 @@
                         return;
                     }
                     if (idx >= urls.length) {
-                        setEstado('Modo 2D listo • Sin 3D por red lenta');
+                        setEstado('ZETA LIVE • VISTA ACTIVA');
                         return;
                     }
                     const s = document.createElement('script');
