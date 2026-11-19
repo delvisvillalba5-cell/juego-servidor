@@ -728,15 +728,12 @@
             intentar(0);
         }
 
-        function crearCapsula(radio, alto, material, segs = 12) {
-            if (typeof THREE.CapsuleGeometry === 'function') {
-                return new THREE.Mesh(new THREE.CapsuleGeometry(radio, alto, 8, segs), material);
-            }
+        function crearMiembroRedondeado(radio, alto, material, segs = 12) {
             const grupo = new THREE.Group();
             const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radio, radio, alto, segs), material);
-            const sup = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 8), material);
+            const sup = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 10), material);
             sup.position.y = alto / 2;
-            const inf = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 8), material);
+            const inf = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 10), material);
             inf.position.y = -alto / 2;
             grupo.add(cyl, sup, inf);
             return grupo;
@@ -997,21 +994,18 @@
                 entrarPartida();
             }, { passive: false });
 
-            // Escena 3D
+            // Escena 3D con máxima compatibilidad en móviles
             const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x56b4e9);
-            scene.fog = new THREE.FogExp2(0x9bd7f2, 0.0052);
+            scene.background = new THREE.Color(0x4ea8de);
+            scene.fog = new THREE.FogExp2(0x90e0ef, 0.0052);
 
             const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 340);
-            camera.position.set(0, 2.4, 6.5);
+            camera.position.set(0.25, 1.9, 6.2);
 
             const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.06;
             container.appendChild(renderer.domElement);
 
             window.addEventListener('resize', () => {
@@ -1023,22 +1017,11 @@
             const luzAmbiente = new THREE.HemisphereLight(0xe0f2fe, 0x245437, 1.18);
             scene.add(luzAmbiente);
 
-            const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.55);
-            luzSol.position.set(42, 65, 32);
+            const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.45);
+            luzSol.position.set(35, 55, 28);
             luzSol.castShadow = true;
-            luzSol.shadow.mapSize.width = 1024;
-            luzSol.shadow.mapSize.height = 1024;
-            luzSol.shadow.camera.near = 5;
-            luzSol.shadow.camera.far = 180;
-            const dSombra = 55;
-            luzSol.shadow.camera.left = -dSombra;
-            luzSol.shadow.camera.right = dSombra;
-            luzSol.shadow.camera.top = dSombra;
-            luzSol.shadow.camera.bottom = -dSombra;
-            luzSol.shadow.bias = -0.0005;
             scene.add(luzSol);
 
-            // Suelo orgánico con pasto y tierra
             function crearTexturaSuelo() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 512;
@@ -1048,10 +1031,10 @@
                 ctx.fillStyle = '#346b1e';
                 ctx.fillRect(0, 0, 512, 512);
 
-                for (let i = 0; i < 140; i++) {
+                for (let i = 0; i < 120; i++) {
                     const x = Math.random() * 512;
                     const y = Math.random() * 512;
-                    const rad = 16 + Math.random() * 38;
+                    const rad = 16 + Math.random() * 36;
                     const grad = ctx.createRadialGradient(x, y, 2, x, y, rad);
                     if (i % 3 === 0) {
                         grad.addColorStop(0, 'rgba(120, 92, 56, 0.24)');
@@ -1066,10 +1049,10 @@
                     ctx.fill();
                 }
 
-                for (let i = 0; i < 5500; i++) {
+                for (let i = 0; i < 4500; i++) {
                     const x = Math.random() * 512;
                     const y = Math.random() * 512;
-                    const len = 3 + Math.random() * 5;
+                    const len = 3 + Math.random() * 4;
                     ctx.strokeStyle = i % 2 === 0 ? 'rgba(42, 92, 22, 0.55)' : 'rgba(107, 178, 56, 0.45)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -1087,7 +1070,7 @@
 
             const suelo = new THREE.Mesh(
                 new THREE.PlaneGeometry(180, 180),
-                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.92, metalness: 0.04 })
+                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.9 })
             );
             suelo.rotation.x = -Math.PI / 2;
             suelo.receiveShadow = true;
@@ -1100,27 +1083,24 @@
                 new THREE.MeshStandardMaterial({
                     color: 0x7c3aed,
                     emissive: 0x5b21b6,
-                    emissiveIntensity: 0.6,
-                    roughness: 0.25,
-                    metalness: 0.2,
+                    emissiveIntensity: 0.55,
                     transparent: true,
                     opacity: 0.62
                 })
             );
             portalCono.position.y = 2.25;
             const portalBase = new THREE.Mesh(
-                new THREE.CylinderGeometry(2.5, 2.75, 0.22, 24),
-                new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.6 })
+                new THREE.CylinderGeometry(2.5, 2.75, 0.22, 20),
+                new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.5 })
             );
             portalBase.position.y = 0.11;
-            portalBase.receiveShadow = true;
             portalGrupo.add(portalCono, portalBase);
             portalGrupo.position.set(0.85, 0, -2.65);
             scene.add(portalGrupo);
 
             // Mascota orgánica en el lobby
             const mascotaGrupo = new THREE.Group();
-            const mascotaCuerpo = crearCapsula(0.21, 0.26, new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.62 }), 14);
+            const mascotaCuerpo = crearMiembroRedondeado(0.21, 0.24, new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.62 }), 14);
             mascotaCuerpo.rotation.x = Math.PI / 2;
             mascotaCuerpo.position.set(0, 0.28, 0);
 
@@ -1147,7 +1127,7 @@
             const ojoMascotaDer = ojoMascotaIzq.clone();
             ojoMascotaDer.position.x = 0.08;
 
-            const pataM1 = crearCapsula(0.055, 0.08, new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.7 }), 10);
+            const pataM1 = crearMiembroRedondeado(0.055, 0.08, new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.7 }), 10);
             pataM1.position.set(-0.13, 0.09, 0.16);
             const pataM2 = pataM1.clone();
             pataM2.position.x = 0.13;
@@ -1279,16 +1259,16 @@
                 const cadera = new THREE.Mesh(new THREE.SphereGeometry(0.115, 14, 12), matPantalon);
                 cadera.scale.set(1.05, 0.95, 1.15);
 
-                const muslo = crearCapsula(0.105, 0.24, matPantalon, 14);
+                const muslo = crearMiembroRedondeado(0.105, 0.22, matPantalon, 14);
                 muslo.position.set(0, -0.19, 0.01);
 
                 const rodilla = new THREE.Mesh(new THREE.SphereGeometry(0.098, 12, 10), matPantalon);
                 rodilla.position.set(0, -0.36, 0.02);
 
-                const pantorrilla = crearCapsula(0.088, 0.24, matPantalon, 14);
+                const pantorrilla = crearMiembroRedondeado(0.088, 0.22, matPantalon, 14);
                 pantorrilla.position.set(0, -0.53, -0.01);
 
-                const botaCuerpo = crearCapsula(0.095, 0.1, matBota, 12);
+                const botaCuerpo = crearMiembroRedondeado(0.095, 0.09, matBota, 12);
                 botaCuerpo.position.set(0, -0.71, 0.01);
 
                 const puntera = new THREE.Mesh(new THREE.SphereGeometry(0.096, 12, 10), matBota);
@@ -1306,31 +1286,29 @@
             const torsoGrupo = new THREE.Group();
             torsoGrupo.position.set(0, 0.86, 0);
 
-            // Cintura y torso atlético redondeado
-            const cintura = crearCapsula(0.19, 0.14, matCamisa, 16);
+            const cintura = crearMiembroRedondeado(0.18, 0.14, matCamisa, 16);
             cintura.rotation.z = Math.PI / 2;
-            cintura.scale.set(0.72, 1.05, 1.0);
+            cintura.scale.set(0.75, 1.05, 1.0);
             cintura.position.set(0, 0.14, 0);
 
-            const pecho = crearCapsula(0.24, 0.34, matCamisa, 18);
+            const pecho = crearMiembroRedondeado(0.22, 0.34, matCamisa, 18);
             pecho.rotation.z = Math.PI / 2;
-            pecho.scale.set(0.68, 1.15, 1.02);
+            pecho.scale.set(0.72, 1.15, 1.02);
             pecho.position.set(0, 0.44, 0.01);
 
-            const chalecoTactico = crearCapsula(0.25, 0.2, matChaleco, 16);
+            const chalecoTactico = crearMiembroRedondeado(0.23, 0.2, matChaleco, 16);
             chalecoTactico.rotation.z = Math.PI / 2;
-            chalecoTactico.scale.set(0.74, 1.16, 1.04);
+            chalecoTactico.scale.set(0.78, 1.16, 1.04);
             chalecoTactico.position.set(0, 0.48, 0.015);
 
-            const cinturon = crearCapsula(0.195, 0.22, matBota, 14);
+            const cinturon = crearMiembroRedondeado(0.185, 0.22, matBota, 14);
             cinturon.rotation.z = Math.PI / 2;
-            cinturon.scale.set(0.75, 1.06, 0.32);
+            cinturon.scale.set(0.78, 1.06, 0.32);
             cinturon.position.set(0, 0.05, 0);
 
-            const cuello = crearCapsula(0.085, 0.09, matPiel, 12);
+            const cuello = crearMiembroRedondeado(0.085, 0.08, matPiel, 12);
             cuello.position.set(0, 0.77, 0.01);
 
-            // Cabeza humana esculpida
             const cabezaGrupo = new THREE.Group();
             cabezaGrupo.position.set(0, 1.03, 0.02);
 
@@ -1356,15 +1334,15 @@
             cabelloBase.scale.set(0.92, 0.96, 1.03);
             cabelloBase.position.set(0, 0.055, -0.025);
 
-            const mechón1 = crearCapsula(0.055, 0.12, matCabello, 10);
-            mechón1.rotation.x = 0.85;
-            mechón1.rotation.z = 0.18;
-            mechón1.position.set(-0.07, 0.16, 0.19);
+            const mechon1 = crearMiembroRedondeado(0.055, 0.1, matCabello, 10);
+            mechon1.rotation.x = 0.85;
+            mechon1.rotation.z = 0.18;
+            mechon1.position.set(-0.07, 0.16, 0.19);
 
-            const mechón2 = crearCapsula(0.052, 0.11, matCabello, 10);
-            mechón2.rotation.x = 0.82;
-            mechón2.rotation.z = -0.16;
-            mechón2.position.set(0.06, 0.15, 0.195);
+            const mechon2 = crearMiembroRedondeado(0.052, 0.09, matCabello, 10);
+            mechon2.rotation.x = 0.82;
+            mechon2.rotation.z = -0.16;
+            mechon2.position.set(0.06, 0.15, 0.195);
 
             const cejaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.022, 0.025), matCabello);
             cejaIzq.position.set(-0.078, 0.058, 0.215);
@@ -1387,16 +1365,15 @@
 
             cabezaGrupo.add(
                 craneo, mandibula, nariz, orejaIzq, orejaDer,
-                cabelloBase, mechón1, mechón2,
+                cabelloBase, mechon1, mechon2,
                 cejaIzq, cejaDer, ojoBlancoIzq, irisIzq, ojoBlancoDer, irisDer
             );
 
-            // Mochila redondeada
             const mochilaGrupo = new THREE.Group();
             mochilaGrupo.position.set(0, 0.42, -0.22);
-            const bolsaPrincipal = crearCapsula(0.17, 0.24, matMochila, 14);
+            const bolsaPrincipal = crearMiembroRedondeado(0.16, 0.22, matMochila, 14);
             bolsaPrincipal.scale.set(1.15, 1.0, 0.65);
-            const bolsilloSuperior = crearCapsula(0.12, 0.1, matChaleco, 12);
+            const bolsilloSuperior = crearMiembroRedondeado(0.11, 0.09, matChaleco, 12);
             bolsilloSuperior.scale.set(1.1, 1.0, 0.6);
             bolsilloSuperior.position.set(0, 0.08, -0.09);
             mochilaGrupo.add(bolsaPrincipal, bolsilloSuperior);
@@ -1406,13 +1383,13 @@
                 pivote.position.set(ladoX, 0.63, 0);
 
                 const hombro = new THREE.Mesh(new THREE.SphereGeometry(0.095, 12, 12), matCamisa);
-                const brazoSup = crearCapsula(0.075, 0.18, matCamisa, 12);
+                const brazoSup = crearMiembroRedondeado(0.075, 0.16, matCamisa, 12);
                 brazoSup.position.set(0, -0.14, 0);
 
                 const codo = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), matPiel);
                 codo.position.set(0, -0.26, 0.01);
 
-                const antebrazo = crearCapsula(0.065, 0.18, matPiel, 12);
+                const antebrazo = crearMiembroRedondeado(0.065, 0.16, matPiel, 12);
                 antebrazo.position.set(0, -0.39, 0.02);
 
                 const mano = new THREE.Mesh(new THREE.SphereGeometry(0.064, 10, 10), matPiel);
@@ -1427,15 +1404,14 @@
             const pivoteBrazoIzq = crearBrazoHumano(-0.35);
             const pivoteBrazoDer = crearBrazoHumano(0.35);
 
-            // Rifle detallado
             const rifleGrupo = new THREE.Group();
             rifleGrupo.position.set(-0.03, -0.47, 0.24);
 
             const receptor = new THREE.Mesh(
                 new THREE.BoxGeometry(0.075, 0.105, 0.66),
-                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.68, roughness: 0.28 })
+                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.65, roughness: 0.28 })
             );
-            const culata = crearCapsula(0.048, 0.14, new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 }), 10);
+            const culata = crearMiembroRedondeado(0.048, 0.12, new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 }), 10);
             culata.rotation.x = Math.PI / 2;
             culata.position.set(0, -0.02, -0.39);
 
@@ -1448,7 +1424,7 @@
 
             const canion = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.022, 0.022, 0.34, 10),
-                new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.82, roughness: 0.2 })
+                new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 })
             );
             canion.rotation.x = Math.PI / 2;
             canion.position.set(0, 0.02, 0.46);
@@ -1767,8 +1743,8 @@
                     pivoteBrazoDer.rotation.x = -0.25;
                     pivoteBrazoIzq.rotation.x = -0.18;
 
-                    camera.position.set(0.25, 1.85, 5.2);
-                    camera.lookAt(0.2, 1.25, 0);
+                    camera.position.set(0.25, 1.9, 6.2);
+                    camera.lookAt(0.2, 1.15, 0);
 
                     sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
                     renderer.render(scene, camera);
