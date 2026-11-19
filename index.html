@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zeta Battle - Battle Royale</title>
+    <title>Zeta Battle - 3D</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #1b4d3e;
+            background-color: #0b1320;
             font-family: sans-serif;
             touch-action: none;
         }
@@ -33,86 +33,61 @@
         /* HUD Superior */
         #hud-top {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
+            top: 12px;
+            left: 12px;
+            right: 12px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             pointer-events: none;
+            z-index: 5;
         }
-        #minimap {
-            width: 95px;
-            height: 95px;
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.7);
-            background: rgba(20, 45, 30, 0.85);
-            box-shadow: 0 0 10px rgba(0,0,0,0.6);
-        }
-        .status-pills {
-            display: flex;
-            gap: 8px;
-        }
-        .pill {
+        .player-card {
             background: rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(255, 204, 0, 0.5);
-            border-radius: 6px;
-            padding: 5px 10px;
-            color: #fff;
+            border: 1px solid rgba(255, 204, 0, 0.55);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #ffcc00;
             font-weight: bold;
             font-size: 13px;
         }
-        .pill span {
-            color: #ffcc00;
-        }
-        /* Barras HP / EP abajo al centro */
-        #hud-bars {
+        /* Barra de vida arriba/abajo visible */
+        #hud-hp {
             position: absolute;
-            bottom: 18px;
+            bottom: 36px;
             left: 50%;
             transform: translateX(-50%);
-            width: 180px;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .bar-bg {
-            width: 100%;
-            height: 8px;
+            width: 170px;
             background: rgba(0, 0, 0, 0.7);
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.25);
-        }
-        #ep-fill { width: 75%; height: 100%; background: #ff9800; }
-        #hp-fill { width: 100%; height: 100%; background: #ffffff; }
-        .hp-text {
-            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            padding: 5px 8px;
             color: #fff;
             font-size: 11px;
             font-weight: bold;
-            text-shadow: 1px 1px 2px #000;
-        }
-        /* Tarjeta de arma arriba a la derecha */
-        #weapon-box {
-            position: absolute;
-            top: 52px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.65);
-            border-right: 4px solid #ffcc00;
-            padding: 6px 10px;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 12px;
-            text-align: right;
+            text-align: center;
             pointer-events: none;
+            z-index: 5;
+        }
+        .hp-track {
+            width: 100%;
+            height: 7px;
+            background: #27272a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 3px;
+        }
+        .hp-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #86efac);
         }
         /* Controles táctiles */
         .controls-layer {
             position: absolute;
             inset: 0;
             pointer-events: none;
+            z-index: 5;
         }
         .touch-btn {
             position: absolute;
@@ -125,49 +100,47 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: bold;
             font-size: 20px;
             pointer-events: auto;
             touch-action: none;
         }
         .touch-btn:active {
-            transform: scale(0.9);
+            transform: scale(0.92);
             background: rgba(255, 204, 0, 0.35);
         }
         #btn-disparo {
-            bottom: 38px;
+            bottom: 42px;
             right: 32px;
-            background: rgba(220, 38, 38, 0.55);
+            background: rgba(220, 38, 38, 0.6);
             border-color: #ff5252;
-            width: 76px;
-            height: 76px;
+            width: 74px;
+            height: 74px;
             font-size: 28px;
         }
         #btn-salto {
-            bottom: 124px;
+            bottom: 126px;
             right: 36px;
             width: 50px;
             height: 50px;
         }
         #btn-recargar {
-            bottom: 38px;
-            right: 122px;
+            bottom: 42px;
+            right: 120px;
             width: 50px;
             height: 50px;
         }
         #btn-gloo {
-            bottom: 102px;
-            right: 106px;
+            bottom: 106px;
+            right: 104px;
             width: 52px;
             height: 52px;
             border-color: #38bdf8;
             background: rgba(14, 165, 233, 0.35);
-            font-size: 18px;
         }
         #joystick-base {
             position: absolute;
-            bottom: 38px;
-            left: 35px;
+            bottom: 42px;
+            left: 34px;
             width: 112px;
             height: 112px;
             background: rgba(255, 255, 255, 0.12);
@@ -191,30 +164,19 @@
 </head>
 <body>
     <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-
-        <!-- HUD Superior -->
         <div id="hud-top">
-            <canvas id="minimap" width="95" height="95"></canvas>
-            <div class="status-pills">
-                <div class="pill">VIVOS <span id="vivos-txt">12</span></div>
-                <div class="pill">BAJAS <span id="kills-txt">0</span></div>
+            <div class="player-card">
+                👤 Jugador_1<br>
+                <span id="hud-municion" style="font-size:11px; color:#fff;">Balas: 30/30 | Gloo: 3</span>
             </div>
+            <div class="player-card">vivo: 12 / 50</div>
         </div>
 
-        <div id="weapon-box">
-            <div style="color:#ffcc00; font-weight:bold;">M4A1 - TÁCTICA</div>
-            <div id="hud-municion">30 / 120</div>
+        <div id="hud-hp">
+            HP 200 / 200
+            <div class="hp-track"><div class="hp-bar"></div></div>
         </div>
 
-        <!-- Barras EP / HP estilo Free Fire -->
-        <div id="hud-bars">
-            <div class="bar-bg"><div id="ep-fill"></div></div>
-            <div class="bar-bg"><div id="hp-fill"></div></div>
-            <div class="hp-text">HP 200/200 | Gloo: <span id="gloo-count">3</span></div>
-        </div>
-
-        <!-- Controles Táctiles -->
         <div class="controls-layer">
             <div id="joystick-base"><div id="joystick-stick"></div></div>
             <div class="touch-btn" id="btn-gloo">🧊</div>
@@ -224,56 +186,146 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const miniCanvas = document.getElementById('minimap');
-        const miniCtx = miniCanvas.getContext('2d');
+        const container = document.getElementById('game-container');
 
-        function ajustarCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        // Escena, cámara en tercera persona y renderizador
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x38bdf8);
+        scene.fog = new THREE.FogExp2(0x7dd3fc, 0.008);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Luces
+        const luzAmbiente = new THREE.HemisphereLight(0xffffff, 0x2d5a27, 0.9);
+        scene.add(luzAmbiente);
+
+        const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.1);
+        luzSol.position.set(25, 45, 20);
+        luzSol.castShadow = true;
+        scene.add(luzSol);
+
+        // Suelo de la isla
+        const suelo = new THREE.Mesh(
+            new THREE.PlaneGeometry(140, 140),
+            new THREE.MeshStandardMaterial({ color: 0x2f6b2f, roughness: 0.9 })
+        );
+        suelo.rotation.x = -Math.PI / 2;
+        suelo.receiveShadow = true;
+        scene.add(suelo);
+
+        const grilla = new THREE.GridHelper(140, 35, 0x4ade80, 0x1e4620);
+        grilla.position.y = 0.02;
+        scene.add(grilla);
+
+        // Árboles y coberturas 3D
+        const obstaculos = [];
+        function crearArbol(x, z) {
+            const grupo = new THREE.Group();
+            const tronco = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.35, 0.45, 2.4, 8),
+                new THREE.MeshStandardMaterial({ color: 0x78350f })
+            );
+            tronco.position.y = 1.2;
+            tronco.castShadow = true;
+
+            const copa = new THREE.Mesh(
+                new THREE.ConeGeometry(2.1, 4.2, 8),
+                new THREE.MeshStandardMaterial({ color: 0x15803d })
+            );
+            copa.position.y = 4.2;
+            copa.castShadow = true;
+
+            grupo.add(tronco, copa);
+            grupo.position.set(x, 0, z);
+            scene.add(grupo);
+            obstaculos.push({ x, z, r: 1.1 });
         }
-        window.addEventListener('resize', ajustarCanvas);
-        ajustarCanvas();
 
-        const MAPA = 2400;
+        function crearCajaCobertura(x, z) {
+            const caja = new THREE.Mesh(
+                new THREE.BoxGeometry(2.4, 1.6, 2.4),
+                new THREE.MeshStandardMaterial({ color: 0xb45309 })
+            );
+            caja.position.set(x, 0.8, z);
+            caja.castShadow = true;
+            caja.receiveShadow = true;
+            scene.add(caja);
+            obstaculos.push({ x, z, r: 1.5 });
+        }
 
-        let jugador = {
-            x: MAPA / 2,
-            y: MAPA / 2,
-            velocidad: 4.5,
-            angulo: 0,
-            nombre: "Jugador_1",
-            escalaSalto: 1,
-            saltando: false,
-            balas: 30,
-            maxBalas: 30,
-            gloo: 3,
-            kills: 0,
-            fogonazo: 0
-        };
+        for (let i = 0; i < 24; i++) {
+            const ang = (i / 24) * Math.PI * 2;
+            const dist = 14 + (i % 3) * 14;
+            crearArbol(Math.cos(ang) * dist, Math.sin(ang) * dist);
+        }
+        crearCajaCobertura(6, 6);
+        crearCajaCobertura(-8, 10);
+        crearCajaCobertura(10, -8);
+        crearCajaCobertura(-6, -6);
 
-        let balas = [];
-        let paredesGloo = [];
+        // Jugador 3D (cuerpo, cabeza, mochila y rifle)
+        const jugadorMesh = new THREE.Group();
 
-        // Generar árboles, rocas y cajas de botín en la isla
-        const arboles = Array.from({ length: 45 }, () => ({
-            x: 150 + Math.random() * (MAPA - 300),
-            y: 150 + Math.random() * (MAPA - 300),
-            r: 32 + Math.random() * 18
-        }));
+        const cuerpo = new THREE.Mesh(
+            new THREE.BoxGeometry(0.9, 1.3, 0.55),
+            new THREE.MeshStandardMaterial({ color: 0x1d4ed8 })
+        );
+        cuerpo.position.y = 1.15;
+        cuerpo.castShadow = true;
 
-        const cajasLoot = Array.from({ length: 18 }, () => ({
-            x: 200 + Math.random() * (MAPA - 400),
-            y: 200 + Math.random() * (MAPA - 400),
-            abierta: false
-        }));
+        const cabeza = new THREE.Mesh(
+            new THREE.BoxGeometry(0.62, 0.62, 0.62),
+            new THREE.MeshStandardMaterial({ color: 0xf3c69f })
+        );
+        cabeza.position.y = 2.15;
+        cabeza.castShadow = true;
+
+        const mochila = new THREE.Mesh(
+            new THREE.BoxGeometry(0.65, 0.85, 0.35),
+            new THREE.MeshStandardMaterial({ color: 0xf59e0b })
+        );
+        mochila.position.set(0, 1.2, -0.42);
+
+        const rifle = new THREE.Mesh(
+            new THREE.BoxGeometry(0.14, 0.18, 1.2),
+            new THREE.MeshStandardMaterial({ color: 0x18181b })
+        );
+        rifle.position.set(0.52, 1.35, 0.45);
+
+        jugadorMesh.add(cuerpo, cabeza, mochila, rifle);
+        scene.add(jugadorMesh);
+
+        // Estado del jugador
+        let velY = 0;
+        let enSuelo = true;
+        let balas = 30;
+        const maxBalas = 30;
+        let glooRestantes = 3;
+        const proyectiles = [];
+        const paredesGloo3D = [];
+
+        function actualizarHUD() {
+            document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
+        }
 
         // Joystick
         const joystickBase = document.getElementById('joystick-base');
         const joystickStick = document.getElementById('joystick-stick');
-        let joyActivo = false, joyTouchId = null, joyDx = 0, joyDy = 0;
+        let joyActivo = false, joyTouchId = null, joyX = 0, joyY = 0;
         const maxRadio = 35;
 
         function actualizarJoystick(touch) {
@@ -286,9 +338,8 @@
                 dy = (dy / dist) * maxRadio;
             }
             joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
-            joyDx = dx / maxRadio;
-            joyDy = dy / maxRadio;
-            if (dist > 5) jugador.angulo = Math.atan2(dy, dx);
+            joyX = dx / maxRadio;
+            joyY = dy / maxRadio;
         }
 
         joystickBase.addEventListener('touchstart', (e) => {
@@ -309,7 +360,7 @@
         function soltarJoystick(e) {
             for (const t of e.changedTouches) {
                 if (t.identifier === joyTouchId) {
-                    joyActivo = false; joyTouchId = null; joyDx = 0; joyDy = 0;
+                    joyActivo = false; joyTouchId = null; joyX = 0; joyY = 0;
                     joystickStick.style.transform = `translate(0px, 0px)`;
                 }
             }
@@ -318,42 +369,59 @@
         joystickBase.addEventListener('touchcancel', soltarJoystick);
 
         // Acciones
-        function actualizarHUD() {
-            document.getElementById('hud-municion').textContent = `${jugador.balas} / 120`;
-            document.getElementById('gloo-count').textContent = jugador.gloo;
-        }
-
         function disparar() {
-            if (jugador.balas <= 0) return;
-            jugador.balas--;
-            jugador.fogonazo = 3;
+            if (balas <= 0) return;
+            balas--;
             actualizarHUD();
-            balas.push({
-                x: jugador.x + Math.cos(jugador.angulo) * 32,
-                y: jugador.y + Math.sin(jugador.angulo) * 32,
-                vx: Math.cos(jugador.angulo) * 14,
-                vy: Math.sin(jugador.angulo) * 14,
-                vida: 55
-            });
+
+            const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+            const balaMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(0.14, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xfef08a })
+            );
+            balaMesh.position.set(
+                jugadorMesh.position.x + dir.x * 1.4,
+                1.35,
+                jugadorMesh.position.z + dir.z * 1.4
+            );
+            scene.add(balaMesh);
+            proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.35, vz: dir.z * 1.35, vida: 50 });
         }
 
         function ponerGloo() {
-            if (jugador.gloo <= 0) return;
-            jugador.gloo--;
+            if (glooRestantes <= 0) return;
+            glooRestantes--;
             actualizarHUD();
-            paredesGloo.push({
-                x: jugador.x + Math.cos(jugador.angulo) * 55,
-                y: jugador.y + Math.sin(jugador.angulo) * 55,
-                angulo: jugador.angulo
-            });
+
+            const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+            const gloo = new THREE.Mesh(
+                new THREE.BoxGeometry(3.2, 2.2, 0.35),
+                new THREE.MeshStandardMaterial({
+                    color: 0x38bdf8,
+                    transparent: true,
+                    opacity: 0.72,
+                    roughness: 0.2
+                })
+            );
+            gloo.position.set(
+                jugadorMesh.position.x + dir.x * 3.2,
+                1.1,
+                jugadorMesh.position.z + dir.z * 3.2
+            );
+            gloo.rotation.y = jugadorMesh.rotation.y;
+            scene.add(gloo);
+            paredesGloo3D.push(gloo);
         }
 
-        function recargar() { jugador.balas = jugador.maxBalas; actualizarHUD(); }
+        function recargar() {
+            balas = maxBalas;
+            actualizarHUD();
+        }
+
         function saltar() {
-            if (jugador.saltando) return;
-            jugador.saltando = true;
-            jugador.escalaSalto = 1.3;
-            setTimeout(() => { jugador.escalaSalto = 1; jugador.saltando = false; }, 280);
+            if (!enSuelo) return;
+            velY = 0.24;
+            enSuelo = false;
         }
 
         document.getElementById('btn-disparo').addEventListener('touchstart', (e) => { e.preventDefault(); disparar(); });
@@ -361,179 +429,78 @@
         document.getElementById('btn-recargar').addEventListener('touchstart', (e) => { e.preventDefault(); recargar(); });
         document.getElementById('btn-salto').addEventListener('touchstart', (e) => { e.preventDefault(); saltar(); });
 
-        // Personaje estilo Free Fire (vista superior con mochila, chaleco, casco y rifle)
-        function dibujarSoldadoFF(x, y, angulo, escala) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(escala, escala);
+        // Bucle 3D
+        function animar() {
+            requestAnimationFrame(animar);
 
-            // Sombra
-            ctx.beginPath();
-            ctx.arc(3, 5, 24, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-            ctx.fill();
+            const velocidad = 0.22;
+            const nextX = jugadorMesh.position.x + joyX * velocidad;
+            const nextZ = jugadorMesh.position.z + joyY * velocidad;
 
-            ctx.rotate(angulo);
-
-            // Mochila nivel 3 atrás
-            ctx.fillStyle = "#374151";
-            ctx.strokeStyle = "#111";
-            ctx.lineWidth = 2;
-            ctx.fillRect(-20, -11, 10, 22);
-            ctx.strokeRect(-20, -11, 10, 22);
-
-            // Brazos y rifle táctico
-            ctx.fillStyle = "#d97706";
-            ctx.fillRect(4, 6, 16, 6);
-            ctx.fillRect(4, -12, 16, 6);
-
-            ctx.fillStyle = "#1f2937";
-            ctx.fillRect(8, -3, 28, 6);
-            ctx.fillStyle = "#fbbf24";
-            ctx.fillRect(16, -2, 8, 4);
-
-            // Fogonazo de disparo
-            if (jugador.fogonazo > 0) {
-                ctx.beginPath();
-                ctx.arc(40, 0, 8, 0, Math.PI * 2);
-                ctx.fillStyle = "#fef08a";
-                ctx.fill();
-                jugador.fogonazo--;
-            }
-
-            // Chaleco táctico
-            ctx.beginPath();
-            ctx.arc(0, 0, 17, 0, Math.PI * 2);
-            ctx.fillStyle = "#111827";
-            ctx.fill();
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = "#f59e0b";
-            ctx.stroke();
-
-            // Cabeza con banda roja estilo personaje FF
-            ctx.beginPath();
-            ctx.arc(1, 0, 10, 0, Math.PI * 2);
-            ctx.fillStyle = "#f3c69f";
-            ctx.fill();
-            ctx.fillStyle = "#dc2626";
-            ctx.fillRect(-3, -10, 5, 20);
-
-            ctx.restore();
-
-            // Etiqueta de nombre
-            const off = 42 * escala;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(x - 50, y - off - 14, 100, 18);
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 11px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(`🔥 ${jugador.nombre}`, x, y - off - 1);
-        }
-
-        function dibujarMinimapa() {
-            miniCtx.clearRect(0, 0, 95, 95);
-            // Zona segura blanca
-            miniCtx.strokeStyle = "#ffffff";
-            miniCtx.lineWidth = 2;
-            miniCtx.beginPath();
-            miniCtx.arc(47.5, 47.5, 34, 0, Math.PI * 2);
-            miniCtx.stroke();
-
-            // Posición del jugador
-            const mx = (jugador.x / MAPA) * 95;
-            const my = (jugador.y / MAPA) * 95;
-            miniCtx.fillStyle = "#ffcc00";
-            miniCtx.beginPath();
-            miniCtx.arc(mx, my, 3.5, 0, Math.PI * 2);
-            miniCtx.fill();
-        }
-
-        function loopJuego() {
-            jugador.x = Math.max(40, Math.min(MAPA - 40, jugador.x + joyDx * jugador.velocidad));
-            jugador.y = Math.max(40, Math.min(MAPA - 40, jugador.y + joyDy * jugador.velocidad));
-
-            // Cámara centrada en el jugador
-            const camX = jugador.x - canvas.width / 2;
-            const camY = jugador.y - canvas.height / 2;
-
-            ctx.save();
-            ctx.translate(-camX, -camY);
-
-            // Mar alrededor de la isla
-            ctx.fillStyle = "#0e7490";
-            ctx.fillRect(camX, camY, canvas.width, canvas.height);
-
-            // Arena de playa e isla de césped
-            ctx.fillStyle = "#eab308";
-            ctx.fillRect(0, 0, MAPA, MAPA);
-            ctx.fillStyle = "#2d5a27";
-            ctx.fillRect(60, 60, MAPA - 120, MAPA - 120);
-
-            // Camino de tierra cruzando el mapa
-            ctx.fillStyle = "#855e42";
-            ctx.fillRect(MAPA / 2 - 45, 60, 90, MAPA - 120);
-            ctx.fillRect(60, MAPA / 2 - 45, MAPA - 120, 90);
-
-            // Cajas de loot
-            for (const c of cajasLoot) {
-                if (!c.abierta && Math.hypot(jugador.x - c.x, jugador.y - c.y) < 35) {
-                    c.abierta = true;
-                    jugador.gloo++;
-                    jugador.balas = jugador.maxBalas;
-                    actualizarHUD();
-                }
-                if (!c.abierta) {
-                    ctx.fillStyle = "#f59e0b";
-                    ctx.fillRect(c.x - 12, c.y - 12, 24, 24);
-                    ctx.strokeStyle = "#fff";
-                    ctx.strokeRect(c.x - 12, c.y - 12, 24, 24);
+            // Colisión simple con obstáculos
+            let bloqueado = false;
+            for (const obs of obstaculos) {
+                if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.5) {
+                    bloqueado = true;
+                    break;
                 }
             }
 
-            // Paredes Gloo
-            for (const p of paredesGloo) {
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.angulo + Math.PI / 2);
-                ctx.fillStyle = "rgba(56, 189, 248, 0.85)";
-                ctx.strokeStyle = "#e0f2fe";
-                ctx.lineWidth = 3;
-                ctx.fillRect(-32, -8, 64, 16);
-                ctx.strokeRect(-32, -8, 64, 16);
-                ctx.restore();
+            if (!bloqueado) {
+                jugadorMesh.position.x = Math.max(-62, Math.min(62, nextX));
+                jugadorMesh.position.z = Math.max(-62, Math.min(62, nextZ));
             }
 
-            // Balas
-            for (let i = balas.length - 1; i >= 0; i--) {
-                const b = balas[i];
-                b.x += b.vx; b.y += b.vy; b.vida--;
-                ctx.fillStyle = "#fef08a";
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-                if (b.vida <= 0) balas.splice(i, 1);
+            if (Math.hypot(joyX, joyY) > 0.08) {
+                jugadorMesh.rotation.y = Math.atan2(joyX, joyY);
             }
 
-            // Jugador
-            dibujarSoldadoFF(jugador.x, jugador.y, jugador.angulo, jugador.escalaSalto);
-
-            // Árboles (copas por encima)
-            for (const a of arboles) {
-                ctx.beginPath();
-                ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(20, 83, 45, 0.92)";
-                ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "#14532d";
-                ctx.stroke();
+            // Salto y gravedad
+            if (!enSuelo) {
+                jugadorMesh.position.y += velY;
+                velY -= 0.012;
+                if (jugadorMesh.position.y <= 0) {
+                    jugadorMesh.position.y = 0;
+                    velY = 0;
+                    enSuelo = true;
+                }
             }
 
-            ctx.restore();
-            dibujarMinimapa();
-            requestAnimationFrame(loopJuego);
+            // Proyectiles
+            for (let i = proyectiles.length - 1; i >= 0; i--) {
+                const p = proyectiles[i];
+                p.mesh.position.x += p.vx;
+                p.mesh.position.z += p.vz;
+                p.vida--;
+                if (p.vida <= 0) {
+                    scene.remove(p.mesh);
+                    proyectiles.splice(i, 1);
+                }
+            }
+
+            // Cámara en tercera persona detrás del jugador
+            const camOffset = new THREE.Vector3(0, 5.2, -8.5).applyAxisAngle(
+                new THREE.Vector3(0, 1, 0),
+                jugadorMesh.rotation.y
+            );
+            camera.position.lerp(
+                new THREE.Vector3(
+                    jugadorMesh.position.x + camOffset.x,
+                    jugadorMesh.position.y + camOffset.y,
+                    jugadorMesh.position.z + camOffset.z
+                ),
+                0.12
+            );
+            camera.lookAt(
+                jugadorMesh.position.x,
+                jugadorMesh.position.y + 1.6,
+                jugadorMesh.position.z
+            );
+
+            renderer.render(scene, camera);
         }
 
-        loopJuego();
+        animar();
     </script>
 </body>
 </html>
