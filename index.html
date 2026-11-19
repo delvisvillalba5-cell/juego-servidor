@@ -728,6 +728,29 @@
             intentar(0);
         }
 
+        function crearCapsula(radio, alto, material, segs = 12) {
+            if (typeof THREE.CapsuleGeometry === 'function') {
+                return new THREE.Mesh(new THREE.CapsuleGeometry(radio, alto, 8, segs), material);
+            }
+            const grupo = new THREE.Group();
+            const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radio, radio, alto, segs), material);
+            const sup = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 8), material);
+            sup.position.y = alto / 2;
+            const inf = new THREE.Mesh(new THREE.SphereGeometry(radio, segs, 8), material);
+            inf.position.y = -alto / 2;
+            grupo.add(cyl, sup, inf);
+            return grupo;
+        }
+
+        function setCastShadow(obj, cast = true, receive = false) {
+            obj.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = cast;
+                    child.receiveShadow = receive;
+                }
+            });
+        }
+
         function iniciarJuego() {
             const container = document.getElementById('game-container');
             const lobbyScreen = document.getElementById('lobby-screen');
@@ -764,7 +787,7 @@
                         DESTACADOS: [
                             { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cadencia estable • Precisión alta', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste: Rifle AR Zeta'; } },
                             { icon: '🧊', name: 'Muro Gloo +2', desc: 'Refuerzo táctico para partida', btn: '200 🪙', action: () => { if (oro < 200) return 'Oro insuficiente'; oro -= 200; glooRestantes += 2; actualizarHUD(); refrescarMonedas(); return 'Compraste +2 Muros Gloo'; } },
-                            { icon: '🦖', name: 'Mascota Dino', desc: 'Acompañante del lobby', btn: 'ACTIVA', action: () => 'Mascota Dino activa en el lobby' }
+                            { icon: '🦊', name: 'Mascota Zorro', desc: 'Acompañante del lobby', btn: 'ACTIVA', action: () => 'Mascota activa en el lobby' }
                         ],
                         ARMAS: [
                             { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Daño medio • 30 balas', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste: Rifle AR Zeta'; } },
@@ -974,17 +997,21 @@
                 entrarPartida();
             }, { passive: false });
 
+            // Escena 3D
             const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x4ea8de);
-            scene.fog = new THREE.FogExp2(0x90e0ef, 0.006);
+            scene.background = new THREE.Color(0x56b4e9);
+            scene.fog = new THREE.FogExp2(0x9bd7f2, 0.0052);
 
-            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 340);
             camera.position.set(0, 2.4, 6.5);
 
             const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.06;
             container.appendChild(renderer.domElement);
 
             window.addEventListener('resize', () => {
@@ -993,76 +1020,144 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x2d6a4f, 1.05);
+            const luzAmbiente = new THREE.HemisphereLight(0xe0f2fe, 0x245437, 1.18);
             scene.add(luzAmbiente);
 
-            const luzSol = new THREE.DirectionalLight(0xfff3b0, 1.3);
-            luzSol.position.set(35, 55, 25);
+            const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.55);
+            luzSol.position.set(42, 65, 32);
             luzSol.castShadow = true;
+            luzSol.shadow.mapSize.width = 1024;
+            luzSol.shadow.mapSize.height = 1024;
+            luzSol.shadow.camera.near = 5;
+            luzSol.shadow.camera.far = 180;
+            const dSombra = 55;
+            luzSol.shadow.camera.left = -dSombra;
+            luzSol.shadow.camera.right = dSombra;
+            luzSol.shadow.camera.top = dSombra;
+            luzSol.shadow.camera.bottom = -dSombra;
+            luzSol.shadow.bias = -0.0005;
             scene.add(luzSol);
 
+            // Suelo orgánico con pasto y tierra
             function crearTexturaSuelo() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 512;
                 canvas.height = 512;
                 const ctx = canvas.getContext('2d');
 
-                ctx.fillStyle = '#38761d';
+                ctx.fillStyle = '#346b1e';
                 ctx.fillRect(0, 0, 512, 512);
 
-                for (let i = 0; i < 4000; i++) {
+                for (let i = 0; i < 140; i++) {
                     const x = Math.random() * 512;
                     const y = Math.random() * 512;
-                    const r = 1 + Math.random() * 3.5;
-                    const tonos = ['#2f6617', '#468c26', '#539e2f', '#3d5a27'];
-                    ctx.fillStyle = tonos[Math.floor(Math.random() * tonos.length)];
+                    const rad = 16 + Math.random() * 38;
+                    const grad = ctx.createRadialGradient(x, y, 2, x, y, rad);
+                    if (i % 3 === 0) {
+                        grad.addColorStop(0, 'rgba(120, 92, 56, 0.24)');
+                        grad.addColorStop(1, 'rgba(120, 92, 56, 0)');
+                    } else {
+                        grad.addColorStop(0, 'rgba(84, 158, 44, 0.22)');
+                        grad.addColorStop(1, 'rgba(84, 158, 44, 0)');
+                    }
+                    ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(x, y, r, 0, Math.PI * 2);
+                    ctx.arc(x, y, rad, 0, Math.PI * 2);
                     ctx.fill();
+                }
+
+                for (let i = 0; i < 5500; i++) {
+                    const x = Math.random() * 512;
+                    const y = Math.random() * 512;
+                    const len = 3 + Math.random() * 5;
+                    ctx.strokeStyle = i % 2 === 0 ? 'rgba(42, 92, 22, 0.55)' : 'rgba(107, 178, 56, 0.45)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + (Math.random() - 0.5) * 2.5, y - len);
+                    ctx.stroke();
                 }
 
                 const tex = new THREE.CanvasTexture(canvas);
                 tex.wrapS = THREE.RepeatWrapping;
                 tex.wrapT = THREE.RepeatWrapping;
-                tex.repeat.set(22, 22);
+                tex.repeat.set(24, 24);
                 return tex;
             }
 
             const suelo = new THREE.Mesh(
-                new THREE.PlaneGeometry(160, 160),
-                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.88 })
+                new THREE.PlaneGeometry(180, 180),
+                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.92, metalness: 0.04 })
             );
             suelo.rotation.x = -Math.PI / 2;
             suelo.receiveShadow = true;
             scene.add(suelo);
 
-            const portalLobby = new THREE.Mesh(
-                new THREE.ConeGeometry(2.3, 4.4, 4),
+            // Cristal / portal del lobby
+            const portalGrupo = new THREE.Group();
+            const portalCono = new THREE.Mesh(
+                new THREE.ConeGeometry(2.35, 4.5, 4),
                 new THREE.MeshStandardMaterial({
                     color: 0x7c3aed,
-                    emissive: 0x4c1d95,
-                    emissiveIntensity: 0.45,
+                    emissive: 0x5b21b6,
+                    emissiveIntensity: 0.6,
+                    roughness: 0.25,
+                    metalness: 0.2,
                     transparent: true,
-                    opacity: 0.55
+                    opacity: 0.62
                 })
             );
-            portalLobby.position.set(0.8, 2.2, -2.6);
-            scene.add(portalLobby);
+            portalCono.position.y = 2.25;
+            const portalBase = new THREE.Mesh(
+                new THREE.CylinderGeometry(2.5, 2.75, 0.22, 24),
+                new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.6 })
+            );
+            portalBase.position.y = 0.11;
+            portalBase.receiveShadow = true;
+            portalGrupo.add(portalCono, portalBase);
+            portalGrupo.position.set(0.85, 0, -2.65);
+            scene.add(portalGrupo);
 
+            // Mascota orgánica en el lobby
             const mascotaGrupo = new THREE.Group();
-            const mascotaCuerpo = new THREE.Mesh(
-                new THREE.BoxGeometry(0.45, 0.36, 0.55),
-                new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6 })
-            );
-            mascotaCuerpo.position.y = 0.28;
-            mascotaCuerpo.castShadow = true;
+            const mascotaCuerpo = crearCapsula(0.21, 0.26, new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.62 }), 14);
+            mascotaCuerpo.rotation.x = Math.PI / 2;
+            mascotaCuerpo.position.set(0, 0.28, 0);
+
             const mascotaCabeza = new THREE.Mesh(
-                new THREE.BoxGeometry(0.36, 0.32, 0.34),
-                new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.55 })
+                new THREE.SphereGeometry(0.22, 16, 14),
+                new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.58 })
             );
-            mascotaCabeza.position.set(0, 0.52, 0.22);
-            mascotaCabeza.castShadow = true;
-            mascotaGrupo.add(mascotaCuerpo, mascotaCabeza);
+            mascotaCabeza.scale.set(1.05, 0.95, 1.12);
+            mascotaCabeza.position.set(0, 0.49, 0.24);
+
+            const orejaIzq = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.18, 10),
+                new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7 })
+            );
+            orejaIzq.position.set(-0.13, 0.68, 0.22);
+            orejaIzq.rotation.z = 0.22;
+
+            const orejaDer = orejaIzq.clone();
+            orejaDer.position.x = 0.13;
+            orejaDer.rotation.z = -0.22;
+
+            const ojoMascotaIzq = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+            ojoMascotaIzq.position.set(-0.08, 0.52, 0.43);
+            const ojoMascotaDer = ojoMascotaIzq.clone();
+            ojoMascotaDer.position.x = 0.08;
+
+            const pataM1 = crearCapsula(0.055, 0.08, new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.7 }), 10);
+            pataM1.position.set(-0.13, 0.09, 0.16);
+            const pataM2 = pataM1.clone();
+            pataM2.position.x = 0.13;
+            const pataM3 = pataM1.clone();
+            pataM3.position.z = -0.15;
+            const pataM4 = pataM1.clone();
+            pataM4.position.set(0.13, 0.09, -0.15);
+
+            mascotaGrupo.add(mascotaCuerpo, mascotaCabeza, orejaIzq, orejaDer, ojoMascotaIzq, ojoMascotaDer, pataM1, pataM2, pataM3, pataM4);
+            setCastShadow(mascotaGrupo, true, false);
             mascotaGrupo.position.set(1.05, 0, 0.25);
             scene.add(mascotaGrupo);
 
@@ -1072,28 +1167,32 @@
                 const grupo = new THREE.Group();
 
                 const tronco = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.28 * escala, 0.45 * escala, 2.8 * escala, 10),
-                    new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.95 })
+                    new THREE.CylinderGeometry(0.28 * escala, 0.48 * escala, 3.0 * escala, 12),
+                    new THREE.MeshStandardMaterial({ color: 0x54331b, roughness: 0.94 })
                 );
-                tronco.position.y = 1.4 * escala;
-                tronco.castShadow = true;
+                tronco.position.y = 1.5 * escala;
 
                 const copaBaja = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(2.0 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.8 })
+                    new THREE.DodecahedronGeometry(2.1 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x1a5922, roughness: 0.82 })
                 );
-                copaBaja.position.set(0, 3.3 * escala, 0);
-                copaBaja.scale.set(1.1, 0.75, 1.1);
-                copaBaja.castShadow = true;
+                copaBaja.position.set(0, 3.4 * escala, 0);
+                copaBaja.scale.set(1.15, 0.74, 1.12);
+
+                const copaMedia = new THREE.Mesh(
+                    new THREE.DodecahedronGeometry(1.65 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x26732d, roughness: 0.78 })
+                );
+                copaMedia.position.set(0.25 * escala, 4.25 * escala, -0.15 * escala);
 
                 const copaAlta = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.5 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.75 })
+                    new THREE.DodecahedronGeometry(1.2 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x358f3b, roughness: 0.74 })
                 );
-                copaAlta.position.set(0.3 * escala, 4.4 * escala, -0.2 * escala);
-                copaAlta.castShadow = true;
+                copaAlta.position.set(-0.2 * escala, 4.95 * escala, 0.15 * escala);
 
-                grupo.add(tronco, copaBaja, copaAlta);
+                grupo.add(tronco, copaBaja, copaMedia, copaAlta);
+                setCastShadow(grupo, true, true);
                 grupo.position.set(x, 0, z);
                 scene.add(grupo);
                 obstaculos.push({ x, z, r: 0.85 * escala });
@@ -1103,17 +1202,21 @@
                 const grupo = new THREE.Group();
                 const base = new THREE.Mesh(
                     new THREE.BoxGeometry(2.4, 1.5, 2.4),
-                    new THREE.MeshStandardMaterial({ color: 0x9c4221, roughness: 0.7 })
+                    new THREE.MeshStandardMaterial({ color: 0x8f3d1d, roughness: 0.72, metalness: 0.08 })
                 );
                 base.position.y = 0.75;
-                base.castShadow = true;
 
-                const marco = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.5, 0.2, 2.5),
-                    new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
+                const marcoSup = new THREE.Mesh(
+                    new THREE.BoxGeometry(2.48, 0.16, 2.48),
+                    new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.45, metalness: 0.25 })
                 );
-                marco.position.y = 1.42;
-                grupo.add(base, marco);
+                marcoSup.position.y = 1.44;
+
+                const marcoInf = marcoSup.clone();
+                marcoInf.position.y = 0.1;
+
+                grupo.add(base, marcoSup, marcoInf);
+                setCastShadow(grupo, true, true);
                 grupo.position.set(x, 0, z);
                 grupo.rotation.y = rotY;
                 scene.add(grupo);
@@ -1122,18 +1225,19 @@
 
             function crearRoca(x, z, escala = 1) {
                 const roca = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.3 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.92 })
+                    new THREE.DodecahedronGeometry(1.35 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x5c6b7e, roughness: 0.9, metalness: 0.08 })
                 );
-                roca.position.set(x, 0.65 * escala, z);
-                roca.scale.set(1.25, 0.75, 1.05);
+                roca.position.set(x, 0.68 * escala, z);
+                roca.scale.set(1.28, 0.76, 1.08);
                 roca.castShadow = true;
+                roca.receiveShadow = true;
                 scene.add(roca);
                 obstaculos.push({ x, z, r: 1.2 * escala });
             }
 
-            for (let i = 0; i < 28; i++) {
-                const ang = (i / 28) * Math.PI * 2;
+            for (let i = 0; i < 30; i++) {
+                const ang = (i / 30) * Math.PI * 2;
                 const dist = 15 + (i % 3) * 14;
                 const esc = 0.85 + (i % 4) * 0.14;
                 crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
@@ -1149,134 +1253,219 @@
 
             const sombraJugador = new THREE.Mesh(
                 new THREE.CircleGeometry(0.75, 24),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })
+                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.36 })
             );
             sombraJugador.rotation.x = -Math.PI / 2;
             sombraJugador.position.y = 0.03;
             scene.add(sombraJugador);
 
+            // ==========================================
+            // PERSONAJE 3D HUMANO ESTILO FREE FIRE
+            // ==========================================
             const jugadorMesh = new THREE.Group();
 
-            const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
-            const matCabello = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75 });
-            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.52 });
-            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x27303f, roughness: 0.65 });
-            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.75 });
-            const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
-            const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
+            const matPiel = new THREE.MeshStandardMaterial({ color: 0xe6b287, roughness: 0.56 });
+            const matCabello = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.68 });
+            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.52 });
+            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.56, metalness: 0.18 });
+            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.76 });
+            const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.42, metalness: 0.16 });
+            const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.46, metalness: 0.1 });
 
-            const pivotePiernaIzq = new THREE.Group();
-            pivotePiernaIzq.position.set(-0.17, 0.86, 0);
-            const piernaIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
-            piernaIzqMesh.position.set(0, -0.34, 0);
-            piernaIzqMesh.castShadow = true;
-            const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
-            botaIzq.position.set(0, -0.77, 0.04);
-            botaIzq.castShadow = true;
-            pivotePiernaIzq.add(piernaIzqMesh, botaIzq);
+            function crearPiernaHumana(ladoX) {
+                const pivote = new THREE.Group();
+                pivote.position.set(ladoX, 0.86, 0);
 
-            const pivotePiernaDer = new THREE.Group();
-            pivotePiernaDer.position.set(0.17, 0.86, 0);
-            const piernaDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
-            piernaDerMesh.position.set(0, -0.34, 0);
-            piernaDerMesh.castShadow = true;
-            const botaDer = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
-            botaDer.position.set(0, -0.77, 0.04);
-            botaDer.castShadow = true;
-            pivotePiernaDer.add(piernaDerMesh, botaDer);
+                const cadera = new THREE.Mesh(new THREE.SphereGeometry(0.115, 14, 12), matPantalon);
+                cadera.scale.set(1.05, 0.95, 1.15);
+
+                const muslo = crearCapsula(0.105, 0.24, matPantalon, 14);
+                muslo.position.set(0, -0.19, 0.01);
+
+                const rodilla = new THREE.Mesh(new THREE.SphereGeometry(0.098, 12, 10), matPantalon);
+                rodilla.position.set(0, -0.36, 0.02);
+
+                const pantorrilla = crearCapsula(0.088, 0.24, matPantalon, 14);
+                pantorrilla.position.set(0, -0.53, -0.01);
+
+                const botaCuerpo = crearCapsula(0.095, 0.1, matBota, 12);
+                botaCuerpo.position.set(0, -0.71, 0.01);
+
+                const puntera = new THREE.Mesh(new THREE.SphereGeometry(0.096, 12, 10), matBota);
+                puntera.scale.set(1.02, 0.72, 1.48);
+                puntera.position.set(0, -0.75, 0.08);
+
+                pivote.add(cadera, muslo, rodilla, pantorrilla, botaCuerpo, puntera);
+                setCastShadow(pivote, true, false);
+                return pivote;
+            }
+
+            const pivotePiernaIzq = crearPiernaHumana(-0.165);
+            const pivotePiernaDer = crearPiernaHumana(0.165);
 
             const torsoGrupo = new THREE.Group();
             torsoGrupo.position.set(0, 0.86, 0);
 
-            const pecho = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.74, 0.42), matCamisa);
-            pecho.position.y = 0.37;
-            pecho.castShadow = true;
+            // Cintura y torso atlético redondeado
+            const cintura = crearCapsula(0.19, 0.14, matCamisa, 16);
+            cintura.rotation.z = Math.PI / 2;
+            cintura.scale.set(0.72, 1.05, 1.0);
+            cintura.position.set(0, 0.14, 0);
 
-            const chalecoTactico = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.42, 0.46), matChaleco);
-            chalecoTactico.position.set(0, 0.45, 0.01);
-            chalecoTactico.castShadow = true;
+            const pecho = crearCapsula(0.24, 0.34, matCamisa, 18);
+            pecho.rotation.z = Math.PI / 2;
+            pecho.scale.set(0.68, 1.15, 1.02);
+            pecho.position.set(0, 0.44, 0.01);
 
-            const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.12, 0.14, 10), matPiel);
-            cuello.position.set(0, 0.78, 0.01);
+            const chalecoTactico = crearCapsula(0.25, 0.2, matChaleco, 16);
+            chalecoTactico.rotation.z = Math.PI / 2;
+            chalecoTactico.scale.set(0.74, 1.16, 1.04);
+            chalecoTactico.position.set(0, 0.48, 0.015);
 
+            const cinturon = crearCapsula(0.195, 0.22, matBota, 14);
+            cinturon.rotation.z = Math.PI / 2;
+            cinturon.scale.set(0.75, 1.06, 0.32);
+            cinturon.position.set(0, 0.05, 0);
+
+            const cuello = crearCapsula(0.085, 0.09, matPiel, 12);
+            cuello.position.set(0, 0.77, 0.01);
+
+            // Cabeza humana esculpida
             const cabezaGrupo = new THREE.Group();
-            cabezaGrupo.position.set(0, 1.04, 0.02);
+            cabezaGrupo.position.set(0, 1.03, 0.02);
 
-            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.27, 16, 16), matPiel);
-            craneo.scale.set(0.92, 1.05, 0.96);
-            craneo.castShadow = true;
+            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.235, 20, 18), matPiel);
+            craneo.scale.set(0.88, 1.08, 0.96);
 
-            const cabelloVolumen = new THREE.Mesh(new THREE.SphereGeometry(0.285, 16, 14), matCabello);
-            cabelloVolumen.scale.set(0.95, 0.95, 1.02);
-            cabelloVolumen.position.set(0, 0.06, -0.02);
+            const mandibula = new THREE.Mesh(new THREE.SphereGeometry(0.175, 16, 14), matPiel);
+            mandibula.scale.set(0.86, 0.72, 0.92);
+            mandibula.position.set(0, -0.11, 0.03);
 
-            const flequillo = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.14), matCabello);
-            flequillo.position.set(0, 0.14, 0.21);
+            const nariz = new THREE.Mesh(new THREE.ConeGeometry(0.032, 0.075, 8), matPiel);
+            nariz.rotation.x = Math.PI * 0.42;
+            nariz.position.set(0, -0.01, 0.235);
 
-            const ojoIzq = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
-            ojoIzq.position.set(-0.085, 0.01, 0.255);
-            const ojoDer = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
-            ojoDer.position.set(0.085, 0.01, 0.255);
+            const orejaIzq = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10), matPiel);
+            orejaIzq.scale.set(0.45, 1.15, 0.85);
+            orejaIzq.position.set(-0.205, -0.01, -0.01);
 
-            cabezaGrupo.add(craneo, cabelloVolumen, flequillo, ojoIzq, ojoDer);
+            const orejaDer = orejaIzq.clone();
+            orejaDer.position.x = 0.205;
 
+            const cabelloBase = new THREE.Mesh(new THREE.SphereGeometry(0.248, 20, 18), matCabello);
+            cabelloBase.scale.set(0.92, 0.96, 1.03);
+            cabelloBase.position.set(0, 0.055, -0.025);
+
+            const mechón1 = crearCapsula(0.055, 0.12, matCabello, 10);
+            mechón1.rotation.x = 0.85;
+            mechón1.rotation.z = 0.18;
+            mechón1.position.set(-0.07, 0.16, 0.19);
+
+            const mechón2 = crearCapsula(0.052, 0.11, matCabello, 10);
+            mechón2.rotation.x = 0.82;
+            mechón2.rotation.z = -0.16;
+            mechón2.position.set(0.06, 0.15, 0.195);
+
+            const cejaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.022, 0.025), matCabello);
+            cejaIzq.position.set(-0.078, 0.058, 0.215);
+            cejaIzq.rotation.z = -0.08;
+            const cejaDer = cejaIzq.clone();
+            cejaDer.position.x = 0.078;
+            cejaDer.rotation.z = 0.08;
+
+            const ojoBlancoIzq = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 10), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
+            ojoBlancoIzq.scale.set(1.15, 0.8, 0.5);
+            ojoBlancoIzq.position.set(-0.076, 0.022, 0.218);
+
+            const irisIzq = new THREE.Mesh(new THREE.SphereGeometry(0.019, 8, 8), new THREE.MeshBasicMaterial({ color: 0x1e1b18 }));
+            irisIzq.position.set(-0.076, 0.022, 0.23);
+
+            const ojoBlancoDer = ojoBlancoIzq.clone();
+            ojoBlancoDer.position.x = 0.076;
+            const irisDer = irisIzq.clone();
+            irisDer.position.x = 0.076;
+
+            cabezaGrupo.add(
+                craneo, mandibula, nariz, orejaIzq, orejaDer,
+                cabelloBase, mechón1, mechón2,
+                cejaIzq, cejaDer, ojoBlancoIzq, irisIzq, ojoBlancoDer, irisDer
+            );
+
+            // Mochila redondeada
             const mochilaGrupo = new THREE.Group();
-            mochilaGrupo.position.set(0, 0.42, -0.26);
-            const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.52, 0.2), matMochila);
-            bolsaPrincipal.castShadow = true;
-            mochilaGrupo.add(bolsaPrincipal);
+            mochilaGrupo.position.set(0, 0.42, -0.22);
+            const bolsaPrincipal = crearCapsula(0.17, 0.24, matMochila, 14);
+            bolsaPrincipal.scale.set(1.15, 1.0, 0.65);
+            const bolsilloSuperior = crearCapsula(0.12, 0.1, matChaleco, 12);
+            bolsilloSuperior.scale.set(1.1, 1.0, 0.6);
+            bolsilloSuperior.position.set(0, 0.08, -0.09);
+            mochilaGrupo.add(bolsaPrincipal, bolsilloSuperior);
 
-            const pivoteBrazoIzq = new THREE.Group();
-            pivoteBrazoIzq.position.set(-0.4, 0.64, 0);
-            const brazoIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.54, 0.18), matPiel);
-            brazoIzqMesh.position.set(0, -0.27, 0);
-            brazoIzqMesh.castShadow = true;
-            pivoteBrazoIzq.add(brazoIzqMesh);
+            function crearBrazoHumano(ladoX) {
+                const pivote = new THREE.Group();
+                pivote.position.set(ladoX, 0.63, 0);
 
-            const pivoteBrazoDer = new THREE.Group();
-            pivoteBrazoDer.position.set(0.4, 0.64, 0);
-            const brazoDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.54, 0.18), matPiel);
-            brazoDerMesh.position.set(0, -0.27, 0);
-            brazoDerMesh.castShadow = true;
+                const hombro = new THREE.Mesh(new THREE.SphereGeometry(0.095, 12, 12), matCamisa);
+                const brazoSup = crearCapsula(0.075, 0.18, matCamisa, 12);
+                brazoSup.position.set(0, -0.14, 0);
 
+                const codo = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), matPiel);
+                codo.position.set(0, -0.26, 0.01);
+
+                const antebrazo = crearCapsula(0.065, 0.18, matPiel, 12);
+                antebrazo.position.set(0, -0.39, 0.02);
+
+                const mano = new THREE.Mesh(new THREE.SphereGeometry(0.064, 10, 10), matPiel);
+                mano.scale.set(0.85, 1.1, 1.15);
+                mano.position.set(0, -0.51, 0.03);
+
+                pivote.add(hombro, brazoSup, codo, antebrazo, mano);
+                setCastShadow(pivote, true, false);
+                return pivote;
+            }
+
+            const pivoteBrazoIzq = crearBrazoHumano(-0.35);
+            const pivoteBrazoDer = crearBrazoHumano(0.35);
+
+            // Rifle detallado
             const rifleGrupo = new THREE.Group();
-            rifleGrupo.position.set(-0.04, -0.44, 0.26);
+            rifleGrupo.position.set(-0.03, -0.47, 0.24);
 
             const receptor = new THREE.Mesh(
-                new THREE.BoxGeometry(0.085, 0.12, 0.68),
-                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.35 })
+                new THREE.BoxGeometry(0.075, 0.105, 0.66),
+                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.68, roughness: 0.28 })
             );
-            const culata = new THREE.Mesh(
-                new THREE.BoxGeometry(0.075, 0.14, 0.24),
-                new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 })
-            );
-            culata.position.set(0, -0.02, -0.42);
+            const culata = crearCapsula(0.048, 0.14, new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 }), 10);
+            culata.rotation.x = Math.PI / 2;
+            culata.position.set(0, -0.02, -0.39);
 
             const cargador = new THREE.Mesh(
-                new THREE.BoxGeometry(0.055, 0.2, 0.11),
-                new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
+                new THREE.BoxGeometry(0.048, 0.19, 0.1),
+                new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.45, metalness: 0.3 })
             );
-            cargador.rotation.x = 0.2;
-            cargador.position.set(0, -0.13, 0.08);
+            cargador.rotation.x = 0.22;
+            cargador.position.set(0, -0.12, 0.08);
 
             const canion = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.024, 0.024, 0.32, 8),
-                new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.25 })
+                new THREE.CylinderGeometry(0.022, 0.022, 0.34, 10),
+                new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.82, roughness: 0.2 })
             );
             canion.rotation.x = Math.PI / 2;
             canion.position.set(0, 0.02, 0.46);
 
             const destelloDisparo = new THREE.Mesh(
-                new THREE.SphereGeometry(0.13, 8, 8),
-                new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.92 })
+                new THREE.SphereGeometry(0.14, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.94 })
             );
-            destelloDisparo.position.set(0, 0.02, 0.65);
+            destelloDisparo.position.set(0, 0.02, 0.66);
             destelloDisparo.visible = false;
 
             rifleGrupo.add(receptor, culata, cargador, canion, destelloDisparo);
-            pivoteBrazoDer.add(brazoDerMesh, rifleGrupo);
+            setCastShadow(rifleGrupo, true, false);
+            pivoteBrazoDer.add(rifleGrupo);
 
-            torsoGrupo.add(pecho, chalecoTactico, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
+            torsoGrupo.add(cintura, pecho, chalecoTactico, cinturon, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
+            setCastShadow(torsoGrupo, true, false);
             jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
             scene.add(jugadorMesh);
 
@@ -1501,13 +1690,16 @@
                     new THREE.MeshStandardMaterial({
                         color: 0x38bdf8,
                         emissive: 0x0284c7,
-                        emissiveIntensity: 0.25,
+                        emissiveIntensity: 0.3,
+                        roughness: 0.2,
+                        metalness: 0.15,
                         transparent: true,
-                        opacity: 0.68
+                        opacity: 0.72
                     })
                 );
                 panel.position.y = 1.12;
                 panel.castShadow = true;
+                panel.receiveShadow = true;
 
                 glooGrupo.add(panel);
                 const gx = jugadorMesh.position.x + dir.x * 3.1;
@@ -1564,9 +1756,9 @@
                 }
 
                 if (enLobby) {
-                    portalLobby.visible = true;
+                    portalGrupo.visible = true;
                     mascotaGrupo.visible = true;
-                    portalLobby.rotation.y += dt * 0.0008;
+                    portalCono.rotation.y += dt * 0.0008;
                     mascotaGrupo.position.y = Math.abs(Math.sin(ahora * 0.004)) * 0.08;
 
                     jugadorMesh.rotation.y = 0.12;
@@ -1583,7 +1775,7 @@
                     return;
                 }
 
-                portalLobby.visible = false;
+                portalGrupo.visible = false;
                 mascotaGrupo.visible = false;
 
                 if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
