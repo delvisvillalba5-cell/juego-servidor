@@ -51,7 +51,7 @@
             font-weight: bold;
             font-size: 13px;
         }
-        /* Barra de vida arriba/abajo visible */
+        /* Barra de vida */
         #hud-hp {
             position: absolute;
             bottom: 36px;
@@ -91,11 +91,11 @@
         }
         .touch-btn {
             position: absolute;
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(0, 0, 0, 0.48);
             border: 2px solid rgba(255, 255, 255, 0.55);
             border-radius: 50%;
-            width: 56px;
-            height: 56px;
+            width: 54px;
+            height: 54px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -105,13 +105,13 @@
             touch-action: none;
         }
         .touch-btn:active {
-            transform: scale(0.92);
+            transform: scale(0.9);
             background: rgba(255, 204, 0, 0.35);
         }
         #btn-disparo {
             bottom: 42px;
-            right: 32px;
-            background: rgba(220, 38, 38, 0.6);
+            right: 28px;
+            background: rgba(220, 38, 38, 0.65);
             border-color: #ff5252;
             width: 74px;
             height: 74px;
@@ -119,19 +119,28 @@
         }
         #btn-salto {
             bottom: 126px;
-            right: 36px;
+            right: 32px;
             width: 50px;
             height: 50px;
         }
+        #btn-agachar {
+            bottom: 184px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
+            border-color: #facc15;
+            background: rgba(202, 138, 4, 0.35);
+            font-size: 18px;
+        }
         #btn-recargar {
             bottom: 42px;
-            right: 120px;
+            right: 116px;
             width: 50px;
             height: 50px;
         }
         #btn-gloo {
-            bottom: 106px;
-            right: 104px;
+            bottom: 104px;
+            right: 100px;
             width: 52px;
             height: 52px;
             border-color: #38bdf8;
@@ -179,6 +188,7 @@
 
         <div class="controls-layer">
             <div id="joystick-base"><div id="joystick-stick"></div></div>
+            <div class="touch-btn" id="btn-agachar">⬇️</div>
             <div class="touch-btn" id="btn-gloo">🧊</div>
             <div class="touch-btn" id="btn-salto">🦘</div>
             <div class="touch-btn" id="btn-recargar">🔄</div>
@@ -190,7 +200,6 @@
     <script>
         const container = document.getElementById('game-container');
 
-        // Escena, cámara en tercera persona y renderizador
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog = new THREE.FogExp2(0x7dd3fc, 0.008);
@@ -209,7 +218,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Luces
         const luzAmbiente = new THREE.HemisphereLight(0xffffff, 0x2d5a27, 0.9);
         scene.add(luzAmbiente);
 
@@ -218,7 +226,6 @@
         luzSol.castShadow = true;
         scene.add(luzSol);
 
-        // Suelo de la isla
         const suelo = new THREE.Mesh(
             new THREE.PlaneGeometry(140, 140),
             new THREE.MeshStandardMaterial({ color: 0x2f6b2f, roughness: 0.9 })
@@ -231,7 +238,6 @@
         grilla.position.y = 0.02;
         scene.add(grilla);
 
-        // Árboles y coberturas 3D
         const obstaculos = [];
         function crearArbol(x, z) {
             const grupo = new THREE.Group();
@@ -277,7 +283,16 @@
         crearCajaCobertura(10, -8);
         crearCajaCobertura(-6, -6);
 
-        // Jugador 3D (cuerpo, cabeza, mochila y rifle)
+        // Sombra en el suelo bajo el jugador para notar mejor la altura al saltar
+        const sombraJugador = new THREE.Mesh(
+            new THREE.CircleGeometry(0.75, 20),
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })
+        );
+        sombraJugador.rotation.x = -Math.PI / 2;
+        sombraJugador.position.y = 0.03;
+        scene.add(sombraJugador);
+
+        // Jugador 3D
         const jugadorMesh = new THREE.Group();
 
         const cuerpo = new THREE.Mesh(
@@ -312,11 +327,11 @@
         // Estado del jugador
         let velY = 0;
         let enSuelo = true;
+        let agachado = false;
         let balas = 30;
         const maxBalas = 30;
         let glooRestantes = 3;
         const proyectiles = [];
-        const paredesGloo3D = [];
 
         function actualizarHUD() {
             document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
@@ -381,7 +396,7 @@
             );
             balaMesh.position.set(
                 jugadorMesh.position.x + dir.x * 1.4,
-                1.35,
+                jugadorMesh.position.y + (agachado ? 0.8 : 1.35),
                 jugadorMesh.position.z + dir.z * 1.4
             );
             scene.add(balaMesh);
@@ -410,7 +425,6 @@
             );
             gloo.rotation.y = jugadorMesh.rotation.y;
             scene.add(gloo);
-            paredesGloo3D.push(gloo);
         }
 
         function recargar() {
@@ -420,24 +434,42 @@
 
         function saltar() {
             if (!enSuelo) return;
-            velY = 0.24;
+            if (agachado) {
+                agachado = false;
+                jugadorMesh.scale.y = 1;
+            }
+            velY = 0.36;
             enSuelo = false;
         }
 
-        document.getElementById('btn-disparo').addEventListener('touchstart', (e) => { e.preventDefault(); disparar(); });
-        document.getElementById('btn-gloo').addEventListener('touchstart', (e) => { e.preventDefault(); ponerGloo(); });
-        document.getElementById('btn-recargar').addEventListener('touchstart', (e) => { e.preventDefault(); recargar(); });
-        document.getElementById('btn-salto').addEventListener('touchstart', (e) => { e.preventDefault(); saltar(); });
+        function toggleAgachar() {
+            agachado = !agachado;
+            jugadorMesh.scale.y = agachado ? 0.62 : 1;
+        }
 
-        // Bucle 3D
+        function vincularBoton(id, fn) {
+            const el = document.getElementById(id);
+            el.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                fn();
+            }, { passive: false });
+            el.addEventListener('click', fn);
+        }
+
+        vincularBoton('btn-disparo', disparar);
+        vincularBoton('btn-gloo', ponerGloo);
+        vincularBoton('btn-recargar', recargar);
+        vincularBoton('btn-salto', saltar);
+        vincularBoton('btn-agachar', toggleAgachar);
+
         function animar() {
             requestAnimationFrame(animar);
 
-            const velocidad = 0.22;
+            const velocidad = agachado ? 0.14 : 0.22;
             const nextX = jugadorMesh.position.x + joyX * velocidad;
             const nextZ = jugadorMesh.position.z + joyY * velocidad;
 
-            // Colisión simple con obstáculos
             let bloqueado = false;
             for (const obs of obstaculos) {
                 if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.5) {
@@ -458,13 +490,19 @@
             // Salto y gravedad
             if (!enSuelo) {
                 jugadorMesh.position.y += velY;
-                velY -= 0.012;
+                velY -= 0.015;
                 if (jugadorMesh.position.y <= 0) {
                     jugadorMesh.position.y = 0;
                     velY = 0;
                     enSuelo = true;
                 }
             }
+
+            // Actualizar sombra en el suelo
+            sombraJugador.position.x = jugadorMesh.position.x;
+            sombraJugador.position.z = jugadorMesh.position.z;
+            const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
+            sombraJugador.scale.set(escalaSombra, escalaSombra, 1);
 
             // Proyectiles
             for (let i = proyectiles.length - 1; i >= 0; i--) {
@@ -478,7 +516,7 @@
                 }
             }
 
-            // Cámara en tercera persona detrás del jugador
+            // Cámara en tercera persona
             const camOffset = new THREE.Vector3(0, 5.2, -8.5).applyAxisAngle(
                 new THREE.Vector3(0, 1, 0),
                 jugadorMesh.rotation.y
