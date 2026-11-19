@@ -17,7 +17,7 @@
             height: 100%;
             overflow: hidden;
             background-color: #0b1320;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             touch-action: none;
         }
         #game-container {
@@ -30,29 +30,41 @@
             width: 100%;
             height: 100%;
         }
-        /* Retícula central (activa al apuntar) */
+        /* Retícula central */
         #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             transform: translate(-50%, -50%);
-            border: 2px solid rgba(255, 255, 255, 0.85);
+            border: 2px solid rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             pointer-events: none;
             z-index: 6;
             display: none;
+            box-shadow: 0 0 8px rgba(255, 59, 48, 0.75);
         }
-        #crosshair::after {
+        #crosshair::before, #crosshair::after {
             content: '';
             position: absolute;
-            top: 50%;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        #crosshair::before {
+            width: 2px;
+            height: 8px;
+            top: -10px;
             left: 50%;
-            width: 4px;
-            height: 4px;
+            transform: translateX(-50%);
+            box-shadow: 0 36px 0 rgba(255, 255, 255, 0.9);
+        }
+        #crosshair::after {
+            width: 5px;
+            height: 5px;
             background: #ff3b30;
             border-radius: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
         }
         /* HUD Superior */
@@ -68,44 +80,45 @@
             z-index: 5;
         }
         .player-card {
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(255, 204, 0, 0.55);
-            border-radius: 8px;
-            padding: 6px 12px;
-            color: #ffcc00;
-            font-weight: bold;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(2, 6, 23, 0.72));
+            border: 1px solid rgba(250, 204, 21, 0.65);
+            border-radius: 10px;
+            padding: 7px 13px;
+            color: #facc15;
+            font-weight: 700;
             font-size: 13px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         }
         /* Barra de vida */
         #hud-hp {
             position: absolute;
-            bottom: 24px;
+            bottom: 22px;
             left: 50%;
             transform: translateX(-50%);
-            width: 160px;
-            background: rgba(0, 0, 0, 0.7);
+            width: 175px;
+            background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 8px;
-            padding: 5px 8px;
+            border-radius: 10px;
+            padding: 6px 10px;
             color: #fff;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 700;
             text-align: center;
             pointer-events: none;
             z-index: 5;
         }
         .hp-track {
             width: 100%;
-            height: 7px;
-            background: #27272a;
-            border-radius: 4px;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 5px;
             overflow: hidden;
-            margin-top: 3px;
+            margin-top: 4px;
         }
         .hp-bar {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #22c55e, #86efac);
+            background: linear-gradient(90deg, #16a34a, #4ade80);
         }
         /* Capa de controles */
         .controls-layer {
@@ -114,12 +127,11 @@
             pointer-events: none;
             z-index: 5;
         }
-        /* Zona táctil derecha para girar cámara y apuntar */
         #aim-zone {
             position: absolute;
             top: 0;
             right: 0;
-            width: 55%;
+            width: 56%;
             height: 100%;
             pointer-events: auto;
             touch-action: none;
@@ -127,8 +139,8 @@
         }
         .touch-btn {
             position: absolute;
-            background: rgba(0, 0, 0, 0.48);
-            border: 2px solid rgba(255, 255, 255, 0.55);
+            background: rgba(15, 23, 42, 0.55);
+            border: 2px solid rgba(255, 255, 255, 0.65);
             border-radius: 50%;
             width: 52px;
             height: 52px;
@@ -140,70 +152,69 @@
             pointer-events: auto;
             touch-action: none;
             z-index: 6;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
         }
         .touch-btn:active, .touch-btn.active {
             transform: scale(0.92);
-            background: rgba(255, 204, 0, 0.35);
-            border-color: #ffcc00;
+            background: rgba(250, 204, 21, 0.38);
+            border-color: #facc15;
         }
-        /* Distribución estilo Free Fire a la derecha */
         #btn-disparo {
             bottom: 34px;
             right: 24px;
-            background: rgba(220, 38, 38, 0.68);
-            border-color: #ff5252;
-            width: 76px;
-            height: 76px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.85), rgba(185, 28, 28, 0.75));
+            border-color: #ff6b6b;
+            width: 78px;
+            height: 78px;
             font-size: 28px;
         }
         #btn-mira {
             bottom: 52px;
-            right: 114px;
+            right: 116px;
             width: 50px;
             height: 50px;
             border-color: #34d399;
-            background: rgba(16, 185, 129, 0.32);
+            background: rgba(16, 185, 129, 0.38);
             font-size: 18px;
         }
         #btn-salto {
-            bottom: 122px;
+            bottom: 124px;
             right: 26px;
             width: 50px;
             height: 50px;
         }
         #btn-agachar {
-            bottom: 116px;
-            right: 88px;
+            bottom: 118px;
+            right: 90px;
             width: 48px;
             height: 48px;
             border-color: #facc15;
-            background: rgba(202, 138, 4, 0.35);
+            background: rgba(202, 138, 4, 0.4);
             font-size: 18px;
         }
         #btn-gloo {
-            bottom: 174px;
+            bottom: 176px;
             right: 48px;
             width: 50px;
             height: 50px;
             border-color: #38bdf8;
-            background: rgba(14, 165, 233, 0.35);
+            background: rgba(14, 165, 233, 0.4);
         }
         #btn-recargar {
-            bottom: 172px;
-            right: 110px;
+            bottom: 174px;
+            right: 112px;
             width: 46px;
             height: 46px;
             font-size: 17px;
         }
-        /* Joystick izquierdo para caminar */
         #joystick-base {
             position: absolute;
             bottom: 42px;
             left: 34px;
-            width: 112px;
-            height: 112px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 2px solid rgba(255, 255, 255, 0.35);
+            width: 114px;
+            height: 114px;
+            background: rgba(15, 23, 42, 0.32);
+            border: 2px solid rgba(255, 255, 255, 0.42);
             border-radius: 50%;
             pointer-events: auto;
             touch-action: none;
@@ -213,12 +224,13 @@
             z-index: 6;
         }
         #joystick-stick {
-            width: 46px;
-            height: 46px;
-            background: radial-gradient(circle, #ffe066, #f59e0b);
+            width: 48px;
+            height: 48px;
+            background: radial-gradient(circle, #fef08a, #f59e0b);
             border: 2px solid #fff;
             border-radius: 50%;
             pointer-events: none;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
         }
     </style>
 </head>
@@ -229,7 +241,7 @@
         <div id="hud-top">
             <div class="player-card">
                 👤 Jugador_1<br>
-                <span id="hud-municion" style="font-size:11px; color:#fff;">Balas: 30/30 | Gloo: 3</span>
+                <span id="hud-municion" style="font-size:11px; color:#f8fafc;">Balas: 30/30 | Gloo: 3</span>
             </div>
             <div class="player-card">vivo: 12 / 50</div>
         </div>
@@ -241,7 +253,6 @@
 
         <div class="controls-layer">
             <div id="aim-zone"></div>
-
             <div id="joystick-base"><div id="joystick-stick"></div></div>
 
             <div class="touch-btn" id="btn-recargar">🔄</div>
@@ -259,15 +270,18 @@
         const crosshair = document.getElementById('crosshair');
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x38bdf8);
-        scene.fog = new THREE.FogExp2(0x7dd3fc, 0.008);
+        scene.background = new THREE.Color(0x4ea8de);
+        scene.fog = new THREE.FogExp2(0x90e0ef, 0.0065);
 
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.08;
         container.appendChild(renderer.domElement);
 
         window.addEventListener('resize', () => {
@@ -276,110 +290,258 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        const luzAmbiente = new THREE.HemisphereLight(0xffffff, 0x2d5a27, 0.9);
+        // Iluminación estilo día soleado tropical
+        const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x2d6a4f, 1.0);
         scene.add(luzAmbiente);
 
-        const luzSol = new THREE.DirectionalLight(0xfffbeb, 1.1);
-        luzSol.position.set(25, 45, 20);
+        const luzSol = new THREE.DirectionalLight(0xfff3b0, 1.35);
+        luzSol.position.set(35, 55, 25);
         luzSol.castShadow = true;
+        luzSol.shadow.mapSize.width = 1024;
+        luzSol.shadow.mapSize.height = 1024;
+        luzSol.shadow.camera.near = 5;
+        luzSol.shadow.camera.far = 160;
+        const d = 55;
+        luzSol.shadow.camera.left = -d;
+        luzSol.shadow.camera.right = d;
+        luzSol.shadow.camera.top = d;
+        luzSol.shadow.camera.bottom = -d;
         scene.add(luzSol);
 
+        // Textura procedural de suelo con pasto y motas naturales
+        function crearTexturaSuelo() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#38761d';
+            ctx.fillRect(0, 0, 512, 512);
+
+            for (let i = 0; i < 4500; i++) {
+                const x = Math.random() * 512;
+                const y = Math.random() * 512;
+                const r = 1 + Math.random() * 3.5;
+                const tonos = ['#2f6617', '#468c26', '#539e2f', '#3d5a27'];
+                ctx.fillStyle = tonos[Math.floor(Math.random() * tonos.length)];
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(22, 22);
+            return tex;
+        }
+
         const suelo = new THREE.Mesh(
-            new THREE.PlaneGeometry(140, 140),
-            new THREE.MeshStandardMaterial({ color: 0x2f6b2f, roughness: 0.9 })
+            new THREE.PlaneGeometry(160, 160),
+            new THREE.MeshStandardMaterial({
+                map: crearTexturaSuelo(),
+                roughness: 0.88,
+                metalness: 0.04
+            })
         );
         suelo.rotation.x = -Math.PI / 2;
         suelo.receiveShadow = true;
         scene.add(suelo);
 
-        const grilla = new THREE.GridHelper(140, 35, 0x4ade80, 0x1e4620);
-        grilla.position.y = 0.02;
-        scene.add(grilla);
-
         const obstaculos = [];
-        function crearArbol(x, z) {
+
+        function crearArbolRealista(x, z, escala = 1) {
             const grupo = new THREE.Group();
+
             const tronco = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.35, 0.45, 2.4, 8),
-                new THREE.MeshStandardMaterial({ color: 0x78350f })
+                new THREE.CylinderGeometry(0.28 * escala, 0.46 * escala, 2.8 * escala, 10),
+                new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.95 })
             );
-            tronco.position.y = 1.2;
+            tronco.position.y = 1.4 * escala;
             tronco.castShadow = true;
+            tronco.receiveShadow = true;
 
-            const copa = new THREE.Mesh(
-                new THREE.ConeGeometry(2.1, 4.2, 8),
-                new THREE.MeshStandardMaterial({ color: 0x15803d })
-            );
-            copa.position.y = 4.2;
-            copa.castShadow = true;
+            const matFollaje1 = new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.8 });
+            const matFollaje2 = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.78 });
+            const matFollaje3 = new THREE.MeshStandardMaterial({ color: 0x388e3c, roughness: 0.75 });
 
-            grupo.add(tronco, copa);
+            const copaBaja = new THREE.Mesh(new THREE.DodecahedronGeometry(2.1 * escala, 1), matFollaje1);
+            copaBaja.position.set(0, 3.3 * escala, 0);
+            copaBaja.scale.set(1.1, 0.75, 1.1);
+            copaBaja.castShadow = true;
+
+            const copaMedia = new THREE.Mesh(new THREE.DodecahedronGeometry(1.75 * escala, 1), matFollaje2);
+            copaMedia.position.set(0.55 * escala, 4.3 * escala, -0.35 * escala);
+            copaMedia.scale.set(1.05, 0.8, 1.05);
+            copaMedia.castShadow = true;
+
+            const copaAlta = new THREE.Mesh(new THREE.DodecahedronGeometry(1.35 * escala, 1), matFollaje3);
+            copaAlta.position.set(-0.4 * escala, 5.1 * escala, 0.35 * escala);
+            copaAlta.castShadow = true;
+
+            grupo.add(tronco, copaBaja, copaMedia, copaAlta);
             grupo.position.set(x, 0, z);
             scene.add(grupo);
-            obstaculos.push({ x, z, r: 1.1 });
+            obstaculos.push({ x, z, r: 0.85 * escala });
         }
 
-        function crearCajaCobertura(x, z) {
-            const caja = new THREE.Mesh(
-                new THREE.BoxGeometry(2.4, 1.6, 2.4),
-                new THREE.MeshStandardMaterial({ color: 0xb45309 })
+        function crearCajaSuministro(x, z, rotY = 0) {
+            const grupo = new THREE.Group();
+
+            const base = new THREE.Mesh(
+                new THREE.BoxGeometry(2.4, 1.5, 2.4),
+                new THREE.MeshStandardMaterial({ color: 0x9c4221, roughness: 0.7 })
             );
-            caja.position.set(x, 0.8, z);
-            caja.castShadow = true;
-            caja.receiveShadow = true;
-            scene.add(caja);
-            obstaculos.push({ x, z, r: 1.5 });
+            base.position.y = 0.75;
+            base.castShadow = true;
+            base.receiveShadow = true;
+
+            const marco = new THREE.Mesh(
+                new THREE.BoxGeometry(2.5, 0.2, 2.5),
+                new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
+            );
+            marco.position.y = 1.42;
+            marco.castShadow = true;
+
+            const franja = new THREE.Mesh(
+                new THREE.BoxGeometry(2.46, 0.35, 2.46),
+                new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 })
+            );
+            franja.position.y = 0.75;
+
+            grupo.add(base, marco, franja);
+            grupo.position.set(x, 0, z);
+            grupo.rotation.y = rotY;
+            scene.add(grupo);
+            obstaculos.push({ x, z, r: 1.55 });
         }
 
-        for (let i = 0; i < 24; i++) {
-            const ang = (i / 24) * Math.PI * 2;
-            const dist = 14 + (i % 3) * 14;
-            crearArbol(Math.cos(ang) * dist, Math.sin(ang) * dist);
+        function crearRoca(x, z, escala = 1) {
+            const roca = new THREE.Mesh(
+                new THREE.DodecahedronGeometry(1.3 * escala, 1),
+                new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.92 })
+            );
+            roca.position.set(x, 0.65 * escala, z);
+            roca.scale.set(1.25, 0.75, 1.05);
+            roca.castShadow = true;
+            roca.receiveShadow = true;
+            scene.add(roca);
+            obstaculos.push({ x, z, r: 1.2 * escala });
         }
-        crearCajaCobertura(6, 6);
-        crearCajaCobertura(-8, 10);
-        crearCajaCobertura(10, -8);
-        crearCajaCobertura(-6, -6);
 
-        // Sombra en el suelo bajo el jugador
+        for (let i = 0; i < 28; i++) {
+            const ang = (i / 28) * Math.PI * 2;
+            const dist = 15 + (i % 3) * 14;
+            const esc = 0.85 + (i % 4) * 0.14;
+            crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
+        }
+
+        crearCajaSuministro(6, 6, 0.25);
+        crearCajaSuministro(-8, 10, -0.4);
+        crearCajaSuministro(10, -8, 0.7);
+        crearCajaSuministro(-6, -6, 0.1);
+        crearRoca(13, 4, 1.1);
+        crearRoca(-12, -3, 1.35);
+        crearRoca(3, -15, 0.95);
+
+        // Sombra dinámica en el suelo
         const sombraJugador = new THREE.Mesh(
-            new THREE.CircleGeometry(0.75, 20),
-            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })
+            new THREE.CircleGeometry(0.78, 24),
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.36 })
         );
         sombraJugador.rotation.x = -Math.PI / 2;
         sombraJugador.position.y = 0.03;
         scene.add(sombraJugador);
 
-        // Jugador 3D
+        // Personaje 3D articulado estilo battle royale
         const jugadorMesh = new THREE.Group();
 
-        const cuerpo = new THREE.Mesh(
-            new THREE.BoxGeometry(0.9, 1.3, 0.55),
-            new THREE.MeshStandardMaterial({ color: 0x1d4ed8 })
+        const piernaIzq = new THREE.Mesh(
+            new THREE.BoxGeometry(0.28, 0.78, 0.32),
+            new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
         );
-        cuerpo.position.y = 1.15;
-        cuerpo.castShadow = true;
+        piernaIzq.position.set(-0.2, 0.39, 0);
+        piernaIzq.castShadow = true;
+
+        const piernaDer = new THREE.Mesh(
+            new THREE.BoxGeometry(0.28, 0.78, 0.32),
+            new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+        );
+        piernaDer.position.set(0.2, 0.39, 0);
+        piernaDer.castShadow = true;
+
+        const torso = new THREE.Mesh(
+            new THREE.BoxGeometry(0.86, 0.95, 0.48),
+            new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.55 })
+        );
+        torso.position.y = 1.24;
+        torso.castShadow = true;
+
+        const chaleco = new THREE.Mesh(
+            new THREE.BoxGeometry(0.92, 0.58, 0.54),
+            new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 })
+        );
+        chaleco.position.y = 1.32;
+        chaleco.castShadow = true;
 
         const cabeza = new THREE.Mesh(
-            new THREE.BoxGeometry(0.62, 0.62, 0.62),
-            new THREE.MeshStandardMaterial({ color: 0xf3c69f })
+            new THREE.BoxGeometry(0.58, 0.58, 0.58),
+            new THREE.MeshStandardMaterial({ color: 0xf1c27d, roughness: 0.65 })
         );
-        cabeza.position.y = 2.15;
+        cabeza.position.y = 2.04;
         cabeza.castShadow = true;
 
+        const cabello = new THREE.Mesh(
+            new THREE.BoxGeometry(0.62, 0.24, 0.62),
+            new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.8 })
+        );
+        cabello.position.set(0, 2.34, -0.02);
+        cabello.castShadow = true;
+
         const mochila = new THREE.Mesh(
-            new THREE.BoxGeometry(0.65, 0.85, 0.35),
-            new THREE.MeshStandardMaterial({ color: 0xf59e0b })
+            new THREE.BoxGeometry(0.58, 0.76, 0.28),
+            new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 })
         );
-        mochila.position.set(0, 1.2, -0.42);
+        mochila.position.set(0, 1.3, -0.36);
+        mochila.castShadow = true;
 
-        const rifle = new THREE.Mesh(
-            new THREE.BoxGeometry(0.14, 0.18, 1.2),
-            new THREE.MeshStandardMaterial({ color: 0x18181b })
+        const brazoIzq = new THREE.Mesh(
+            new THREE.BoxGeometry(0.22, 0.66, 0.24),
+            new THREE.MeshStandardMaterial({ color: 0xf1c27d, roughness: 0.65 })
         );
-        rifle.position.set(0.52, 1.35, 0.45);
+        brazoIzq.position.set(-0.56, 1.35, 0.12);
+        brazoIzq.castShadow = true;
 
-        jugadorMesh.add(cuerpo, cabeza, mochila, rifle);
+        const brazoDer = new THREE.Mesh(
+            new THREE.BoxGeometry(0.22, 0.66, 0.24),
+            new THREE.MeshStandardMaterial({ color: 0xf1c27d, roughness: 0.65 })
+        );
+        brazoDer.position.set(0.56, 1.35, 0.15);
+        brazoDer.castShadow = true;
+
+        const rifleGrupo = new THREE.Group();
+        const cuerpoRifle = new THREE.Mesh(
+            new THREE.BoxGeometry(0.13, 0.16, 1.15),
+            new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.45, roughness: 0.4 })
+        );
+        const canion = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.035, 0.035, 0.4, 8),
+            new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.3 })
+        );
+        canion.rotation.x = Math.PI / 2;
+        canion.position.set(0, 0.02, 0.72);
+
+        const destelloDisparo = new THREE.Mesh(
+            new THREE.SphereGeometry(0.16, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.9 })
+        );
+        destelloDisparo.position.set(0, 0.02, 0.96);
+        destelloDisparo.visible = false;
+
+        rifleGrupo.add(cuerpoRifle, canion, destelloDisparo);
+        rifleGrupo.position.set(0.46, 1.32, 0.48);
+
+        jugadorMesh.add(piernaIzq, piernaDer, torso, chaleco, cabeza, cabello, mochila, brazoIzq, brazoDer, rifleGrupo);
         scene.add(jugadorMesh);
 
         // Estado del jugador y cámara
@@ -390,21 +552,23 @@
         let balas = 30;
         const maxBalas = 30;
         let glooRestantes = 3;
+        let tiempoDestello = 0;
+        let cicloPaso = 0;
         const proyectiles = [];
 
-        let camYaw = 0;     // Rotación horizontal de cámara/mira
-        let camPitch = 0.22; // Altura vertical de cámara/mira
+        let camYaw = 0;
+        let camPitch = 0.22;
         const sensibilidad = 0.0055;
 
         function actualizarHUD() {
             document.getElementById('hud-municion').textContent = `Balas: ${balas}/${maxBalas} | Gloo: ${glooRestantes}`;
         }
 
-        // 1. Joystick izquierdo (solo caminar)
+        // 1. Joystick izquierdo
         const joystickBase = document.getElementById('joystick-base');
         const joystickStick = document.getElementById('joystick-stick');
         let joyActivo = false, joyTouchId = null, joyX = 0, joyY = 0;
-        const maxRadio = 35;
+        const maxRadio = 36;
 
         function actualizarJoystick(touch) {
             const rect = joystickBase.getBoundingClientRect();
@@ -448,7 +612,7 @@
         joystickBase.addEventListener('touchend', soltarJoystick);
         joystickBase.addEventListener('touchcancel', soltarJoystick);
 
-        // 2. Zona derecha para apuntar / girar cámara (multitouch independiente)
+        // 2. Zona derecha de cámara / mira
         const aimZone = document.getElementById('aim-zone');
         let aimTouchId = null;
         let lastAimX = 0;
@@ -493,32 +657,35 @@
         aimZone.addEventListener('touchend', soltarMira);
         aimZone.addEventListener('touchcancel', soltarMira);
 
-        // 3. Disparo continuo + arrastre de mira (subir mira)
+        // 3. Disparo continuo + arrastre de mira
         const btnDisparo = document.getElementById('btn-disparo');
         let disparando = false;
         let fireTouchId = null;
         let lastFireX = 0;
         let lastFireY = 0;
         let ultimoDisparoTime = 0;
-        const intervaloDisparo = 140; // ms entre balas en ráfaga
+        const intervaloDisparo = 135;
 
         function disparar() {
             if (balas <= 0) return;
             balas--;
             actualizarHUD();
 
+            destelloDisparo.visible = true;
+            tiempoDestello = 45;
+
             const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
             const balaMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(0.14, 8, 8),
+                new THREE.SphereGeometry(0.13, 8, 8),
                 new THREE.MeshBasicMaterial({ color: 0xfef08a })
             );
             balaMesh.position.set(
-                jugadorMesh.position.x + dir.x * 1.4,
-                jugadorMesh.position.y + (agachado ? 0.8 : 1.35),
-                jugadorMesh.position.z + dir.z * 1.4
+                jugadorMesh.position.x + dir.x * 1.5,
+                jugadorMesh.position.y + (agachado ? 0.82 : 1.34),
+                jugadorMesh.position.z + dir.z * 1.5
             );
             scene.add(balaMesh);
-            proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.45, vz: dir.z * 1.45, vida: 50 });
+            proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
         }
 
         btnDisparo.addEventListener('touchstart', (e) => {
@@ -567,7 +734,7 @@
         });
         window.addEventListener('mouseup', () => { disparando = false; });
 
-        // 4. Botón Mira / Zoom
+        // 4. Mira / Zoom
         const btnMira = document.getElementById('btn-mira');
         function toggleMira() {
             apuntando = !apuntando;
@@ -581,29 +748,46 @@
         }, { passive: false });
         btnMira.addEventListener('click', toggleMira);
 
-        // 5. Otras acciones
+        // 5. Acciones
         function ponerGloo() {
             if (glooRestantes <= 0) return;
             glooRestantes--;
             actualizarHUD();
 
             const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
-            const gloo = new THREE.Mesh(
-                new THREE.BoxGeometry(3.2, 2.2, 0.35),
+            const glooGrupo = new THREE.Group();
+
+            const panel = new THREE.Mesh(
+                new THREE.BoxGeometry(3.3, 2.25, 0.34),
                 new THREE.MeshStandardMaterial({
                     color: 0x38bdf8,
+                    emissive: 0x0284c7,
+                    emissiveIntensity: 0.25,
                     transparent: true,
-                    opacity: 0.72,
-                    roughness: 0.2
+                    opacity: 0.68,
+                    roughness: 0.15
                 })
             );
-            gloo.position.set(
-                jugadorMesh.position.x + dir.x * 3.2,
-                1.1,
-                jugadorMesh.position.z + dir.z * 3.2
+            panel.position.y = 1.12;
+            panel.castShadow = true;
+
+            const borde = new THREE.Mesh(
+                new THREE.BoxGeometry(3.36, 0.14, 0.4),
+                new THREE.MeshStandardMaterial({
+                    color: 0xbae6fd,
+                    transparent: true,
+                    opacity: 0.85
+                })
             );
-            gloo.rotation.y = jugadorMesh.rotation.y;
-            scene.add(gloo);
+            borde.position.y = 2.18;
+
+            glooGrupo.add(panel, borde);
+            const gx = jugadorMesh.position.x + dir.x * 3.1;
+            const gz = jugadorMesh.position.z + dir.z * 3.1;
+            glooGrupo.position.set(gx, 0, gz);
+            glooGrupo.rotation.y = jugadorMesh.rotation.y;
+            scene.add(glooGrupo);
+            obstaculos.push({ x: gx, z: gz, r: 1.45 });
         }
 
         function recargar() {
@@ -641,25 +825,32 @@
         vincularBoton('btn-salto', saltar);
         vincularBoton('btn-agachar', toggleAgachar);
 
-        function animar(ahora = 0) {
-            requestAnimationFrame(animar);
+        let ultimoFrame = performance.now();
 
-            // Ráfaga al mantener presionado el botón de disparo
+        function animar(ahora = performance.now()) {
+            requestAnimationFrame(animar);
+            const dt = Math.min(50, ahora - ultimoFrame);
+            ultimoFrame = ahora;
+
+            if (tiempoDestello > 0) {
+                tiempoDestello -= dt;
+                if (tiempoDestello <= 0) destelloDisparo.visible = false;
+            }
+
             if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
                 disparar();
                 ultimoDisparoTime = ahora;
             }
 
-            // Movimiento relativo a la dirección de la cámara/mira (corregido izq/der)
             const velocidad = agachado ? 0.14 : 0.22;
             const forwardX = Math.sin(camYaw);
             const forwardZ = Math.cos(camYaw);
             const rightX = -Math.cos(camYaw);
             const rightZ = Math.sin(camYaw);
 
-            // joyY negativo es empujar joystick hacia arriba (avanzar)
             const moveForward = -joyY;
             const moveRight = joyX;
+            const intensidadMov = Math.min(1, Math.hypot(moveForward, moveRight));
 
             const moveVecX = forwardX * moveForward + rightX * moveRight;
             const moveVecZ = forwardZ * moveForward + rightZ * moveRight;
@@ -669,18 +860,33 @@
 
             let bloqueado = false;
             for (const obs of obstaculos) {
-                if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.5) {
+                if (Math.hypot(nextX - obs.x, nextZ - obs.z) < obs.r + 0.52) {
                     bloqueado = true;
                     break;
                 }
             }
 
             if (!bloqueado) {
-                jugadorMesh.position.x = Math.max(-62, Math.min(62, nextX));
-                jugadorMesh.position.z = Math.max(-62, Math.min(62, nextZ));
+                jugadorMesh.position.x = Math.max(-72, Math.min(72, nextX));
+                jugadorMesh.position.z = Math.max(-72, Math.min(72, nextZ));
             }
 
             jugadorMesh.rotation.y = camYaw;
+
+            // Animación de piernas y brazos al moverse
+            if (intensidadMov > 0.05 && enSuelo) {
+                cicloPaso += dt * 0.015 * intensidadMov;
+                const angPierna = Math.sin(cicloPaso) * 0.65 * intensidadMov;
+                piernaIzq.rotation.x = angPierna;
+                piernaDer.rotation.x = -angPierna;
+                brazoIzq.rotation.x = -angPierna * 0.6;
+                brazoDer.rotation.x = angPierna * 0.45;
+            } else {
+                piernaIzq.rotation.x *= 0.8;
+                piernaDer.rotation.x *= 0.8;
+                brazoIzq.rotation.x *= 0.8;
+                brazoDer.rotation.x *= 0.8;
+            }
 
             // Salto y gravedad
             if (!enSuelo) {
@@ -693,7 +899,7 @@
                 }
             }
 
-            // Actualizar sombra en el suelo
+            // Sombra en el suelo
             sombraJugador.position.x = jugadorMesh.position.x;
             sombraJugador.position.z = jugadorMesh.position.z;
             const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
@@ -711,21 +917,33 @@
                 }
             }
 
-            // Zoom suave de mira
+            // Zoom de mira
             const targetFov = apuntando ? 36 : 60;
             if (Math.abs(camera.fov - targetFov) > 0.2) {
                 camera.fov += (targetFov - camera.fov) * 0.18;
                 camera.updateProjectionMatrix();
             }
 
-            // Cámara en tercera persona siguiendo camYaw y camPitch
-            const distCam = apuntando ? 5.2 : 8.5;
-            const alturaCam = 2.2 + Math.sin(camPitch) * distCam;
-            const horizDist = Math.cos(camPitch) * distCam;
+            // Cámara en tercera persona con anti-choque contra obstáculos
+            const baseDist = apuntando ? 5.2 : 8.4;
+            const alturaCam = 2.15 + Math.sin(camPitch) * baseDist;
+            let horizDist = Math.cos(camPitch) * baseDist;
 
-            const camTargetX = jugadorMesh.position.x - Math.sin(camYaw) * horizDist;
+            const dirAtrasX = -Math.sin(camYaw);
+            const dirAtrasZ = -Math.cos(camYaw);
+
+            for (const obs of obstaculos) {
+                const cx = jugadorMesh.position.x + dirAtrasX * horizDist;
+                const cz = jugadorMesh.position.z + dirAtrasZ * horizDist;
+                const distObs = Math.hypot(cx - obs.x, cz - obs.z);
+                if (distObs < obs.r + 0.9) {
+                    horizDist = Math.max(2.6, horizDist - (obs.r + 0.9 - distObs));
+                }
+            }
+
+            const camTargetX = jugadorMesh.position.x + dirAtrasX * horizDist;
             const camTargetY = jugadorMesh.position.y + alturaCam;
-            const camTargetZ = jugadorMesh.position.z - Math.cos(camYaw) * horizDist;
+            const camTargetZ = jugadorMesh.position.z + dirAtrasZ * horizDist;
 
             camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
             camera.lookAt(
