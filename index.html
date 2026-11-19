@@ -30,7 +30,148 @@
             width: 100%;
             height: 100%;
         }
-        /* Retícula central */
+
+        /* ==========================================
+           PANTALLA PRINCIPAL (LOBBY ESTILO FREE FIRE)
+           ========================================== */
+        #lobby-screen {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: radial-gradient(circle at 75% 45%, rgba(15, 23, 42, 0.08) 0%, rgba(2, 6, 23, 0.65) 100%);
+            pointer-events: auto;
+        }
+        #lobby-screen.oculto {
+            display: none;
+            pointer-events: none;
+        }
+        .lobby-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .brand-box {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.72));
+            border: 1px solid rgba(250, 204, 21, 0.75);
+            border-radius: 12px;
+            padding: 8px 14px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+        }
+        .brand-title {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #facc15;
+            text-shadow: 0 2px 8px rgba(250, 204, 21, 0.35);
+        }
+        .brand-sub {
+            font-size: 11px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+        .lobby-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: rgba(15, 23, 42, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 999px;
+            padding: 6px 12px;
+            color: #f8fafc;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .stat-pill.oro {
+            border-color: rgba(250, 204, 21, 0.6);
+            color: #fde047;
+        }
+        .stat-pill.diamantes {
+            border-color: rgba(56, 189, 248, 0.65);
+            color: #7dd3fc;
+        }
+        .lobby-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .lobby-tip {
+            background: rgba(15, 23, 42, 0.72);
+            border-left: 3px solid #facc15;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #e2e8f0;
+            font-size: 12px;
+            max-width: 280px;
+        }
+        .launch-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.82);
+            padding: 5px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .mode-btn {
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+        .mode-btn.activo {
+            background: linear-gradient(135deg, #f59e0b, #eab308);
+            color: #0f172a;
+        }
+        #btn-iniciar-juego {
+            background: linear-gradient(135deg, #facc15, #f97316);
+            color: #0f172a;
+            border: 2px solid #fef08a;
+            border-radius: 12px;
+            padding: 13px 34px;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(249, 115, 22, 0.45);
+        }
+        #btn-iniciar-juego:active {
+            transform: scale(0.96);
+        }
+
+        /* ==========================================
+           INTERFAZ EN PARTIDA (HUD Y CONTROLES)
+           ========================================== */
+        #gameplay-ui {
+            display: none;
+        }
+        #gameplay-ui.activo {
+            display: block;
+        }
         #crosshair {
             position: absolute;
             top: 50%;
@@ -67,7 +208,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        /* HUD Superior */
         #hud-top {
             position: absolute;
             top: 12px;
@@ -89,7 +229,6 @@
             font-size: 13px;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         }
-        /* Barra de vida */
         #hud-hp {
             position: absolute;
             bottom: 22px;
@@ -120,7 +259,6 @@
             height: 100%;
             background: linear-gradient(90deg, #16a34a, #4ade80);
         }
-        /* Capa de controles */
         .controls-layer {
             position: absolute;
             inset: 0;
@@ -236,39 +374,112 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="crosshair"></div>
+        <!-- PANTALLA PRINCIPAL (LOBBY) -->
+        <div id="lobby-screen">
+            <div class="lobby-top">
+                <div class="brand-box">
+                    <div class="brand-title">ZETA BATTLE</div>
+                    <div class="brand-sub" id="lobby-modo-label">Modo: Battle Royale</div>
+                </div>
 
-        <div id="hud-top">
-            <div class="player-card">
-                👤 Jugador_1<br>
-                <span id="hud-municion" style="font-size:11px; color:#f8fafc;">Balas: 30/30 | Gloo: 3</span>
+                <div class="lobby-stats">
+                    <div class="stat-pill" id="lobby-player-btn" title="Cambiar nombre">
+                        👤 <span id="lobby-nombre">Jugador_1</span> ✏️
+                    </div>
+                    <div class="stat-pill oro">🪙 <span id="lobby-oro">1,250</span></div>
+                    <div class="stat-pill diamantes">💎 <span id="lobby-diamantes">85</span></div>
+                </div>
             </div>
-            <div class="player-card">vivo: 12 / 50</div>
+
+            <div class="lobby-bottom">
+                <div class="lobby-tip">
+                    Pulsa <b>INICIAR</b> para entrar. Camina con el joystick izquierdo y gira/apunta con el lado derecho.
+                </div>
+
+                <div class="launch-panel">
+                    <div class="mode-selector">
+                        <button class="mode-btn activo" data-modo="Battle Royale">Battle Royale</button>
+                        <button class="mode-btn" data-modo="1v1 Duelo">1v1 Duelo</button>
+                    </div>
+                    <button id="btn-iniciar-juego">INICIAR</button>
+                </div>
+            </div>
         </div>
 
-        <div id="hud-hp">
-            HP 200 / 200
-            <div class="hp-track"><div class="hp-bar"></div></div>
-        </div>
+        <!-- INTERFAZ EN PARTIDA -->
+        <div id="gameplay-ui">
+            <div id="crosshair"></div>
 
-        <div class="controls-layer">
-            <div id="aim-zone"></div>
-            <div id="joystick-base"><div id="joystick-stick"></div></div>
+            <div id="hud-top">
+                <div class="player-card">
+                    👤 <span id="hud-nombre">Jugador_1</span><br>
+                    <span id="hud-municion" style="font-size:11px; color:#f8fafc;">Balas: 30/30 | Gloo: 3</span>
+                </div>
+                <div class="player-card" id="hud-vivos">vivo: 12 / 50</div>
+            </div>
 
-            <div class="touch-btn" id="btn-recargar">🔄</div>
-            <div class="touch-btn" id="btn-gloo">🧊</div>
-            <div class="touch-btn" id="btn-agachar">⬇️</div>
-            <div class="touch-btn" id="btn-salto">🦘</div>
-            <div class="touch-btn" id="btn-mira">🔍</div>
-            <div class="touch-btn" id="btn-disparo">🎯</div>
+            <div id="hud-hp">
+                HP 200 / 200
+                <div class="hp-track"><div class="hp-bar"></div></div>
+            </div>
+
+            <div class="controls-layer">
+                <div id="aim-zone"></div>
+                <div id="joystick-base"><div id="joystick-stick"></div></div>
+
+                <div class="touch-btn" id="btn-recargar">🔄</div>
+                <div class="touch-btn" id="btn-gloo">🧊</div>
+                <div class="touch-btn" id="btn-agachar">⬇️</div>
+                <div class="touch-btn" id="btn-salto">🦘</div>
+                <div class="touch-btn" id="btn-mira">🔍</div>
+                <div class="touch-btn" id="btn-disparo">🎯</div>
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
     <script>
         const container = document.getElementById('game-container');
+        const lobbyScreen = document.getElementById('lobby-screen');
+        const gameplayUi = document.getElementById('gameplay-ui');
         const crosshair = document.getElementById('crosshair');
 
+        let enLobby = true;
+        let nombreJugador = 'Jugador_1';
+        let modoActual = 'Battle Royale';
+
+        // Controles del lobby
+        const lobbyNombreEl = document.getElementById('lobby-nombre');
+        const hudNombreEl = document.getElementById('hud-nombre');
+        const hudVivosEl = document.getElementById('hud-vivos');
+        const lobbyModoLabel = document.getElementById('lobby-modo-label');
+
+        document.getElementById('lobby-player-btn').addEventListener('click', () => {
+            const nuevo = prompt('Escribe tu nombre de jugador:', nombreJugador);
+            if (nuevo && nuevo.trim()) {
+                nombreJugador = nuevo.trim().slice(0, 16);
+                lobbyNombreEl.textContent = nombreJugador;
+                hudNombreEl.textContent = nombreJugador;
+            }
+        });
+
+        document.querySelectorAll('.mode-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('activo'));
+                btn.classList.add('activo');
+                modoActual = btn.dataset.modo;
+                lobbyModoLabel.textContent = `Modo: ${modoActual}`;
+                hudVivosEl.textContent = modoActual === '1v1 Duelo' ? 'vivo: 2 / 2' : 'vivo: 12 / 50';
+            });
+        });
+
+        document.getElementById('btn-iniciar-juego').addEventListener('click', () => {
+            enLobby = false;
+            lobbyScreen.classList.add('oculto');
+            gameplayUi.classList.add('activo');
+        });
+
+        // Escena 3D
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x4ea8de);
         scene.fog = new THREE.FogExp2(0x90e0ef, 0.0065);
@@ -442,7 +653,6 @@
         crearRoca(-12, -3, 1.35);
         crearRoca(3, -15, 0.95);
 
-        // Sombra dinámica en el suelo
         const sombraJugador = new THREE.Mesh(
             new THREE.CircleGeometry(0.75, 24),
             new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.36 })
@@ -451,9 +661,7 @@
         sombraJugador.position.y = 0.03;
         scene.add(sombraJugador);
 
-        // ==========================================
-        // PERSONAJE 3D ESTILIZADO Y ARTICULADO
-        // ==========================================
+        // Personaje 3D articulado
         const jugadorMesh = new THREE.Group();
 
         const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
@@ -464,7 +672,6 @@
         const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
         const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
 
-        // Pivote de pierna izquierda (cadera)
         const pivotePiernaIzq = new THREE.Group();
         pivotePiernaIzq.position.set(-0.18, 0.84, 0);
         const musloIzq = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.32, 6, 10), matPantalon);
@@ -475,7 +682,6 @@
         botaIzq.castShadow = true;
         pivotePiernaIzq.add(musloIzq, botaIzq);
 
-        // Pivote de pierna derecha (cadera)
         const pivotePiernaDer = new THREE.Group();
         pivotePiernaDer.position.set(0.18, 0.84, 0);
         const musloDer = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.32, 6, 10), matPantalon);
@@ -486,7 +692,6 @@
         botaDer.castShadow = true;
         pivotePiernaDer.add(musloDer, botaDer);
 
-        // Grupo superior (torso, cabeza, brazos y arma)
         const torsoGrupo = new THREE.Group();
         torsoGrupo.position.set(0, 0.86, 0);
 
@@ -503,7 +708,6 @@
         const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.14, 10), matPiel);
         cuello.position.set(0, 0.78, 0.02);
 
-        // Cabeza redondeada estilizada + rasgos
         const cabezaGrupo = new THREE.Group();
         cabezaGrupo.position.set(0, 1.04, 0.03);
 
@@ -526,7 +730,6 @@
 
         cabezaGrupo.add(craneo, cabelloVolumen, flequillo, ojoIzq, ojoDer);
 
-        // Mochila táctica con detalle
         const mochilaGrupo = new THREE.Group();
         mochilaGrupo.position.set(0, 0.44, -0.28);
         const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.56, 0.22), matMochila);
@@ -535,7 +738,6 @@
         bolsillo.position.set(0, -0.08, -0.13);
         mochilaGrupo.add(bolsaPrincipal, bolsillo);
 
-        // Brazo izquierdo
         const pivoteBrazoIzq = new THREE.Group();
         pivoteBrazoIzq.position.set(-0.42, 0.64, 0.02);
         const brazoIzqMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.36, 6, 8), matPiel);
@@ -543,7 +745,6 @@
         brazoIzqMesh.castShadow = true;
         pivoteBrazoIzq.add(brazoIzqMesh);
 
-        // Brazo derecho + Rifle de asalto detallado
         const pivoteBrazoDer = new THREE.Group();
         pivoteBrazoDer.position.set(0.42, 0.64, 0.02);
         const brazoDerMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.36, 6, 8), matPiel);
@@ -607,6 +808,7 @@
         let glooRestantes = 3;
         let tiempoDestello = 0;
         let cicloPaso = 0;
+        let anguloLobby = 0.45;
         const proyectiles = [];
 
         let camYaw = 0;
@@ -638,6 +840,7 @@
         }
 
         joystickBase.addEventListener('touchstart', (e) => {
+            if (enLobby) return;
             e.preventDefault();
             e.stopPropagation();
             joyActivo = true;
@@ -646,6 +849,7 @@
         }, { passive: false });
 
         joystickBase.addEventListener('touchmove', (e) => {
+            if (enLobby) return;
             e.preventDefault();
             e.stopPropagation();
             if (!joyActivo) return;
@@ -678,6 +882,7 @@
         }
 
         aimZone.addEventListener('touchstart', (e) => {
+            if (enLobby) return;
             e.preventDefault();
             if (aimTouchId !== null) return;
             const t = e.changedTouches[0];
@@ -687,6 +892,7 @@
         }, { passive: false });
 
         aimZone.addEventListener('touchmove', (e) => {
+            if (enLobby) return;
             e.preventDefault();
             if (aimTouchId === null) return;
             for (const t of e.changedTouches) {
@@ -720,7 +926,7 @@
         const intervaloDisparo = 135;
 
         function disparar() {
-            if (balas <= 0) return;
+            if (enLobby || balas <= 0) return;
             balas--;
             actualizarHUD();
 
@@ -742,6 +948,7 @@
         }
 
         btnDisparo.addEventListener('touchstart', (e) => {
+            if (enLobby) return;
             e.preventDefault();
             e.stopPropagation();
             const t = e.changedTouches[0];
@@ -755,6 +962,7 @@
         }, { passive: false });
 
         btnDisparo.addEventListener('touchmove', (e) => {
+            if (enLobby) return;
             e.preventDefault();
             e.stopPropagation();
             if (!disparando) return;
@@ -781,6 +989,7 @@
         btnDisparo.addEventListener('touchend', soltarDisparo);
         btnDisparo.addEventListener('touchcancel', soltarDisparo);
         btnDisparo.addEventListener('mousedown', () => {
+            if (enLobby) return;
             disparando = true;
             disparar();
             ultimoDisparoTime = performance.now();
@@ -790,6 +999,7 @@
         // 4. Mira / Zoom
         const btnMira = document.getElementById('btn-mira');
         function toggleMira() {
+            if (enLobby) return;
             apuntando = !apuntando;
             btnMira.classList.toggle('active', apuntando);
             crosshair.style.display = apuntando ? 'block' : 'none';
@@ -803,7 +1013,7 @@
 
         // 5. Acciones
         function ponerGloo() {
-            if (glooRestantes <= 0) return;
+            if (enLobby || glooRestantes <= 0) return;
             glooRestantes--;
             actualizarHUD();
 
@@ -844,18 +1054,20 @@
         }
 
         function recargar() {
+            if (enLobby) return;
             balas = maxBalas;
             actualizarHUD();
         }
 
         function saltar() {
-            if (!enSuelo) return;
+            if (enLobby || !enSuelo) return;
             if (agachado) agachado = false;
             velY = 0.36;
             enSuelo = false;
         }
 
         function toggleAgachar() {
+            if (enLobby) return;
             agachado = !agachado;
         }
 
@@ -884,6 +1096,35 @@
             if (tiempoDestello > 0) {
                 tiempoDestello -= dt;
                 if (tiempoDestello <= 0) destelloDisparo.visible = false;
+            }
+
+            if (enLobby) {
+                // Vista panorámica suave en el lobby con el personaje de frente/perfil
+                anguloLobby += dt * 0.00045;
+                jugadorMesh.rotation.y = 0.25;
+                pivotePiernaIzq.rotation.x *= 0.85;
+                pivotePiernaDer.rotation.x *= 0.85;
+                pivoteBrazoDer.rotation.x += (-0.55 - pivoteBrazoDer.rotation.x) * 0.15;
+                pivoteBrazoIzq.rotation.x += (-0.45 - pivoteBrazoIzq.rotation.x) * 0.15;
+
+                const radioLobby = 5.4;
+                camera.position.lerp(
+                    new THREE.Vector3(
+                        jugadorMesh.position.x + Math.sin(anguloLobby) * radioLobby,
+                        2.15,
+                        jugadorMesh.position.z + Math.cos(anguloLobby) * radioLobby
+                    ),
+                    0.08
+                );
+                camera.lookAt(
+                    jugadorMesh.position.x - 0.55,
+                    1.35,
+                    jugadorMesh.position.z
+                );
+
+                sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
+                renderer.render(scene, camera);
+                return;
             }
 
             if (disparando && ahora - ultimoDisparoTime >= intervaloDisparo) {
@@ -922,29 +1163,26 @@
 
             jugadorMesh.rotation.y = camYaw;
 
-            // Postura agachada suave
             const targetTorsoY = agachado ? 0.52 : 0.86;
             torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
             torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
 
-            // Animación de extremidades al caminar o apuntar
             if (intensidadMov > 0.05 && enSuelo) {
                 cicloPaso += dt * 0.015 * intensidadMov;
                 const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
                 pivotePiernaIzq.rotation.x = angPierna;
                 pivotePiernaDer.rotation.x = -angPierna;
-                pivoteBrazoIzq.rotation.x = apuntando ? -0.95 : -angPierna * 0.55;
-                pivoteBrazoDer.rotation.x = apuntando ? -1.05 : angPierna * 0.4;
+                pivoteBrazoIzq.rotation.x = apuntando ? -1.35 : -angPierna * 0.55;
+                pivoteBrazoDer.rotation.x = apuntando ? -1.42 : angPierna * 0.4;
             } else {
                 pivotePiernaIzq.rotation.x *= 0.8;
                 pivotePiernaDer.rotation.x *= 0.8;
-                const targetBrazoDer = apuntando ? -1.05 : -0.15;
-                const targetBrazoIzq = apuntando ? -0.95 : 0.1;
+                const targetBrazoDer = apuntando ? -1.42 : -0.25;
+                const targetBrazoIzq = apuntando ? -1.35 : -0.1;
                 pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
                 pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
             }
 
-            // Salto y gravedad
             if (!enSuelo) {
                 jugadorMesh.position.y += velY;
                 velY -= 0.015;
@@ -955,13 +1193,11 @@
                 }
             }
 
-            // Sombra en el suelo
             sombraJugador.position.x = jugadorMesh.position.x;
             sombraJugador.position.z = jugadorMesh.position.z;
             const escalaSombra = Math.max(0.35, 1 - jugadorMesh.position.y * 0.14);
             sombraJugador.scale.set(escalaSombra, escalaSombra, 1);
 
-            // Proyectiles
             for (let i = proyectiles.length - 1; i >= 0; i--) {
                 const p = proyectiles[i];
                 p.mesh.position.x += p.vx;
@@ -973,21 +1209,19 @@
                 }
             }
 
-            // Zoom de mira
             const targetFov = apuntando ? 38 : 60;
             if (Math.abs(camera.fov - targetFov) > 0.2) {
                 camera.fov += (targetFov - camera.fov) * 0.18;
                 camera.updateProjectionMatrix();
             }
 
-            // Cámara en tercera persona (con desplazamiento al hombro al apuntar)
-            const baseDist = apuntando ? 5.6 : 8.4;
-            const alturaCam = (apuntando ? 2.45 : 2.15) + Math.sin(camPitch) * baseDist;
+            const baseDist = apuntando ? 5.8 : 8.4;
+            const alturaCam = (apuntando ? 2.75 : 2.15) + Math.sin(camPitch) * baseDist;
             let horizDist = Math.cos(camPitch) * baseDist;
 
             const dirAtrasX = -Math.sin(camYaw);
             const dirAtrasZ = -Math.cos(camYaw);
-            const hombroOffset = apuntando ? 0.85 : 0;
+            const hombroOffset = apuntando ? 1.35 : 0;
 
             for (const obs of obstaculos) {
                 const cx = jugadorMesh.position.x + dirAtrasX * horizDist + rightX * hombroOffset;
@@ -1004,9 +1238,9 @@
 
             camera.position.lerp(new THREE.Vector3(camTargetX, camTargetY, camTargetZ), 0.18);
             camera.lookAt(
-                jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.45 : 0),
-                jugadorMesh.position.y + (apuntando ? 1.75 : 1.5) + Math.sin(camPitch) * 3,
-                jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.45 : 0)
+                jugadorMesh.position.x + Math.sin(camYaw) * 6 + rightX * (apuntando ? 0.65 : 0),
+                jugadorMesh.position.y + (apuntando ? 1.85 : 1.5) + Math.sin(camPitch) * 3,
+                jugadorMesh.position.z + Math.cos(camYaw) * 6 + rightZ * (apuntando ? 0.65 : 0)
             );
 
             renderer.render(scene, camera);
