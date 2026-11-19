@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             user-select: none;
+            -webkit-user-select: none;
         }
         body, html {
             width: 100%;
@@ -17,6 +18,7 @@
             overflow: hidden;
             background-color: #0b0b0b;
             font-family: sans-serif;
+            touch-action: none;
         }
         #game-container {
             position: relative;
@@ -41,7 +43,7 @@
             pointer-events: none;
         }
         .player-card {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
             border: 1px solid #444;
             border-radius: 8px;
             padding: 6px 12px;
@@ -70,8 +72,13 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            font-size: 22px;
             pointer-events: auto;
-            touch-action: manipulation;
+            touch-action: none;
+        }
+        .touch-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.3);
         }
         #btn-disparo {
             bottom: 40px;
@@ -80,12 +87,14 @@
             border-color: #ff4444;
             width: 75px;
             height: 75px;
+            font-size: 28px;
         }
         #btn-recargar {
-            bottom: 120px;
+            bottom: 125px;
             right: 50px;
             width: 50px;
             height: 50px;
+            font-size: 18px;
         }
         #btn-salto {
             bottom: 40px;
@@ -101,20 +110,32 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             pointer-events: auto;
+            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #joystick-stick {
+            width: 46px;
+            height: 46px;
+            background: rgba(255, 204, 0, 0.75);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(0px, 0px);
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <!-- Lienzo del Juego -->
         <canvas id="gameCanvas"></canvas>
 
         <!-- Interfaz Superior (HUD) -->
         <div id="hud-top">
             <div class="player-card">
                 👤 Jugador_1<br>
-                <span style="font-size: 11px; color: #fff;">Nivel 15</span>
+                <span id="hud-municion" style="font-size: 11px; color: #fff;">Nivel 15 | Balas: 30/30</span>
             </div>
             <div class="player-card" id="info-partida">
                 vivo: 12 / 50
@@ -123,7 +144,9 @@
 
         <!-- Capa de Controles Táctiles -->
         <div class="controls-layer">
-            <div id="joystick-base"></div>
+            <div id="joystick-base">
+                <div id="joystick-stick"></div>
+            </div>
             <div class="touch-btn" id="btn-salto">🦘</div>
             <div class="touch-btn" id="btn-recargar">🔄</div>
             <div class="touch-btn" id="btn-disparo">🎯</div>
@@ -141,56 +164,215 @@
         window.addEventListener('resize', ajustarCanvas);
         ajustarCanvas();
 
+        // Estado del jugador
         let jugador = {
             x: canvas.width / 2,
             y: canvas.height / 2,
+            velocidad: 4,
             angulo: 0,
-            nombre: "Jugador_1"
+            nombre: "Jugador_1",
+            escalaSalto: 1,
+            saltando: false,
+            balas: 30,
+            maxBalas: 30
         };
 
-        // Cargar imagen de personaje con aspecto real (estilo Free Fire)
-        const spriteJugador = new Image();
-        spriteJugador.src = "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=150&auto=format&fit=crop&q=80";
+        let balas = [];
 
-        // Función para renderizar el personaje con imagen real
-        function dibujarPersonajeReal(x, y, angulo, nombre) {
+        // Estado del Joystick
+        const joystickBase = document.getElementById('joystick-base');
+        const joystickStick = document.getElementById('joystick-stick');
+        let joyActivo = false;
+        let joyTouchId = null;
+        let joyDx = 0;
+        let joyDy = 0;
+        const maxRadio = 35;
+
+        function actualizarJoystick(touch) {
+            const rect = joystickBase.getBoundingClientRect();
+            const centroX = rect.left + rect.width / 2;
+            const centroY = rect.top + rect.height / 2;
+
+            let dx = touch.clientX - centroX;
+            let dy = touch.clientY - centroY;
+            const distancia = Math.hypot(dx, dy);
+
+            if (distancia > maxRadio) {
+                dx = (dx / distancia) * maxRadio;
+                dy = (dy / distancia) * maxRadio;
+            }
+
+            joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
+
+            joyDx = dx / maxRadio;
+            joyDy = dy / maxRadio;
+
+            if (distancia > 5) {
+                jugador.angulo = Math.atan2(dy, dx);
+            }
+        }
+
+        joystickBase.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            joyActivo = true;
+            joyTouchId = touch.identifier;
+            actualizarJoystick(touch);
+        }, { passive: false });
+
+        joystickBase.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!joyActivo) return;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joyTouchId) {
+                    actualizarJoystick(e.changedTouches[i]);
+                    break;
+                }
+            }
+        }, { passive: false });
+
+        function soltarJoystick(e) {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joyTouchId) {
+                    joyActivo = false;
+                    joyTouchId = null;
+                    joyDx = 0;
+                    joyDy = 0;
+                    joystickStick.style.transform = `translate(0px, 0px)`;
+                    break;
+                }
+            }
+        }
+        joystickBase.addEventListener('touchend', soltarJoystick);
+        joystickBase.addEventListener('touchcancel', soltarJoystick);
+
+        // Soporte con ratón para probar en PC
+        joystickBase.addEventListener('mousedown', (e) => {
+            joyActivo = true;
+            actualizarJoystick(e);
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (joyActivo && joyTouchId === null) actualizarJoystick(e);
+        });
+        window.addEventListener('mouseup', () => {
+            if (joyActivo && joyTouchId === null) {
+                joyActivo = false;
+                joyDx = 0;
+                joyDy = 0;
+                joystickStick.style.transform = `translate(0px, 0px)`;
+            }
+        });
+
+        // Botones de Acción
+        function actualizarHUD() {
+            document.getElementById('hud-municion').textContent = `Nivel 15 | Balas: ${jugador.balas}/${jugador.maxBalas}`;
+        }
+
+        function disparar() {
+            if (jugador.balas <= 0) return;
+            jugador.balas--;
+            actualizarHUD();
+
+            balas.push({
+                x: jugador.x + Math.cos(jugador.angulo) * 28,
+                y: jugador.y + Math.sin(jugador.angulo) * 28,
+                vx: Math.cos(jugador.angulo) * 11,
+                vy: Math.sin(jugador.angulo) * 11,
+                vida: 60
+            });
+        }
+
+        function recargar() {
+            jugador.balas = jugador.maxBalas;
+            actualizarHUD();
+        }
+
+        function saltar() {
+            if (jugador.saltando) return;
+            jugador.saltando = true;
+            jugador.escalaSalto = 1.35;
+            setTimeout(() => {
+                jugador.escalaSalto = 1;
+                jugador.saltando = false;
+            }, 300);
+        }
+
+        document.getElementById('btn-disparo').addEventListener('touchstart', (e) => { e.preventDefault(); disparar(); });
+        document.getElementById('btn-disparo').addEventListener('click', disparar);
+
+        document.getElementById('btn-recargar').addEventListener('touchstart', (e) => { e.preventDefault(); recargar(); });
+        document.getElementById('btn-recargar').addEventListener('click', recargar);
+
+        document.getElementById('btn-salto').addEventListener('touchstart', (e) => { e.preventDefault(); saltar(); });
+        document.getElementById('btn-salto').addEventListener('click', saltar);
+
+        // Dibujar personaje táctico con arma
+        function dibujarPersonaje(x, y, angulo, nombre, escala) {
             ctx.save();
             ctx.translate(x, y);
-            ctx.rotate(angulo);
+            ctx.scale(escala, escala);
 
-            // Sombra circular en el suelo
+            // Sombra en el suelo
             ctx.beginPath();
-            ctx.arc(0, 0, 30, 0, Math.PI * 2);
+            ctx.arc(0, 4, 24, 0, Math.PI * 2);
             ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
             ctx.fill();
 
-            // Dibujar la imagen real del personaje
-            const tamaño = 60;
-            ctx.drawImage(spriteJugador, -tamaño / 2, -tamaño / 2, tamaño, tamaño);
+            ctx.rotate(angulo);
+
+            // Arma
+            ctx.fillStyle = "#888";
+            ctx.fillRect(10, -4, 22, 8);
+            ctx.fillStyle = "#ffcc00";
+            ctx.fillRect(28, -3, 5, 6);
+
+            // Cuerpo / hombros
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            ctx.fillStyle = "#1e88e5";
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#ffffff";
+            ctx.stroke();
+
+            // Cabeza / casco
+            ctx.beginPath();
+            ctx.arc(2, 0, 10, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffcc00";
+            ctx.fill();
 
             ctx.restore();
 
-            // Tarjeta de Nombre y Rango flotante (HUD)
+            // Tarjeta de Nombre flotante
+            const offsetNombre = 42 * escala;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            ctx.fillRect(x - 60, y - 55, 120, 22);
+            ctx.fillRect(x - 55, y - offsetNombre - 16, 110, 20);
             ctx.strokeStyle = '#ffcc00';
             ctx.lineWidth = 1.5;
-            ctx.strokeRect(x - 60, y - 55, 120, 22);
+            ctx.strokeRect(x - 55, y - offsetNombre - 16, 110, 20);
 
             ctx.fillStyle = '#ffcc00';
             ctx.font = 'bold 12px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`🔥 ${nombre}`, x, y - 40);
+            ctx.fillText(`🔥 ${nombre}`, x, y - offsetNombre - 2);
         }
 
-        // Bucle principal de renderizado
+        // Bucle principal
         function loopJuego() {
-            // Limpiar pantalla con color de terreno táctico
+            // Mover jugador según joystick
+            jugador.x += joyDx * jugador.velocidad;
+            jugador.y += joyDy * jugador.velocidad;
+
+            // Evitar que salga de los bordes de la pantalla
+            const margen = 25;
+            jugador.x = Math.max(margen, Math.min(canvas.width - margen, jugador.x));
+            jugador.y = Math.max(margen, Math.min(canvas.height - margen, jugador.y));
+
+            // Fondo y cuadrícula
             ctx.fillStyle = "#121212";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Cuadrícula del mapa de fondo
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
             ctx.lineWidth = 1;
             for (let i = 0; i < canvas.width; i += 40) {
                 ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
@@ -199,8 +381,25 @@
                 ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
             }
 
-            // Dibujar al jugador principal con imagen real
-            dibujarPersonajeReal(jugador.x, jugador.y, jugador.angulo, jugador.nombre);
+            // Actualizar y dibujar balas
+            for (let i = balas.length - 1; i >= 0; i--) {
+                const b = balas[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.vida--;
+
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = "#ff4444";
+                ctx.fill();
+
+                if (b.vida <= 0 || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    balas.splice(i, 1);
+                }
+            }
+
+            // Dibujar jugador
+            dibujarPersonaje(jugador.x, jugador.y, jugador.angulo, jugador.nombre, jugador.escalaSalto);
 
             requestAnimationFrame(loopJuego);
         }
