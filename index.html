@@ -1936,14 +1936,15 @@
                         return;
                     }
                     if (idx >= urls.length) {
-                        setEstado('ZETA LIVE • VISTA ACTIVA');
+                        setEstado('ZETA LIVE • LISTO', true);
+                        setTimeout(() => setEstado('', false), 1500);
                         return;
                     }
                     const s = document.createElement('script');
                     s.src = urls[idx];
                     const t = setTimeout(() => {
                         if (!window.THREE) intentar(idx + 1);
-                    }, 4000);
+                    }, 2500);
                     s.onload = () => {
                         clearTimeout(t);
                         if (window.THREE && !api3D) {
