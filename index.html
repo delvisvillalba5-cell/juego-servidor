@@ -41,7 +41,7 @@
             top: 66px;
             left: 14px;
             right: 14px;
-            z-index: 60;
+            z-index: 70;
             background: rgba(127, 29, 29, 0.94);
             border: 1px solid #fca5a5;
             color: #fef2f2;
@@ -61,7 +61,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px 12px 62px;
+            padding: 10px 12px 24px;
             background: transparent;
             pointer-events: none;
         }
@@ -69,7 +69,6 @@
             display: none;
         }
 
-        /* Barra superior */
         .lobby-top {
             display: flex;
             justify-content: space-between;
@@ -110,11 +109,6 @@
             color: #7dd3fc;
             border-color: rgba(125, 211, 252, 0.55);
         }
-        .top-right-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
         .zeta-logo {
             font-size: 14px;
             font-weight: 900;
@@ -126,7 +120,6 @@
             border: 1px solid rgba(250, 204, 21, 0.65);
         }
 
-        /* Zona media: menú izquierdo + lista derecha */
         .lobby-middle {
             flex: 1;
             display: flex;
@@ -142,7 +135,7 @@
             pointer-events: auto;
         }
         .side-btn {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.86);
             border-left: 3px solid #facc15;
             border-top: 1px solid rgba(255, 255, 255, 0.16);
             border-right: 1px solid rgba(255, 255, 255, 0.16);
@@ -154,10 +147,10 @@
             padding: 6px 10px;
             text-align: left;
             cursor: pointer;
-            min-width: 102px;
+            min-width: 104px;
         }
         .side-btn:active {
-            background: rgba(250, 204, 21, 0.3);
+            background: rgba(250, 204, 21, 0.32);
         }
 
         .friends-panel {
@@ -185,11 +178,10 @@
             background: #4ade80;
         }
 
-        /* Barra inferior: bien levantada para que INICIAR se vea entero */
         .lobby-bottom {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 7px;
             width: 100%;
             pointer-events: auto;
         }
@@ -278,23 +270,124 @@
             color: #0f172a;
         }
 
-        /* Toast informativo */
-        #lobby-toast {
+        /* ==========================================
+           PANTALLAS DE MENÚ (TIENDA, RULETA, PASE, ETC.)
+           ========================================== */
+        #menu-modal {
+            display: none;
             position: absolute;
-            top: 56px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #facc15;
-            color: #fef08a;
-            padding: 7px 14px;
-            border-radius: 999px;
+            inset: 0;
+            z-index: 45;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 27, 75, 0.96));
+            flex-direction: column;
+            padding: 12px 14px;
+            color: #f8fafc;
+        }
+        #menu-modal.abierto {
+            display: flex;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(250, 204, 21, 0.35);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        .modal-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: #facc15;
+            letter-spacing: 0.6px;
+        }
+        .modal-top-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-cerrar-modal {
+            background: rgba(239, 68, 68, 0.25);
+            border: 1px solid #f87171;
+            color: #fecaca;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        .modal-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            overflow-y: auto;
+        }
+        .modal-cats {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .cat-item {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 7px;
+            padding: 7px 8px;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #e2e8f0;
+            text-align: left;
+            cursor: pointer;
+        }
+        .cat-item.activa {
+            background: #facc15;
+            color: #0f172a;
+        }
+        .modal-content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+            gap: 8px;
+            align-content: start;
+        }
+        .item-card {
+            background: rgba(30, 41, 59, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 9px;
+            padding: 9px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .item-badge {
+            font-size: 18px;
+        }
+        .item-name {
             font-size: 11px;
             font-weight: 800;
-            display: none;
-            pointer-events: none;
-            white-space: nowrap;
+            color: #fff;
+        }
+        .item-desc {
+            font-size: 9.5px;
+            color: #cbd5e1;
+        }
+        .item-action {
+            background: #facc15;
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 7px;
+            font-size: 10px;
+            font-weight: 900;
+            cursor: pointer;
+            text-align: center;
+        }
+        .modal-status-msg {
+            font-size: 11px;
+            color: #fde047;
+            font-weight: 700;
+            min-height: 16px;
+            margin-top: 6px;
         }
 
         /* ==========================================
@@ -494,7 +587,6 @@
 <body>
     <div id="game-container">
         <div id="error-banner"></div>
-        <div id="lobby-toast"></div>
 
         <!-- LOBBY -->
         <div id="lobby-screen">
@@ -503,8 +595,8 @@
                     <div class="profile-badge" id="lobby-player-btn">
                         👤 <span id="lobby-nombre">Jugador_1</span> ✏️
                     </div>
-                    <div class="currency-pill">🪙 9,947</div>
-                    <div class="currency-pill dia">💎 85</div>
+                    <div class="currency-pill">🪙 <span id="lobby-oro">9,947</span></div>
+                    <div class="currency-pill dia">💎 <span id="lobby-diamantes">85</span></div>
                 </div>
 
                 <div class="top-right-brand">
@@ -514,11 +606,11 @@
 
             <div class="lobby-middle">
                 <div class="side-menu-left">
-                    <button class="side-btn" data-toast="Tienda: Próximamente">🛒 TIENDA</button>
-                    <button class="side-btn" data-toast="Ruleta: Próximamente">🎰 RULETA</button>
-                    <button class="side-btn" data-toast="Pase: Temporada Zeta">🎟️ PASE</button>
-                    <button class="side-btn" data-toast="Misiones: 3 activas">📋 MISIONES</button>
-                    <button class="side-btn" data-toast="Eventos: Arena Zeta">🎉 EVENTOS</button>
+                    <button class="side-btn" data-menu="TIENDA">🛒 TIENDA</button>
+                    <button class="side-btn" data-menu="RULETA">🎰 RULETA</button>
+                    <button class="side-btn" data-menu="PASE">🎟️ PASE</button>
+                    <button class="side-btn" data-menu="MISIONES">📋 MISIONES</button>
+                    <button class="side-btn" data-menu="EVENTOS">🎉 EVENTOS</button>
                 </div>
 
                 <div class="friends-panel">
@@ -541,9 +633,28 @@
                 </div>
 
                 <div class="bottom-tabs">
-                    <button class="tab-btn" data-toast="Inventario: Rifle AR + 3 Gloo">🎒 INVENTARIO</button>
-                    <button class="tab-btn" data-toast="Armas: Rifle de Asalto equipado">🔫 ARMAS</button>
-                    <button class="tab-btn" data-toast="Preset: Configuración Táctica">⚙️ PRESET</button>
+                    <button class="tab-btn" data-menu="INVENTARIO">🎒 INVENTARIO</button>
+                    <button class="tab-btn" data-menu="ARMAS">🔫 ARMAS</button>
+                    <button class="tab-btn" data-menu="PRESET">⚙️ PRESET</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE MENÚ INTERACTIVA -->
+        <div id="menu-modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">MENÚ</div>
+                <div class="modal-top-info">
+                    <div class="currency-pill">🪙 <span id="modal-oro">9,947</span></div>
+                    <div class="currency-pill dia">💎 <span id="modal-diamantes">85</span></div>
+                    <button class="btn-cerrar-modal" id="btn-cerrar-modal">✕</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-cats" id="modal-cats"></div>
+                <div>
+                    <div class="modal-content-grid" id="modal-grid"></div>
+                    <div class="modal-status-msg" id="modal-status"></div>
                 </div>
             </div>
         </div>
@@ -622,24 +733,207 @@
             const lobbyScreen = document.getElementById('lobby-screen');
             const gameplayUi = document.getElementById('gameplay-ui');
             const crosshair = document.getElementById('crosshair');
-            const lobbyToast = document.getElementById('lobby-toast');
 
             let enLobby = true;
+            let menuAbierto = false;
             let nombreJugador = 'Jugador_1';
             let modoActual = 'BR-CLASIFICATORIA';
-            let toastTimer = null;
+            let oro = 9947;
+            let diamantes = 85;
+            let armaEquipada = 'Rifle AR Zeta';
+            let presetActivo = 'Táctico 3 Dedos';
 
-            function mostrarToast(msg) {
-                lobbyToast.textContent = msg;
-                lobbyToast.style.display = 'block';
-                clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => {
-                    lobbyToast.style.display = 'none';
-                }, 1800);
+            const lobbyOroEl = document.getElementById('lobby-oro');
+            const lobbyDiaEl = document.getElementById('lobby-diamantes');
+            const modalOroEl = document.getElementById('modal-oro');
+            const modalDiaEl = document.getElementById('modal-diamantes');
+
+            function refrescarMonedas() {
+                const oroFmt = oro.toLocaleString('en-US');
+                lobbyOroEl.textContent = oroFmt;
+                modalOroEl.textContent = oroFmt;
+                lobbyDiaEl.textContent = diamantes;
+                modalDiaEl.textContent = diamantes;
             }
 
-            document.querySelectorAll('[data-toast]').forEach((el) => {
-                el.addEventListener('click', () => mostrarToast(el.dataset.toast));
+            const datosMenus = {
+                TIENDA: {
+                    titulo: '🛒 TIENDA ZETA',
+                    cats: ['DESTACADOS', 'ARMAS', 'ROPA', 'CARGAR'],
+                    items: {
+                        DESTACADOS: [
+                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cadencia estable • Precisión alta', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste: Rifle AR Zeta'; } },
+                            { icon: '🧊', name: 'Muro Gloo +2', desc: 'Refuerzo táctico para partida', btn: '200 🪙', action: () => { if (oro < 200) return 'Oro insuficiente'; oro -= 200; glooRestantes += 2; actualizarHUD(); refrescarMonedas(); return 'Compraste +2 Muros Gloo'; } },
+                            { icon: '🦖', name: 'Mascota Dino', desc: 'Acompañante del lobby', btn: 'ACTIVA', action: () => 'Mascota Dino activa en el lobby' }
+                        ],
+                        ARMAS: [
+                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Daño medio • 30 balas', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste: Rifle AR Zeta'; } },
+                            { icon: '⚡', name: 'Carabina Rápida', desc: 'Disparo ágil a media distancia', btn: '350 🪙', action: () => { if (oro < 350) return 'Oro insuficiente'; oro -= 350; armaEquipada = 'Carabina Rápida'; refrescarMonedas(); return 'Compraste y equipaste Carabina Rápida'; } }
+                        ],
+                        ROPA: [
+                            { icon: '🧥', name: 'Chaleco Táctico', desc: 'Estilo de combate Zeta', btn: 'PUESTO', action: () => 'Chaleco Táctico equipado' },
+                            { icon: '🎒', name: 'Mochila Naranja', desc: 'Capacidad de suministro', btn: 'PUESTA', action: () => 'Mochila Naranja equipada' }
+                        ],
+                        CARGAR: [
+                            { icon: '💎', name: 'Paquete +50 Diamantes', desc: 'Recarga rápida de prueba', btn: 'GRATIS', action: () => { diamantes += 50; refrescarMonedas(); return 'Sumaste +50 Diamantes'; } }
+                        ]
+                    }
+                },
+                RULETA: {
+                    titulo: '🎰 LUCK ROYALE ZETA',
+                    cats: ['RULETA PRINCIPAL', 'PREMIOS'],
+                    items: {
+                        'RULETA PRINCIPAL': [
+                            { icon: '🎡', name: 'Girar Ruleta', desc: 'Costo: 9 Diamantes por giro', btn: 'GIRAR (9 💎)', action: () => {
+                                if (diamantes < 9) return 'Necesitas 9 Diamantes para girar';
+                                diamantes -= 9;
+                                const premios = [
+                                    () => { oro += 500; return 'Ganaste +500 Oro'; },
+                                    () => { glooRestantes += 2; actualizarHUD(); return 'Ganaste +2 Muros Gloo'; },
+                                    () => { diamantes += 15; return 'Ganaste +15 Diamantes'; }
+                                ];
+                                const res = premios[Math.floor(Math.random() * premios.length)]();
+                                refrescarMonedas();
+                                return res;
+                            } }
+                        ],
+                        PREMIOS: [
+                            { icon: '🪙', name: 'Bolsa de Oro', desc: 'Premio común de giro', btn: 'INFO', action: () => 'Disponible al girar la ruleta' },
+                            { icon: '🧊', name: 'Pack Muros Gloo', desc: 'Extra para duelo y BR', btn: 'INFO', action: () => 'Disponible al girar la ruleta' }
+                        ]
+                    }
+                },
+                PASE: {
+                    titulo: '🎟️ PASE ZETA',
+                    cats: ['RECOMPENSAS', 'NIVELES'],
+                    items: {
+                        RECOMPENSAS: [
+                            { icon: '🏆', name: 'Recompensa Nv. 1', desc: '300 de Oro de temporada', btn: 'RECLAMAR', action: () => { oro += 300; refrescarMonedas(); return 'Reclamaste +300 Oro'; } },
+                            { icon: '💎', name: 'Recompensa Nv. 2', desc: '10 Diamantes extra', btn: 'RECLAMAR', action: () => { diamantes += 10; refrescarMonedas(); return 'Reclamaste +10 Diamantes'; } }
+                        ],
+                        NIVELES: [
+                            { icon: '⚡', name: 'Progreso Temporada', desc: 'Completa partidas para subir', btn: 'ACTIVO', action: () => 'Pase de temporada activo' }
+                        ]
+                    }
+                },
+                MISIONES: {
+                    titulo: '📋 MISIONES DIARIAS',
+                    cats: ['DIARIA', 'SEMANAL'],
+                    items: {
+                        DIARIA: [
+                            { icon: '🎯', name: 'Dispara 20 tiros', desc: 'Recompensa: 250 Oro', btn: 'RECOGER', action: () => { oro += 250; refrescarMonedas(); return 'Recogiste +250 Oro de misión diaria'; } },
+                            { icon: '🧊', name: 'Coloca Muros Gloo', desc: 'Recompensa: +1 Muro Gloo', btn: 'RECOGER', action: () => { glooRestantes += 1; actualizarHUD(); return 'Recogiste +1 Muro Gloo'; } }
+                        ],
+                        SEMANAL: [
+                            { icon: '🗺️', name: 'Entra a la Arena 3D', desc: 'Recompensa: 15 Diamantes', btn: 'RECOGER', action: () => { diamantes += 15; refrescarMonedas(); return 'Recogiste +15 Diamantes semanales'; } }
+                        ]
+                    }
+                },
+                EVENTOS: {
+                    titulo: '🎉 EVENTOS DE ARENA',
+                    cats: ['DESTACADO', 'TORNEO'],
+                    items: {
+                        DESTACADO: [
+                            { icon: '🔥', name: 'Duelo Zeta 1v1', desc: 'Practicar movimiento, mira y Gloo', btn: 'IR A MODO', action: () => { modoActual = '1V1 DUELO'; document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('activo', b.dataset.modo === '1V1 DUELO')); lobbySubmodo.textContent = 'Arena 1v1 • Listo'; return 'Modo cambiado a 1V1 DUELO'; } }
+                        ],
+                        TORNEO: [
+                            { icon: '🌍', name: 'BR Clasificatoria', desc: 'Mapa abierto con árboles, rocas y cajas', btn: 'IR A MODO', action: () => { modoActual = 'BR-CLASIFICATORIA'; document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('activo', b.dataset.modo === 'BR-CLASIFICATORIA')); lobbySubmodo.textContent = 'Mapa aleatorio • Listo'; return 'Modo cambiado a BR-CLASIFICATORIA'; } }
+                        ]
+                    }
+                },
+                INVENTARIO: {
+                    titulo: '🎒 INVENTARIO',
+                    cats: ['EQUIPO', 'SUMINISTROS'],
+                    items: {
+                        EQUIPO: [
+                            { icon: '🔫', name: armaEquipada, desc: 'Arma principal lista', btn: 'LISTO', action: () => 'Arma lista para la partida' },
+                            { icon: '🎒', name: 'Mochila Táctica', desc: 'Equipada en el personaje', btn: 'EQUIPADA', action: () => 'Mochila equipada' }
+                        ],
+                        SUMINISTROS: [
+                            { icon: '🧊', name: 'Muros Gloo', desc: 'Disponibles para partida', btn: 'VER', action: () => 'Tienes ' + glooRestantes + ' muros Gloo listos' }
+                        ]
+                    }
+                },
+                ARMAS: {
+                    titulo: '🔫 ARMAS',
+                    cats: ['RIFLES', 'CARABINAS'],
+                    items: {
+                        RIFLES: [
+                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cargador 30 balas • Mira activa', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste Rifle AR Zeta'; } }
+                        ],
+                        CARABINAS: [
+                            { icon: '⚡', name: 'Carabina Rápida', desc: 'Respuesta rápida al apuntar', btn: 'EQUIPAR', action: () => { armaEquipada = 'Carabina Rápida'; return 'Equipaste Carabina Rápida'; } }
+                        ]
+                    }
+                },
+                PRESET: {
+                    titulo: '⚙️ PRESET DE CONTROLES',
+                    cats: ['CONTROLES'],
+                    items: {
+                        CONTROLES: [
+                            { icon: '🕹️', name: 'Táctico 3 Dedos', desc: 'Joystick izquierda + Disparo y Mira derecha', btn: 'USAR', action: () => { presetActivo = 'Táctico 3 Dedos'; return 'Preset activo: Táctico 3 Dedos'; } },
+                            { icon: '📱', name: 'Clásico Móvil', desc: 'Botones cómodos para pantalla vertical/horizontal', btn: 'USAR', action: () => { presetActivo = 'Clásico Móvil'; return 'Preset activo: Clásico Móvil'; } }
+                        ]
+                    }
+                }
+            };
+
+            const menuModal = document.getElementById('menu-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalCats = document.getElementById('modal-cats');
+            const modalGrid = document.getElementById('modal-grid');
+            const modalStatus = document.getElementById('modal-status');
+
+            function renderizarCategoria(menuKey, catName) {
+                modalStatus.textContent = '';
+                modalCats.querySelectorAll('.cat-item').forEach((el) => {
+                    el.classList.toggle('activa', el.dataset.cat === catName);
+                });
+                modalGrid.innerHTML = '';
+                const lista = datosMenus[menuKey].items[catName] || [];
+                lista.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'item-card';
+                    card.innerHTML = `
+                        <div class="item-badge">${item.icon}</div>
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-desc">${item.desc}</div>
+                        <button class="item-action">${item.btn}</button>
+                    `;
+                    card.querySelector('.item-action').addEventListener('click', () => {
+                        modalStatus.textContent = item.action();
+                    });
+                    modalGrid.appendChild(card);
+                });
+            }
+
+            function abrirMenu(menuKey) {
+                const cfg = datosMenus[menuKey];
+                if (!cfg) return;
+                refrescarMonedas();
+                modalTitle.textContent = cfg.titulo;
+                modalCats.innerHTML = '';
+                cfg.cats.forEach((cat, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'cat-item' + (idx === 0 ? ' activa' : '');
+                    btn.dataset.cat = cat;
+                    btn.textContent = cat;
+                    btn.addEventListener('click', () => renderizarCategoria(menuKey, cat));
+                    modalCats.appendChild(btn);
+                });
+                renderizarCategoria(menuKey, cfg.cats[0]);
+                menuModal.classList.add('abierto');
+                menuAbierto = true;
+            }
+
+            function cerrarMenu() {
+                menuModal.classList.remove('abierto');
+                menuAbierto = false;
+            }
+
+            document.getElementById('btn-cerrar-modal').addEventListener('click', cerrarMenu);
+            document.querySelectorAll('[data-menu]').forEach((btn) => {
+                btn.addEventListener('click', () => abrirMenu(btn.dataset.menu));
             });
 
             const lobbyNombreEl = document.getElementById('lobby-nombre');
@@ -667,6 +961,7 @@
             });
 
             function entrarPartida() {
+                cerrarMenu();
                 enLobby = false;
                 lobbyScreen.classList.add('oculto');
                 gameplayUi.classList.add('activo');
@@ -1024,7 +1319,7 @@
             }
 
             joystickBase.addEventListener('touchstart', (e) => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 joyActivo = true;
@@ -1033,7 +1328,7 @@
             }, { passive: false });
 
             joystickBase.addEventListener('touchmove', (e) => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 if (!joyActivo) return;
@@ -1065,7 +1360,7 @@
             }
 
             aimZone.addEventListener('touchstart', (e) => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 e.preventDefault();
                 if (aimTouchId !== null) return;
                 const t = e.changedTouches[0];
@@ -1075,7 +1370,7 @@
             }, { passive: false });
 
             aimZone.addEventListener('touchmove', (e) => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 e.preventDefault();
                 if (aimTouchId === null) return;
                 for (const t of e.changedTouches) {
@@ -1108,7 +1403,7 @@
             const intervaloDisparo = 140;
 
             function disparar() {
-                if (enLobby || balas <= 0) return;
+                if (enLobby || menuAbierto || balas <= 0) return;
                 balas--;
                 actualizarHUD();
 
@@ -1130,7 +1425,7 @@
             }
 
             btnDisparo.addEventListener('touchstart', (e) => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 if (fireTouchId !== null) return;
@@ -1145,7 +1440,7 @@
             }, { passive: false });
 
             btnDisparo.addEventListener('touchmove', (e) => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 if (!disparando || fireTouchId === null) return;
@@ -1172,7 +1467,7 @@
             btnDisparo.addEventListener('touchend', soltarDisparo);
             btnDisparo.addEventListener('touchcancel', soltarDisparo);
             btnDisparo.addEventListener('mousedown', () => {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 disparando = true;
                 disparar();
                 ultimoDisparoTime = performance.now();
@@ -1181,7 +1476,7 @@
 
             const btnMira = document.getElementById('btn-mira');
             function toggleMira() {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 apuntando = !apuntando;
                 btnMira.classList.toggle('active', apuntando);
                 crosshair.style.display = apuntando ? 'block' : 'none';
@@ -1194,7 +1489,7 @@
             btnMira.addEventListener('click', toggleMira);
 
             function ponerGloo() {
-                if (enLobby || glooRestantes <= 0) return;
+                if (enLobby || menuAbierto || glooRestantes <= 0) return;
                 glooRestantes--;
                 actualizarHUD();
 
@@ -1224,20 +1519,20 @@
             }
 
             function recargar() {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 balas = maxBalas;
                 actualizarHUD();
             }
 
             function saltar() {
-                if (enLobby || !enSuelo) return;
+                if (enLobby || menuAbierto || !enSuelo) return;
                 if (agachado) agachado = false;
                 velY = 0.36;
                 enSuelo = false;
             }
 
             function toggleAgachar() {
-                if (enLobby) return;
+                if (enLobby || menuAbierto) return;
                 agachado = !agachado;
             }
 
