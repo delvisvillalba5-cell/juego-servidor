@@ -61,7 +61,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px 14px 28px;
+            padding: 12px 12px 62px;
             background: transparent;
             pointer-events: none;
         }
@@ -74,7 +74,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
             pointer-events: auto;
         }
@@ -88,7 +88,7 @@
             background: rgba(15, 23, 42, 0.88);
             border: 1px solid rgba(250, 204, 21, 0.8);
             border-radius: 8px;
-            padding: 5px 10px;
+            padding: 5px 9px;
             color: #fff;
             font-size: 11px;
             font-weight: 700;
@@ -101,7 +101,7 @@
             background: rgba(15, 23, 42, 0.88);
             border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 999px;
-            padding: 4px 10px;
+            padding: 4px 9px;
             font-size: 11px;
             font-weight: 800;
             color: #fde047;
@@ -116,9 +116,9 @@
             gap: 8px;
         }
         .zeta-logo {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 900;
-            letter-spacing: 1.2px;
+            letter-spacing: 1px;
             color: #facc15;
             background: rgba(15, 23, 42, 0.88);
             padding: 5px 10px;
@@ -132,13 +132,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
+            padding: 4px 0;
             pointer-events: none;
         }
         .side-menu-left {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             pointer-events: auto;
         }
         .side-btn {
@@ -149,12 +149,12 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 0 8px 8px 0;
             color: #f8fafc;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 800;
-            padding: 7px 11px;
+            padding: 6px 10px;
             text-align: left;
             cursor: pointer;
-            min-width: 110px;
+            min-width: 102px;
         }
         .side-btn:active {
             background: rgba(250, 204, 21, 0.3);
@@ -185,7 +185,7 @@
             background: #4ade80;
         }
 
-        /* Barra inferior: siempre visible en vertical y horizontal */
+        /* Barra inferior: bien levantada para que INICIAR se vea entero */
         .lobby-bottom {
             display: flex;
             flex-direction: column;
@@ -193,32 +193,6 @@
             width: 100%;
             pointer-events: auto;
         }
-        .bottom-tabs {
-            display: flex;
-            gap: 6px;
-            background: rgba(15, 23, 42, 0.88);
-            padding: 6px 8px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            justify-content: space-between;
-        }
-        .tab-btn {
-            flex: 1;
-            background: rgba(30, 41, 59, 0.9);
-            color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 7px;
-            padding: 6px 8px;
-            font-size: 10px;
-            font-weight: 800;
-            cursor: pointer;
-            text-align: center;
-        }
-        .tab-btn:active {
-            background: #facc15;
-            color: #0f172a;
-        }
-
         .play-box {
             display: flex;
             align-items: center;
@@ -228,8 +202,8 @@
         }
         .mode-box {
             flex: 1;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(250, 204, 21, 0.6);
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(250, 204, 21, 0.65);
             border-radius: 9px;
             padding: 6px 8px;
             display: flex;
@@ -245,7 +219,7 @@
             border: none;
             border-radius: 6px;
             padding: 5px 6px;
-            font-size: 9.5px;
+            font-size: 9px;
             font-weight: 800;
             background: #1e293b;
             color: #cbd5e1;
@@ -257,7 +231,7 @@
             color: #0f172a;
         }
         .mode-sub {
-            font-size: 10px;
+            font-size: 9.5px;
             color: #fde047;
             font-weight: 700;
         }
@@ -266,16 +240,42 @@
             color: #0f172a;
             border: 2px solid #fef9c3;
             border-radius: 10px;
-            padding: 12px 20px;
-            font-size: 16px;
+            padding: 11px 18px;
+            font-size: 15px;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
             flex-shrink: 0;
         }
         #btn-iniciar-juego:active {
             transform: scale(0.96);
+        }
+
+        .bottom-tabs {
+            display: flex;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 6px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            justify-content: space-between;
+        }
+        .tab-btn {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.92);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 7px;
+            padding: 6px 6px;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+        }
+        .tab-btn:active {
+            background: #facc15;
+            color: #0f172a;
         }
 
         /* Toast informativo */
@@ -529,12 +529,6 @@
             </div>
 
             <div class="lobby-bottom">
-                <div class="bottom-tabs">
-                    <button class="tab-btn" data-toast="Inventario: Rifle AR + 3 Gloo">🎒 INVENTARIO</button>
-                    <button class="tab-btn" data-toast="Armas: Rifle de Asalto equipado">🔫 ARMAS</button>
-                    <button class="tab-btn" data-toast="Preset: Configuración Táctica">⚙️ PRESET</button>
-                </div>
-
                 <div class="play-box">
                     <div class="mode-box">
                         <div class="mode-buttons">
@@ -544,6 +538,12 @@
                         <div class="mode-sub" id="lobby-submodo">Mapa aleatorio • Listo</div>
                     </div>
                     <button id="btn-iniciar-juego">INICIAR</button>
+                </div>
+
+                <div class="bottom-tabs">
+                    <button class="tab-btn" data-toast="Inventario: Rifle AR + 3 Gloo">🎒 INVENTARIO</button>
+                    <button class="tab-btn" data-toast="Armas: Rifle de Asalto equipado">🔫 ARMAS</button>
+                    <button class="tab-btn" data-toast="Preset: Configuración Táctica">⚙️ PRESET</button>
                 </div>
             </div>
         </div>
