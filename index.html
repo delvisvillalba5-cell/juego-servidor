@@ -1461,7 +1461,7 @@
 
             function construirBrazo(lado) {
                 const pivote = new THREE.Group();
-                pivote.position.set(lado * 0.37, 0.64, 0);
+                pivote.position.set(lado * 0.38, 0.64, 0);
 
                 const hombrera = new THREE.Mesh(new THREE.SphereGeometry(0.105, 12, 12), matCamisa);
                 hombrera.castShadow = true;
@@ -1493,64 +1493,67 @@
             // RIFLE DE ASALTO TÁCTICO (ESTILO M4A1)
             // ==========================================
             const rifleGrupo = new THREE.Group();
-            rifleGrupo.position.set(0.02, -0.45, 0.24);
+            rifleGrupo.position.set(0.09, -0.44, 0.30);
 
             const matMetalOscuro = new THREE.MeshStandardMaterial({ color: 0x161a20, metalness: 0.78, roughness: 0.28 });
             const matMetalMedio = new THREE.MeshStandardMaterial({ color: 0x333c48, metalness: 0.72, roughness: 0.34 });
             const matPolimero = new THREE.MeshStandardMaterial({ color: 0x22262c, roughness: 0.65 });
 
-            const receptor = new THREE.Mesh(new THREE.BoxGeometry(0.078, 0.115, 0.36), matMetalOscuro);
+            const receptor = new THREE.Mesh(new THREE.BoxGeometry(0.084, 0.125, 0.38), matMetalOscuro);
             receptor.castShadow = true;
 
-            const tuboCulata = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.24, 8), matMetalMedio);
+            const tuboCulata = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.25, 8), matMetalMedio);
             tuboCulata.rotation.x = Math.PI / 2;
-            tuboCulata.position.set(0, 0.015, -0.28);
+            tuboCulata.position.set(0, 0.015, -0.30);
 
-            const culata = new THREE.Mesh(new THREE.BoxGeometry(0.074, 0.155, 0.19), matPolimero);
-            culata.position.set(0, -0.015, -0.36);
+            const culata = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.165, 0.20), matPolimero);
+            culata.position.set(0, -0.015, -0.38);
 
-            const empuniadura = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.07), matPolimero);
+            const empuniadura = new THREE.Mesh(new THREE.BoxGeometry(0.064, 0.145, 0.075), matPolimero);
             empuniadura.rotation.x = -0.28;
-            empuniadura.position.set(0, -0.10, -0.08);
+            empuniadura.position.set(0, -0.105, -0.08);
 
-            const cargadorSup = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.13, 0.10), matMetalMedio);
+            const cargadorSup = new THREE.Mesh(new THREE.BoxGeometry(0.056, 0.135, 0.105), matMetalMedio);
             cargadorSup.rotation.x = 0.15;
-            cargadorSup.position.set(0, -0.11, 0.08);
+            cargadorSup.position.set(0, -0.115, 0.08);
 
-            const cargadorInf = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.13, 0.10), matMetalMedio);
+            const cargadorInf = new THREE.Mesh(new THREE.BoxGeometry(0.056, 0.135, 0.105), matMetalMedio);
             cargadorInf.rotation.x = 0.34;
-            cargadorInf.position.set(0, -0.21, 0.105);
+            cargadorInf.position.set(0, -0.22, 0.105);
 
-            const guardamanos = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.044, 0.34, 8), matMetalOscuro);
+            const guardamanos = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.048, 0.36, 8), matMetalOscuro);
             guardamanos.rotation.x = Math.PI / 2;
-            guardamanos.position.set(0, 0.01, 0.33);
+            guardamanos.position.set(0, 0.01, 0.35);
             guardamanos.castShadow = true;
 
-            const baseMira = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.032, 0.15), matMetalMedio);
-            baseMira.position.set(0, 0.07, -0.01);
-            const tuboMira = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.028, 0.18, 12), matMetalOscuro);
+            const baseMira = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.036, 0.16), matMetalMedio);
+            baseMira.position.set(0, 0.075, -0.01);
+            const tuboMira = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.032, 0.19, 12), matMetalOscuro);
             tuboMira.rotation.x = Math.PI / 2;
-            tuboMira.position.set(0, 0.105, -0.01);
+            tuboMira.position.set(0, 0.112, -0.01);
 
-            const canion = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.020, 0.26, 10), matMetalMedio);
+            const canion = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.022, 0.28, 10), matMetalMedio);
             canion.rotation.x = Math.PI / 2;
-            canion.position.set(0, 0.012, 0.60);
+            canion.position.set(0, 0.012, 0.63);
 
-            const bocacha = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.065, 10), matMetalOscuro);
+            const bocacha = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.07, 10), matMetalOscuro);
             bocacha.rotation.x = Math.PI / 2;
-            bocacha.position.set(0, 0.012, 0.74);
+            bocacha.position.set(0, 0.012, 0.78);
+
+            const puntaCanion = new THREE.Object3D();
+            puntaCanion.position.set(0, 0.012, 0.84);
 
             const destelloDisparo = new THREE.Mesh(
-                new THREE.SphereGeometry(0.16, 8, 8),
+                new THREE.SphereGeometry(0.17, 8, 8),
                 new THREE.MeshBasicMaterial({ color: 0xffb703, transparent: true, opacity: 0.95 })
             );
-            destelloDisparo.position.set(0, 0.012, 0.84);
+            destelloDisparo.position.set(0, 0.012, 0.86);
             destelloDisparo.visible = false;
 
             rifleGrupo.add(
                 receptor, tuboCulata, culata, empuniadura,
                 cargadorSup, cargadorInf, guardamanos,
-                baseMira, tuboMira, canion, bocacha, destelloDisparo
+                baseMira, tuboMira, canion, bocacha, puntaCanion, destelloDisparo
             );
             pivoteBrazoDer.add(rifleGrupo);
 
@@ -1694,18 +1697,35 @@
                 tiempoDestello = 45;
                 retrocesoArma = 0.08;
 
-                const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
+                jugadorMesh.updateMatrixWorld(true);
+                const origenCanion = new THREE.Vector3();
+                puntaCanion.getWorldPosition(origenCanion);
+
+                // Apuntar hacia el centro/frente de la cámara para alinear con la mira
+                const puntoObjetivo = new THREE.Vector3();
+                camera.getWorldDirection(puntoObjetivo);
+                const distanciaMira = 45;
+                puntoObjetivo.multiplyScalar(distanciaMira).add(camera.position);
+
+                const dirDisparo = puntoObjetivo.sub(origenCanion).normalize();
+                const velocidadBala = 2.1;
+
                 const balaMesh = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.10, 8, 8),
+                    new THREE.CylinderGeometry(0.04, 0.04, 0.65, 6),
                     new THREE.MeshBasicMaterial({ color: 0xffd166 })
                 );
-                balaMesh.position.set(
-                    jugadorMesh.position.x + dir.x * 1.45,
-                    jugadorMesh.position.y + (agachado ? 0.85 : 1.32),
-                    jugadorMesh.position.z + dir.z * 1.45
-                );
+                balaMesh.position.copy(origenCanion);
+                const up = new THREE.Vector3(0, 1, 0);
+                balaMesh.quaternion.setFromUnitVectors(up, dirDisparo);
+
                 scene.add(balaMesh);
-                proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.65, vz: dir.z * 1.65, vida: 48 });
+                proyectiles.push({
+                    mesh: balaMesh,
+                    vx: dirDisparo.x * velocidadBala,
+                    vy: dirDisparo.y * velocidadBala,
+                    vz: dirDisparo.z * velocidadBala,
+                    vida: 38
+                });
             }
 
             btnDisparo.addEventListener('touchstart', (e) => {
@@ -1859,17 +1879,17 @@
                     mascotaGrupo.position.y = Math.abs(Math.sin(ahora * 0.004)) * 0.08;
 
                     jugadorMesh.rotation.y = 0.16;
-                    torsoGrupo.rotation.y = -0.10;
+                    torsoGrupo.rotation.y = -0.12;
                     torsoGrupo.rotation.x = 0.02;
-                    cabezaGrupo.rotation.y = 0.10;
+                    cabezaGrupo.rotation.y = 0.12;
 
                     pivotePiernaIzq.rotation.x = -0.05;
                     pivotePiernaDer.rotation.x = 0.06;
 
-                    pivoteBrazoDer.rotation.set(-0.78, -0.32, -0.14);
-                    pivoteBrazoIzq.rotation.set(-0.92, 0.58, 0.18);
-                    rifleGrupo.position.set(0.02, -0.45, 0.24);
-                    rifleGrupo.rotation.set(0.78, 0.42, 0);
+                    pivoteBrazoDer.rotation.set(-0.78, -0.44, -0.22);
+                    pivoteBrazoIzq.rotation.set(-0.92, 0.64, 0.22);
+                    rifleGrupo.position.set(0.09, -0.44, 0.30);
+                    rifleGrupo.rotation.set(0.78, 0.56, 0);
 
                     camera.position.set(0.22, 1.72, 4.75);
                     camera.lookAt(0.12, 1.22, 0);
@@ -1924,25 +1944,25 @@
                 const targetInclinacion = agachado ? 0.28 : (apuntando ? 0.08 : (intensidadMov > 0.05 ? 0.11 : 0.03));
                 torsoGrupo.rotation.x += (targetInclinacion - torsoGrupo.rotation.x) * 0.2;
 
-                const targetGiroTorso = apuntando ? -0.18 : -0.10;
+                const targetGiroTorso = apuntando ? -0.22 : -0.14;
                 torsoGrupo.rotation.y += (targetGiroTorso - torsoGrupo.rotation.y) * 0.2;
                 cabezaGrupo.rotation.y = -torsoGrupo.rotation.y;
 
-                // Rifle más visible hacia la derecha en tercera persona y al apuntar
-                const targetBrazoDerX = apuntando ? -1.44 : -1.14;
-                const targetBrazoDerY = apuntando ? -0.22 : -0.34;
+                // Rifle más asomado hacia el costado derecho para que se distinga claramente desde atrás
+                const targetBrazoDerX = apuntando ? -1.46 : -1.16;
+                const targetBrazoDerY = apuntando ? -0.34 : -0.48;
                 const targetBrazoIzqX = apuntando ? -1.36 : -1.08;
-                const targetBrazoIzqY = apuntando ? 0.54 : 0.58;
+                const targetBrazoIzqY = apuntando ? 0.62 : 0.66;
 
                 pivoteBrazoDer.rotation.x += (targetBrazoDerX - pivoteBrazoDer.rotation.x) * 0.22;
                 pivoteBrazoDer.rotation.y += (targetBrazoDerY - pivoteBrazoDer.rotation.y) * 0.22;
-                pivoteBrazoDer.rotation.z = -0.14;
+                pivoteBrazoDer.rotation.z = -0.24;
                 pivoteBrazoIzq.rotation.x += (targetBrazoIzqX - pivoteBrazoIzq.rotation.x) * 0.22;
                 pivoteBrazoIzq.rotation.y += (targetBrazoIzqY - pivoteBrazoIzq.rotation.y) * 0.22;
-                pivoteBrazoIzq.rotation.z = 0.16;
+                pivoteBrazoIzq.rotation.z = 0.22;
 
-                rifleGrupo.rotation.set(-pivoteBrazoDer.rotation.x, 0.34, 0);
-                rifleGrupo.position.set(0.02, -0.45, 0.24 - retrocesoArma);
+                rifleGrupo.rotation.set(-pivoteBrazoDer.rotation.x, 0.48, 0);
+                rifleGrupo.position.set(0.09, -0.44, 0.30 - retrocesoArma);
 
                 if (intensidadMov > 0.05 && enSuelo) {
                     cicloPaso += dt * 0.015 * intensidadMov;
@@ -1973,6 +1993,7 @@
                 for (let i = proyectiles.length - 1; i >= 0; i--) {
                     const p = proyectiles[i];
                     p.mesh.position.x += p.vx;
+                    p.mesh.position.y += p.vy;
                     p.mesh.position.z += p.vz;
                     p.vida--;
                     if (p.vida <= 0) {
@@ -1993,9 +2014,8 @@
 
                 const dirAtrasX = -Math.sin(camYaw);
                 const dirAtrasZ = -Math.cos(camYaw);
-                const hombroOffset = apuntando ? 1.55 : 0.35;
+                const hombroOffset = apuntando ? 1.55 : 0.45;
 
-                // Revisión a lo largo de la línea de cámara para que árboles/muros/rocas no tapen la vista
                 for (let paso = 0.25; paso <= 1.0; paso += 0.25) {
                     const dPrueba = horizDist * paso;
                     const cx = jugadorMesh.position.x + dirAtrasX * dPrueba + rightX * (hombroOffset * paso);
