@@ -981,7 +981,7 @@
             // ==========================================
             const scene = new THREE.Scene();
             scene.background = new THREE.Color(0xc27849);
-            scene.fog = new THREE.FogExp2(0xb87347, 0.0085);
+            scene.fog = new THREE.FogExp2(0xb87347, 0.0082);
 
             const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
             camera.position.set(0, 2.4, 6.5);
@@ -992,7 +992,7 @@
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.05;
+            renderer.toneMappingExposure = 1.08;
             container.appendChild(renderer.domElement);
 
             window.addEventListener('resize', () => {
@@ -1001,11 +1001,15 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            // Luz cálida de atardecer + rebote de tierra/sombra
-            const luzAmbiente = new THREE.HemisphereLight(0xffcf96, 0x3b332c, 0.95);
+            // Luz cálida de atardecer + luz de relleno para apreciar el personaje por todos lados
+            const luzAmbiente = new THREE.HemisphereLight(0xffddb3, 0x4c443d, 1.25);
             scene.add(luzAmbiente);
 
-            const luzSol = new THREE.DirectionalLight(0xffb36b, 1.85);
+            const luzRelleno = new THREE.DirectionalLight(0x93c5fd, 0.45);
+            luzRelleno.position.set(-24, 18, -28);
+            scene.add(luzRelleno);
+
+            const luzSol = new THREE.DirectionalLight(0xffb870, 1.85);
             luzSol.position.set(36, 28, 22);
             luzSol.castShadow = true;
             luzSol.shadow.mapSize.width = 2048;
@@ -1020,7 +1024,6 @@
             luzSol.shadow.bias = -0.0005;
             scene.add(luzSol);
 
-            // Textura detallada de suelo táctico (tierra seca, gravilla, grietas y parches de maleza)
             function crearTexturaSueloTactico() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 512;
@@ -1078,7 +1081,6 @@
                 return tex;
             }
 
-            // Textura de concreto desgastado para muros y coberturas
             function crearTexturaConcreto() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 256;
@@ -1104,6 +1106,26 @@
                 const tex = new THREE.CanvasTexture(canvas);
                 tex.wrapS = THREE.RepeatWrapping;
                 tex.wrapT = THREE.RepeatWrapping;
+                return tex;
+            }
+
+            function crearTexturaTelaTactica() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 128;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#252b33';
+                ctx.fillRect(0, 0, 128, 128);
+                for (let y = 0; y < 128; y += 2) {
+                    for (let x = 0; x < 128; x += 2) {
+                        ctx.fillStyle = (x + y) % 4 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.08)';
+                        ctx.fillRect(x, y, 2, 2);
+                    }
+                }
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.wrapS = THREE.RepeatWrapping;
+                tex.wrapT = THREE.RepeatWrapping;
+                tex.repeat.set(3, 3);
                 return tex;
             }
 
@@ -1269,137 +1291,299 @@
             scene.add(sombraJugador);
 
             // ==========================================
-            // OPERADOR TÁCTICO Y RIFLE DETALLADO
+            // PERSONAJE OPERADOR TÁCTICO DETALLADO
             // ==========================================
             const jugadorMesh = new THREE.Group();
+            const texTela = crearTexturaTelaTactica();
 
-            const matPiel = new THREE.MeshStandardMaterial({ color: 0xd8a378, roughness: 0.68 });
-            const matCasco = new THREE.MeshStandardMaterial({ color: 0x1e242b, roughness: 0.55, metalness: 0.25 });
-            const matVisor = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.6 });
-            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65 });
-            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x29322c, roughness: 0.72, metalness: 0.15 });
-            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1c2127, roughness: 0.82 });
-            const matBota = new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.65 });
-            const matMochila = new THREE.MeshStandardMaterial({ color: 0x5c3c24, roughness: 0.72 });
+            const matPiel = new THREE.MeshStandardMaterial({ color: 0xd69e72, roughness: 0.62 });
+            const matCasco = new THREE.MeshStandardMaterial({ color: 0x262d36, roughness: 0.48, metalness: 0.28 });
+            const matVisor = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.15, metalness: 0.85 });
+            const matCamisa = new THREE.MeshStandardMaterial({ map: texTela, color: 0x2c3540, roughness: 0.72 });
+            const matChaleco = new THREE.MeshStandardMaterial({ map: texTela, color: 0x353f34, roughness: 0.76, metalness: 0.12 });
+            const matPouch = new THREE.MeshStandardMaterial({ color: 0x455042, roughness: 0.78 });
+            const matPantalon = new THREE.MeshStandardMaterial({ map: texTela, color: 0x222830, roughness: 0.82 });
+            const matRodillera = new THREE.MeshStandardMaterial({ color: 0x15191e, roughness: 0.45, metalness: 0.35 });
+            const matBota = new THREE.MeshStandardMaterial({ color: 0x14171c, roughness: 0.58 });
+            const matGuante = new THREE.MeshStandardMaterial({ color: 0x1b2026, roughness: 0.65 });
+            const matMochila = new THREE.MeshStandardMaterial({ color: 0x5c422c, roughness: 0.74 });
+            const matCorrea = new THREE.MeshStandardMaterial({ color: 0x171a1f, roughness: 0.7 });
 
-            const pivotePiernaIzq = new THREE.Group();
-            pivotePiernaIzq.position.set(-0.17, 0.86, 0);
-            const piernaIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
-            piernaIzqMesh.position.set(0, -0.34, 0);
-            piernaIzqMesh.castShadow = true;
-            const botaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
-            botaIzq.position.set(0, -0.77, 0.04);
-            botaIzq.castShadow = true;
-            pivotePiernaIzq.add(piernaIzqMesh, botaIzq);
+            function construirPierna(lado) {
+                const pivote = new THREE.Group();
+                pivote.position.set(lado * 0.165, 0.86, 0);
 
-            const pivotePiernaDer = new THREE.Group();
-            pivotePiernaDer.position.set(0.17, 0.86, 0);
-            const piernaDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.68, 0.24), matPantalon);
-            piernaDerMesh.position.set(0, -0.34, 0);
-            piernaDerMesh.castShadow = true;
-            const botaDer = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.34), matBota);
-            botaDer.position.set(0, -0.77, 0.04);
-            botaDer.castShadow = true;
-            pivotePiernaDer.add(piernaDerMesh, botaDer);
+                // Muslo moldeado
+                const muslo = new THREE.Mesh(new THREE.CylinderGeometry(0.118, 0.102, 0.38, 12), matPantalon);
+                muslo.scale.set(1.02, 1, 1.12);
+                muslo.position.set(0, -0.19, 0);
+                muslo.castShadow = true;
+
+                // Bolsillo lateral táctico
+                const bolsilloCargo = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.12), matPouch);
+                bolsilloCargo.position.set(lado * 0.105, -0.22, 0.01);
+
+                // Rodillera protectora
+                const rodillera = new THREE.Mesh(new THREE.SphereGeometry(0.088, 10, 10), matRodillera);
+                rodillera.scale.set(1.05, 1.15, 0.75);
+                rodillera.position.set(0, -0.39, 0.085);
+                rodillera.castShadow = true;
+
+                // Pantorrilla
+                const pantorrilla = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.082, 0.34, 12), matPantalon);
+                pantorrilla.position.set(0, -0.55, -0.01);
+                pantorrilla.castShadow = true;
+
+                // Bota táctica con caña y puntera
+                const caniaBota = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.092, 0.15, 12), matBota);
+                caniaBota.position.set(0, -0.73, 0);
+                caniaBota.castShadow = true;
+
+                const pieBota = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.11, 0.31), matBota);
+                pieBota.position.set(0, -0.80, 0.055);
+                pieBota.castShadow = true;
+
+                const suela = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.035, 0.32), new THREE.MeshStandardMaterial({ color: 0x090b0d, roughness: 0.9 }));
+                suela.position.set(0, -0.845, 0.055);
+
+                pivote.add(muslo, bolsilloCargo, rodillera, pantorrilla, caniaBota, pieBota, suela);
+                return pivote;
+            }
+
+            const pivotePiernaIzq = construirPierna(-1);
+            const pivotePiernaDer = construirPierna(1);
 
             const torsoGrupo = new THREE.Group();
             torsoGrupo.position.set(0, 0.86, 0);
 
-            const pecho = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.74, 0.42), matCamisa);
-            pecho.position.y = 0.37;
-            pecho.castShadow = true;
+            // Cadera + cinturón táctico
+            const cadera = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.25, 0.18, 14), matPantalon);
+            cadera.scale.set(1.18, 1, 0.82);
+            cadera.position.y = 0.06;
+            cadera.castShadow = true;
 
-            const chalecoTactico = new THREE.Mesh(new THREE.BoxGeometry(0.69, 0.46, 0.48), matChaleco);
-            chalecoTactico.position.set(0, 0.44, 0.01);
-            chalecoTactico.castShadow = true;
+            const cinturon = new THREE.Mesh(new THREE.CylinderGeometry(0.275, 0.275, 0.065, 14), matCorrea);
+            cinturon.scale.set(1.18, 1, 0.84);
+            cinturon.position.y = 0.11;
 
-            // Bolsillos de cargadores en el pecho
-            for (const bx of [-0.18, -0.06, 0.06, 0.18]) {
-                const pouch = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.08, 0.16, 0.06),
-                    new THREE.MeshStandardMaterial({ color: 0x3f4a3c, roughness: 0.75 })
-                );
-                pouch.position.set(bx, 0.36, 0.26);
+            const hebilla = new THREE.Mesh(
+                new THREE.BoxGeometry(0.09, 0.07, 0.03),
+                new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.25 })
+            );
+            hebilla.position.set(0, 0.11, 0.23);
+
+            // Torso anatómico (más ancho en hombros, más estrecho en cintura)
+            const torsoBase = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.255, 0.62, 14), matCamisa);
+            torsoBase.scale.set(1.12, 1, 0.76);
+            torsoBase.position.y = 0.43;
+            torsoBase.castShadow = true;
+
+            // Chaleco antibalas con placas frontal y trasera
+            const chalecoCuerpo = new THREE.Mesh(new THREE.CylinderGeometry(0.325, 0.285, 0.44, 14), matChaleco);
+            chalecoCuerpo.scale.set(1.12, 1, 0.82);
+            chalecoCuerpo.position.set(0, 0.45, 0.005);
+            chalecoCuerpo.castShadow = true;
+
+            const placaFrontal = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.34, 0.06), matPouch);
+            placaFrontal.position.set(0, 0.47, 0.245);
+            placaFrontal.castShadow = true;
+
+            // Tirantes de hombro del chaleco
+            for (const sx of [-0.18, 0.18]) {
+                const tirante = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.34), matCorrea);
+                tirante.position.set(sx, 0.69, 0.0);
+                torsoGrupo.add(tirante);
+            }
+
+            // Portacargadores frontales + radio en el pecho
+            for (const bx of [-0.13, -0.045, 0.045, 0.13]) {
+                const pouch = new THREE.Mesh(new THREE.BoxGeometry(0.068, 0.15, 0.055), matPouch);
+                pouch.position.set(bx, 0.35, 0.285);
                 torsoGrupo.add(pouch);
             }
 
-            const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.12, 0.14, 10), matPiel);
-            cuello.position.set(0, 0.78, 0.01);
+            const radio = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.045), matCorrea);
+            radio.position.set(-0.22, 0.56, 0.22);
+            const antenaRadio = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.008, 0.16, 6), matCorrea);
+            antenaRadio.position.set(-0.22, 0.68, 0.22);
 
+            // Cuello
+            const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.115, 0.15, 12), matPiel);
+            cuello.position.set(0, 0.79, 0.01);
+
+            // Cabeza con rasgos y casco táctico completo
             const cabezaGrupo = new THREE.Group();
-            cabezaGrupo.position.set(0, 1.04, 0.02);
+            cabezaGrupo.position.set(0, 1.03, 0.02);
 
-            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), matPiel);
-            craneo.scale.set(0.92, 1.04, 0.96);
+            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.235, 18, 18), matPiel);
+            craneo.scale.set(0.88, 1.05, 0.96);
             craneo.castShadow = true;
 
-            // Casco táctico + visor/gafas
-            const cascoDomo = new THREE.Mesh(new THREE.SphereGeometry(0.285, 16, 14, 0, Math.PI * 2, 0, Math.PI * 0.62), matCasco);
-            cascoDomo.position.set(0, 0.03, -0.01);
+            const mandibula = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 0.24), matPiel);
+            mandibula.position.set(0, -0.10, 0.04);
+
+            const nariz = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.07, 0.055), matPiel);
+            nariz.position.set(0, -0.01, 0.225);
+
+            const ojoIzq = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.024, 0.02), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+            ojoIzq.position.set(-0.072, 0.02, 0.215);
+            const ojoDer = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.024, 0.02), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+            ojoDer.position.set(0.072, 0.02, 0.215);
+
+            const cejaIzq = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.016, 0.025), new THREE.MeshStandardMaterial({ color: 0x1c1917 }));
+            cejaIzq.position.set(-0.072, 0.045, 0.215);
+            const cejaDer = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.016, 0.025), new THREE.MeshStandardMaterial({ color: 0x1c1917 }));
+            cejaDer.position.set(0.072, 0.045, 0.215);
+
+            // Casco táctico FAST
+            const cascoDomo = new THREE.Mesh(new THREE.SphereGeometry(0.262, 18, 16, 0, Math.PI * 2, 0, Math.PI * 0.62), matCasco);
+            cascoDomo.scale.set(0.94, 1.0, 1.04);
+            cascoDomo.position.set(0, 0.035, -0.01);
             cascoDomo.castShadow = true;
 
-            const visorGafas = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.09, 0.08), matVisor);
-            visorGafas.position.set(0, 0.07, 0.24);
+            // Montura frontal NVG + gafas tácticas en el casco
+            const monturaFrontal = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.06, 0.03), matCorrea);
+            monturaFrontal.position.set(0, 0.14, 0.245);
 
-            const orejeraIzq = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.12), matCasco);
-            orejeraIzq.position.set(-0.26, 0.01, 0);
-            const orejeraDer = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.12), matCasco);
-            orejeraDer.position.set(0.26, 0.01, 0);
+            const gafasMarco = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.085, 0.065), matCorrea);
+            gafasMarco.position.set(0, 0.08, 0.225);
+            const gafasLente = new THREE.Mesh(new THREE.BoxGeometry(0.29, 0.062, 0.072), matVisor);
+            gafasLente.position.set(0, 0.08, 0.228);
 
-            cabezaGrupo.add(craneo, cascoDomo, visorGafas, orejeraIzq, orejeraDer);
+            // Auriculares tácticos y correa de barbilla
+            const orejeraIzq = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.045, 12), matCorrea);
+            orejeraIzq.rotation.z = Math.PI / 2;
+            orejeraIzq.position.set(-0.235, 0.0, 0);
+            const orejeraDer = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.045, 12), matCorrea);
+            orejeraDer.rotation.z = Math.PI / 2;
+            orejeraDer.position.set(0.235, 0.0, 0);
 
+            const correaBarbilla = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.012, 6, 16, Math.PI), matCorrea);
+            correaBarbilla.rotation.x = Math.PI * 0.65;
+            correaBarbilla.position.set(0, -0.08, 0.05);
+
+            cabezaGrupo.add(
+                craneo, mandibula, nariz, ojoIzq, ojoDer, cejaIzq, cejaDer,
+                cascoDomo, monturaFrontal, gafasMarco, gafasLente, orejeraIzq, orejeraDer, correaBarbilla
+            );
+
+            // Mochila táctica detallada
             const mochilaGrupo = new THREE.Group();
-            mochilaGrupo.position.set(0, 0.42, -0.27);
-            const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.54, 0.22), matMochila);
+            mochilaGrupo.position.set(0, 0.44, -0.26);
+            const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.46, 0.18), matMochila);
             bolsaPrincipal.castShadow = true;
-            mochilaGrupo.add(bolsaPrincipal);
+            const bolsilloTrasero = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.24, 0.08), matPouch);
+            bolsilloTrasero.position.set(0, -0.06, -0.11);
+            mochilaGrupo.add(bolsaPrincipal, bolsilloTrasero);
 
-            const pivoteBrazoIzq = new THREE.Group();
-            pivoteBrazoIzq.position.set(-0.4, 0.64, 0);
-            const brazoIzqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.54, 0.18), matPiel);
-            brazoIzqMesh.position.set(0, -0.27, 0);
-            brazoIzqMesh.castShadow = true;
-            pivoteBrazoIzq.add(brazoIzqMesh);
+            // Brazos articulados (hombro -> antebrazo -> guante)
+            function construirBrazo(lado) {
+                const pivote = new THREE.Group();
+                pivote.position.set(lado * 0.37, 0.64, 0);
 
-            const pivoteBrazoDer = new THREE.Group();
-            pivoteBrazoDer.position.set(0.4, 0.64, 0);
-            const brazoDerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.54, 0.18), matPiel);
-            brazoDerMesh.position.set(0, -0.27, 0);
-            brazoDerMesh.castShadow = true;
+                const hombrera = new THREE.Mesh(new THREE.SphereGeometry(0.105, 12, 12), matCamisa);
+                hombrera.castShadow = true;
 
+                const brazoSup = new THREE.Mesh(new THREE.CylinderGeometry(0.086, 0.076, 0.25, 12), matCamisa);
+                brazoSup.position.set(0, -0.13, 0);
+                brazoSup.castShadow = true;
+
+                const codera = new THREE.Mesh(new THREE.SphereGeometry(0.072, 10, 10), matRodillera);
+                codera.position.set(0, -0.26, -0.03);
+
+                const antebrazo = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.062, 0.23, 12), matPiel);
+                antebrazo.position.set(0, -0.37, 0.02);
+                antebrazo.rotation.x = -0.18;
+                antebrazo.castShadow = true;
+
+                const guante = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.11, 0.11), matGuante);
+                guante.position.set(0, -0.50, 0.05);
+                guante.castShadow = true;
+
+                pivote.add(hombrera, brazoSup, codera, antebrazo, guante);
+                return pivote;
+            }
+
+            const pivoteBrazoIzq = construirBrazo(-1);
+            const pivoteBrazoDer = construirBrazo(1);
+
+            // ==========================================
+            // RIFLE DE ASALTO TÁCTICO (ESTILO M4A1)
+            // ==========================================
             const rifleGrupo = new THREE.Group();
-            rifleGrupo.position.set(-0.04, -0.44, 0.26);
+            rifleGrupo.position.set(-0.08, -0.48, 0.16);
 
-            const matMetalOscuro = new THREE.MeshStandardMaterial({ color: 0x181c22, metalness: 0.72, roughness: 0.32 });
-            const matMetalClaro = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.25 });
+            const matMetalOscuro = new THREE.MeshStandardMaterial({ color: 0x161a20, metalness: 0.78, roughness: 0.28 });
+            const matMetalMedio = new THREE.MeshStandardMaterial({ color: 0x333c48, metalness: 0.72, roughness: 0.34 });
+            const matPolimero = new THREE.MeshStandardMaterial({ color: 0x22262c, roughness: 0.65 });
 
-            const receptor = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.12, 0.68), matMetalOscuro);
-            const culata = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.14, 0.25), new THREE.MeshStandardMaterial({ color: 0x272c33, roughness: 0.68 }));
-            culata.position.set(0, -0.02, -0.42);
+            // Receptor principal
+            const receptor = new THREE.Mesh(new THREE.BoxGeometry(0.072, 0.105, 0.34), matMetalOscuro);
+            receptor.castShadow = true;
 
-            const cargador = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.22, 0.11), matMetalOscuro);
-            cargador.rotation.x = 0.2;
-            cargador.position.set(0, -0.14, 0.08);
+            // Culata táctica ajustable
+            const tuboCulata = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.22, 8), matMetalMedio);
+            tuboCulata.rotation.x = Math.PI / 2;
+            tuboCulata.position.set(0, 0.015, -0.26);
 
-            // Mira óptica sobre el rifle
-            const miraOptica = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.07, 0.18), matMetalClaro);
-            miraOptica.position.set(0, 0.095, -0.02);
+            const culata = new THREE.Mesh(new THREE.BoxGeometry(0.068, 0.145, 0.18), matPolimero);
+            culata.position.set(0, -0.015, -0.34);
 
-            const canion = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.34, 8), matMetalClaro);
+            // Empuñadura pistola
+            const empuniadura = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.13, 0.065), matPolimero);
+            empuniadura.rotation.x = -0.28;
+            empuniadura.position.set(0, -0.095, -0.08);
+
+            // Cargador curvo
+            const cargadorSup = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.12, 0.095), matMetalMedio);
+            cargadorSup.rotation.x = 0.15;
+            cargadorSup.position.set(0, -0.10, 0.07);
+
+            const cargadorInf = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.12, 0.095), matMetalMedio);
+            cargadorInf.rotation.x = 0.34;
+            cargadorInf.position.set(0, -0.20, 0.095);
+
+            // Guardamanos con rieles
+            const guardamanos = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.040, 0.30, 8), matMetalOscuro);
+            guardamanos.rotation.x = Math.PI / 2;
+            guardamanos.position.set(0, 0.01, 0.31);
+            guardamanos.castShadow = true;
+
+            // Mira óptica ACOG / Holográfica
+            const baseMira = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.03, 0.14), matMetalMedio);
+            baseMira.position.set(0, 0.065, -0.01);
+            const tuboMira = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.024, 0.16, 12), matMetalOscuro);
+            tuboMira.rotation.x = Math.PI / 2;
+            tuboMira.position.set(0, 0.095, -0.01);
+
+            // Cañón y apagallamas
+            const canion = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.018, 0.24, 10), matMetalMedio);
             canion.rotation.x = Math.PI / 2;
-            canion.position.set(0, 0.02, 0.48);
+            canion.position.set(0, 0.012, 0.56);
+
+            const bocacha = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.06, 10), matMetalOscuro);
+            bocacha.rotation.x = Math.PI / 2;
+            bocacha.position.set(0, 0.012, 0.69);
 
             const destelloDisparo = new THREE.Mesh(
-                new THREE.SphereGeometry(0.16, 8, 8),
+                new THREE.SphereGeometry(0.15, 8, 8),
                 new THREE.MeshBasicMaterial({ color: 0xffb703, transparent: true, opacity: 0.95 })
             );
-            destelloDisparo.position.set(0, 0.02, 0.68);
+            destelloDisparo.position.set(0, 0.012, 0.78);
             destelloDisparo.visible = false;
 
-            rifleGrupo.add(receptor, culata, cargador, miraOptica, canion, destelloDisparo);
-            pivoteBrazoDer.add(brazoDerMesh, rifleGrupo);
+            rifleGrupo.add(
+                receptor, tuboCulata, culata, empuniadura,
+                cargadorSup, cargadorInf, guardamanos,
+                baseMira, tuboMira, canion, bocacha, destelloDisparo
+            );
+            pivoteBrazoDer.add(rifleGrupo);
 
-            torsoGrupo.add(pecho, chalecoTactico, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
+            torsoGrupo.add(
+                cadera, cinturon, hebilla, torsoBase, chalecoCuerpo, placaFrontal,
+                radio, antenaRadio, cuello, cabezaGrupo, mochilaGrupo,
+                pivoteBrazoIzq, pivoteBrazoDer
+            );
             jugadorMesh.add(pivotePiernaIzq, pivotePiernaDer, torsoGrupo);
             scene.add(jugadorMesh);
 
@@ -1411,6 +1595,7 @@
             const maxBalas = 30;
             let glooRestantes = 3;
             let tiempoDestello = 0;
+            let retrocesoArma = 0;
             let cicloPaso = 0;
             const proyectiles = [];
 
@@ -1532,10 +1717,11 @@
 
                 destelloDisparo.visible = true;
                 tiempoDestello = 45;
+                retrocesoArma = 0.08;
 
                 const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
                 const balaMesh = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.11, 8, 8),
+                    new THREE.SphereGeometry(0.10, 8, 8),
                     new THREE.MeshBasicMaterial({ color: 0xffd166 })
                 );
                 balaMesh.position.set(
@@ -1685,6 +1871,11 @@
                     tiempoDestello -= dt;
                     if (tiempoDestello <= 0) destelloDisparo.visible = false;
                 }
+                if (retrocesoArma > 0.001) {
+                    retrocesoArma *= 0.78;
+                } else {
+                    retrocesoArma = 0;
+                }
 
                 if (enLobby) {
                     portalLobby.visible = true;
@@ -1692,14 +1883,22 @@
                     portalLobby.rotation.y += dt * 0.0008;
                     mascotaGrupo.position.y = Math.abs(Math.sin(ahora * 0.004)) * 0.08;
 
-                    jugadorMesh.rotation.y = 0.12;
-                    pivotePiernaIzq.rotation.x = 0;
-                    pivotePiernaDer.rotation.x = 0;
-                    pivoteBrazoDer.rotation.x = -0.25;
-                    pivoteBrazoIzq.rotation.x = -0.18;
+                    jugadorMesh.rotation.y = 0.16;
+                    torsoGrupo.rotation.y = -0.10;
+                    torsoGrupo.rotation.x = 0.02;
+                    cabezaGrupo.rotation.y = 0.10;
 
-                    camera.position.set(0.25, 1.85, 5.2);
-                    camera.lookAt(0.2, 1.25, 0);
+                    pivotePiernaIzq.rotation.x = -0.05;
+                    pivotePiernaDer.rotation.x = 0.06;
+
+                    // Pose táctica sujetando el rifle con ambas manos en el lobby
+                    pivoteBrazoDer.rotation.set(-0.78, -0.25, -0.08);
+                    pivoteBrazoIzq.rotation.set(-0.92, 0.58, 0.18);
+                    rifleGrupo.position.set(-0.08, -0.48, 0.16);
+                    rifleGrupo.rotation.set(0.78, 0.35, 0);
+
+                    camera.position.set(0.22, 1.72, 4.75);
+                    camera.lookAt(0.12, 1.22, 0);
 
                     sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
                     renderer.render(scene, camera);
@@ -1747,22 +1946,38 @@
 
                 const targetTorsoY = agachado ? 0.52 : 0.86;
                 torsoGrupo.position.y += (targetTorsoY - torsoGrupo.position.y) * 0.2;
-                torsoGrupo.rotation.x += ((agachado ? 0.24 : 0) - torsoGrupo.rotation.x) * 0.2;
+
+                const targetInclinacion = agachado ? 0.28 : (apuntando ? 0.08 : (intensidadMov > 0.05 ? 0.11 : 0.03));
+                torsoGrupo.rotation.x += (targetInclinacion - torsoGrupo.rotation.x) * 0.2;
+
+                const targetGiroTorso = apuntando ? -0.18 : -0.10;
+                torsoGrupo.rotation.y += (targetGiroTorso - torsoGrupo.rotation.y) * 0.2;
+                cabezaGrupo.rotation.y = -torsoGrupo.rotation.y;
+
+                // Postura de brazos y rifle a dos manos
+                const targetBrazoDerX = apuntando ? -1.42 : -1.12;
+                const targetBrazoDerY = apuntando ? -0.12 : -0.22;
+                const targetBrazoIzqX = apuntando ? -1.36 : -1.08;
+                const targetBrazoIzqY = apuntando ? 0.54 : 0.58;
+
+                pivoteBrazoDer.rotation.x += (targetBrazoDerX - pivoteBrazoDer.rotation.x) * 0.22;
+                pivoteBrazoDer.rotation.y += (targetBrazoDerY - pivoteBrazoDer.rotation.y) * 0.22;
+                pivoteBrazoIzq.rotation.x += (targetBrazoIzqX - pivoteBrazoIzq.rotation.x) * 0.22;
+                pivoteBrazoIzq.rotation.y += (targetBrazoIzqY - pivoteBrazoIzq.rotation.y) * 0.22;
+                pivoteBrazoIzq.rotation.z = 0.16;
+
+                rifleGrupo.rotation.set(-pivoteBrazoDer.rotation.x, 0.20, 0);
+                rifleGrupo.position.set(-0.08, -0.48, 0.16 - retrocesoArma);
 
                 if (intensidadMov > 0.05 && enSuelo) {
                     cicloPaso += dt * 0.015 * intensidadMov;
-                    const angPierna = Math.sin(cicloPaso) * 0.62 * intensidadMov;
+                    const angPierna = Math.sin(cicloPaso) * 0.65 * intensidadMov;
                     pivotePiernaIzq.rotation.x = angPierna;
                     pivotePiernaDer.rotation.x = -angPierna;
-                    pivoteBrazoIzq.rotation.x = apuntando ? -1.1 : -angPierna * 0.55;
-                    pivoteBrazoDer.rotation.x = apuntando ? -1.15 : angPierna * 0.4;
+                    torsoGrupo.position.y += Math.abs(Math.cos(cicloPaso)) * 0.025 * intensidadMov;
                 } else {
                     pivotePiernaIzq.rotation.x *= 0.8;
                     pivotePiernaDer.rotation.x *= 0.8;
-                    const targetBrazoDer = apuntando ? -1.15 : -0.82;
-                    const targetBrazoIzq = apuntando ? -1.1 : -0.75;
-                    pivoteBrazoDer.rotation.x += (targetBrazoDer - pivoteBrazoDer.rotation.x) * 0.2;
-                    pivoteBrazoIzq.rotation.x += (targetBrazoIzq - pivoteBrazoIzq.rotation.x) * 0.2;
                 }
 
                 if (!enSuelo) {
