@@ -17,7 +17,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #1e1b4b;
+            background-color: #181512;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             touch-action: none;
         }
@@ -42,7 +42,7 @@
             left: 14px;
             right: 14px;
             z-index: 70;
-            background: rgba(127, 29, 29, 0.94);
+            background: rgba(127, 29, 29, 0.95);
             border: 1px solid #fca5a5;
             color: #fef2f2;
             border-radius: 10px;
@@ -52,7 +52,7 @@
         }
 
         /* ==========================================
-           LOBBY ESTILO FREE FIRE
+           LOBBY TÁCTICO ESTILO SHOOTER
            ========================================== */
         #lobby-screen {
             position: absolute;
@@ -62,7 +62,7 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 10px 12px 24px;
-            background: transparent;
+            background: radial-gradient(circle at 75% 25%, rgba(249, 115, 22, 0.12), rgba(10, 12, 16, 0.45) 75%);
             pointer-events: none;
         }
         #lobby-screen.oculto {
@@ -84,11 +84,11 @@
             flex-wrap: wrap;
         }
         .profile-badge {
-            background: rgba(15, 23, 42, 0.88);
-            border: 1px solid rgba(250, 204, 21, 0.8);
-            border-radius: 8px;
+            background: rgba(15, 18, 24, 0.88);
+            border: 1px solid rgba(245, 158, 11, 0.85);
+            border-radius: 6px;
             padding: 5px 9px;
-            color: #fff;
+            color: #f8fafc;
             font-size: 11px;
             font-weight: 700;
             cursor: pointer;
@@ -97,27 +97,28 @@
             gap: 5px;
         }
         .currency-pill {
-            background: rgba(15, 23, 42, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 999px;
+            background: rgba(15, 18, 24, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 6px;
             padding: 4px 9px;
             font-size: 11px;
             font-weight: 800;
-            color: #fde047;
+            color: #fbbf24;
         }
         .currency-pill.dia {
             color: #7dd3fc;
-            border-color: rgba(125, 211, 252, 0.55);
+            border-color: rgba(125, 211, 252, 0.5);
         }
         .zeta-logo {
             font-size: 14px;
             font-weight: 900;
-            letter-spacing: 1px;
-            color: #facc15;
-            background: rgba(15, 23, 42, 0.88);
-            padding: 5px 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(250, 204, 21, 0.65);
+            letter-spacing: 1.2px;
+            color: #fbbf24;
+            background: rgba(15, 18, 24, 0.9);
+            padding: 5px 11px;
+            border-radius: 6px;
+            border: 1px solid rgba(245, 158, 11, 0.75);
+            text-transform: uppercase;
         }
 
         .lobby-middle {
@@ -135,22 +136,23 @@
             pointer-events: auto;
         }
         .side-btn {
-            background: rgba(15, 23, 42, 0.86);
-            border-left: 3px solid #facc15;
-            border-top: 1px solid rgba(255, 255, 255, 0.16);
-            border-right: 1px solid rgba(255, 255, 255, 0.16);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-            border-radius: 0 8px 8px 0;
+            background: rgba(15, 18, 24, 0.88);
+            border-left: 3px solid #f59e0b;
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            border-right: 1px solid rgba(255, 255, 255, 0.14);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 0 6px 6px 0;
             color: #f8fafc;
             font-size: 10.5px;
             font-weight: 800;
             padding: 6px 10px;
             text-align: left;
             cursor: pointer;
-            min-width: 104px;
+            min-width: 106px;
+            letter-spacing: 0.4px;
         }
         .side-btn:active {
-            background: rgba(250, 204, 21, 0.32);
+            background: rgba(245, 158, 11, 0.3);
         }
 
         .friends-panel {
@@ -160,9 +162,9 @@
             pointer-events: auto;
         }
         .friend-item {
-            background: rgba(15, 23, 42, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 7px;
+            background: rgba(15, 18, 24, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 6px;
             padding: 4px 8px;
             color: #e2e8f0;
             font-size: 10px;
@@ -175,7 +177,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #4ade80;
+            background: #22c55e;
         }
 
         .lobby-bottom {
@@ -194,9 +196,9 @@
         }
         .mode-box {
             flex: 1;
-            background: rgba(15, 23, 42, 0.92);
-            border: 1px solid rgba(250, 204, 21, 0.65);
-            border-radius: 9px;
+            background: rgba(15, 18, 24, 0.92);
+            border: 1px solid rgba(245, 158, 11, 0.65);
+            border-radius: 8px;
             padding: 6px 8px;
             display: flex;
             flex-direction: column;
@@ -209,35 +211,35 @@
         .mode-pill {
             flex: 1;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             padding: 5px 6px;
             font-size: 9px;
             font-weight: 800;
-            background: #1e293b;
+            background: #1e242d;
             color: #cbd5e1;
             cursor: pointer;
             text-align: center;
         }
         .mode-pill.activo {
-            background: #facc15;
+            background: #f59e0b;
             color: #0f172a;
         }
         .mode-sub {
             font-size: 9.5px;
-            color: #fde047;
+            color: #fcd34d;
             font-weight: 700;
         }
         #btn-iniciar-juego {
-            background: linear-gradient(135deg, #facc15, #f97316);
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
             color: #0f172a;
-            border: 2px solid #fef9c3;
-            border-radius: 10px;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
             padding: 11px 18px;
             font-size: 15px;
             font-weight: 900;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.9px;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
             flex-shrink: 0;
         }
         #btn-iniciar-juego:active {
@@ -247,18 +249,18 @@
         .bottom-tabs {
             display: flex;
             gap: 6px;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 18, 24, 0.92);
             padding: 6px 8px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
             justify-content: space-between;
         }
         .tab-btn {
             flex: 1;
-            background: rgba(30, 41, 59, 0.92);
+            background: rgba(30, 36, 45, 0.95);
             color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 6px;
             padding: 6px 6px;
             font-size: 10px;
             font-weight: 800;
@@ -266,19 +268,19 @@
             text-align: center;
         }
         .tab-btn:active {
-            background: #facc15;
+            background: #f59e0b;
             color: #0f172a;
         }
 
         /* ==========================================
-           PANTALLAS DE MENÚ (TIENDA, RULETA, PASE, ETC.)
+           PANTALLAS DE MENÚ
            ========================================== */
         #menu-modal {
             display: none;
             position: absolute;
             inset: 0;
             z-index: 45;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 27, 75, 0.96));
+            background: linear-gradient(135deg, rgba(15, 18, 24, 0.97), rgba(34, 24, 18, 0.97));
             flex-direction: column;
             padding: 12px 14px;
             color: #f8fafc;
@@ -290,14 +292,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(250, 204, 21, 0.35);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.35);
             padding-bottom: 8px;
             margin-bottom: 10px;
         }
         .modal-title {
             font-size: 15px;
             font-weight: 900;
-            color: #facc15;
+            color: #fbbf24;
             letter-spacing: 0.6px;
         }
         .modal-top-info {
@@ -306,10 +308,10 @@
             gap: 8px;
         }
         .btn-cerrar-modal {
-            background: rgba(239, 68, 68, 0.25);
+            background: rgba(220, 38, 38, 0.25);
             border: 1px solid #f87171;
             color: #fecaca;
-            border-radius: 8px;
+            border-radius: 6px;
             width: 32px;
             height: 32px;
             font-size: 15px;
@@ -329,9 +331,9 @@
             gap: 5px;
         }
         .cat-item {
-            background: rgba(30, 41, 59, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 7px;
+            background: rgba(30, 36, 45, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
             padding: 7px 8px;
             font-size: 10.5px;
             font-weight: 800;
@@ -340,7 +342,7 @@
             cursor: pointer;
         }
         .cat-item.activa {
-            background: #facc15;
+            background: #f59e0b;
             color: #0f172a;
         }
         .modal-content-grid {
@@ -350,9 +352,9 @@
             align-content: start;
         }
         .item-card {
-            background: rgba(30, 41, 59, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            border-radius: 9px;
+            background: rgba(30, 36, 45, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
             padding: 9px;
             display: flex;
             flex-direction: column;
@@ -372,10 +374,10 @@
             color: #cbd5e1;
         }
         .item-action {
-            background: #facc15;
+            background: #f59e0b;
             color: #0f172a;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             padding: 5px 7px;
             font-size: 10px;
             font-weight: 900;
@@ -384,7 +386,7 @@
         }
         .modal-status-msg {
             font-size: 11px;
-            color: #fde047;
+            color: #fcd34d;
             font-weight: 700;
             min-height: 16px;
             margin-top: 6px;
@@ -403,10 +405,10 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             transform: translate(-50%, -50%);
-            border: 2px solid rgba(255, 255, 255, 0.92);
+            border: 1.5px solid rgba(255, 255, 255, 0.92);
             border-radius: 50%;
             pointer-events: none;
             z-index: 6;
@@ -419,7 +421,7 @@
             left: 50%;
             width: 5px;
             height: 5px;
-            background: #ff3b30;
+            background: #ef4444;
             border-radius: 50%;
             transform: translate(-50%, -50%);
         }
@@ -435,11 +437,11 @@
             z-index: 5;
         }
         .player-card {
-            background: rgba(15, 23, 42, 0.82);
-            border: 1px solid rgba(250, 204, 21, 0.7);
-            border-radius: 10px;
+            background: rgba(15, 18, 24, 0.84);
+            border: 1px solid rgba(245, 158, 11, 0.72);
+            border-radius: 8px;
             padding: 7px 12px;
-            color: #facc15;
+            color: #fbbf24;
             font-weight: 700;
             font-size: 13px;
         }
@@ -448,10 +450,10 @@
             bottom: 34px;
             left: 50%;
             transform: translateX(-50%);
-            width: 175px;
-            background: rgba(15, 23, 42, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 10px;
+            width: 185px;
+            background: rgba(15, 18, 24, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 8px;
             padding: 6px 10px;
             color: #fff;
             font-size: 11px;
@@ -463,15 +465,15 @@
         .hp-track {
             width: 100%;
             height: 8px;
-            background: #1e293b;
-            border-radius: 5px;
+            background: #1e242d;
+            border-radius: 4px;
             overflow: hidden;
             margin-top: 4px;
         }
         .hp-bar {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #16a34a, #4ade80);
+            background: linear-gradient(90deg, #15803d, #4ade80);
         }
         .controls-layer {
             position: absolute;
@@ -491,8 +493,8 @@
         }
         .touch-btn {
             position: absolute;
-            background: rgba(15, 23, 42, 0.58);
-            border: 2px solid rgba(255, 255, 255, 0.65);
+            background: rgba(15, 18, 24, 0.65);
+            border: 1.5px solid rgba(255, 255, 255, 0.65);
             border-radius: 50%;
             width: 52px;
             height: 52px;
@@ -507,14 +509,14 @@
         }
         .touch-btn:active, .touch-btn.active {
             transform: scale(0.92);
-            background: rgba(250, 204, 21, 0.4);
-            border-color: #facc15;
+            background: rgba(245, 158, 11, 0.42);
+            border-color: #fbbf24;
         }
         #btn-disparo {
             bottom: 42px;
             right: 24px;
-            background: rgba(220, 38, 38, 0.78);
-            border-color: #ff6b6b;
+            background: rgba(185, 28, 28, 0.82);
+            border-color: #fca5a5;
             width: 78px;
             height: 78px;
             font-size: 28px;
@@ -525,7 +527,7 @@
             width: 50px;
             height: 50px;
             border-color: #34d399;
-            background: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.38);
             font-size: 18px;
         }
         #btn-salto {
@@ -539,8 +541,8 @@
             right: 90px;
             width: 48px;
             height: 48px;
-            border-color: #facc15;
-            background: rgba(202, 138, 4, 0.42);
+            border-color: #fbbf24;
+            background: rgba(217, 119, 6, 0.42);
             font-size: 18px;
         }
         #btn-gloo {
@@ -549,7 +551,7 @@
             width: 50px;
             height: 50px;
             border-color: #38bdf8;
-            background: rgba(14, 165, 233, 0.42);
+            background: rgba(2, 132, 199, 0.42);
         }
         #btn-recargar {
             bottom: 182px;
@@ -564,8 +566,8 @@
             left: 34px;
             width: 114px;
             height: 114px;
-            background: rgba(15, 23, 42, 0.35);
-            border: 2px solid rgba(255, 255, 255, 0.45);
+            background: rgba(15, 18, 24, 0.42);
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
             border-radius: 50%;
             pointer-events: auto;
             touch-action: none;
@@ -577,7 +579,7 @@
         #joystick-stick {
             width: 48px;
             height: 48px;
-            background: radial-gradient(circle, #fef08a, #f59e0b);
+            background: radial-gradient(circle, #fde68a, #d97706);
             border: 2px solid #fff;
             border-radius: 50%;
             pointer-events: none;
@@ -627,7 +629,7 @@
                             <button class="mode-pill activo" data-modo="BR-CLASIFICATORIA">BR-CLASIFICATORIA</button>
                             <button class="mode-pill" data-modo="1V1 DUELO">1V1 DUELO</button>
                         </div>
-                        <div class="mode-sub" id="lobby-submodo">Mapa aleatorio • Listo</div>
+                        <div class="mode-sub" id="lobby-submodo">Zona táctica de atardecer • Listo</div>
                     </div>
                     <button id="btn-iniciar-juego">INICIAR</button>
                 </div>
@@ -771,8 +773,8 @@
                             { icon: '⚡', name: 'Carabina Rápida', desc: 'Disparo ágil a media distancia', btn: '350 🪙', action: () => { if (oro < 350) return 'Oro insuficiente'; oro -= 350; armaEquipada = 'Carabina Rápida'; refrescarMonedas(); return 'Compraste y equipaste Carabina Rápida'; } }
                         ],
                         ROPA: [
-                            { icon: '🧥', name: 'Chaleco Táctico', desc: 'Estilo de combate Zeta', btn: 'PUESTO', action: () => 'Chaleco Táctico equipado' },
-                            { icon: '🎒', name: 'Mochila Naranja', desc: 'Capacidad de suministro', btn: 'PUESTA', action: () => 'Mochila Naranja equipada' }
+                            { icon: '🪖', name: 'Casco & Chaleco', desc: 'Equipamiento táctico de combate', btn: 'PUESTO', action: () => 'Casco y chaleco táctico equipados' },
+                            { icon: '🎒', name: 'Mochila Táctica', desc: 'Capacidad de suministro', btn: 'PUESTA', action: () => 'Mochila táctica equipada' }
                         ],
                         CARGAR: [
                             { icon: '💎', name: 'Paquete +50 Diamantes', desc: 'Recarga rápida de prueba', btn: 'GRATIS', action: () => { diamantes += 50; refrescarMonedas(); return 'Sumaste +50 Diamantes'; } }
@@ -834,10 +836,10 @@
                     cats: ['DESTACADO', 'TORNEO'],
                     items: {
                         DESTACADO: [
-                            { icon: '🔥', name: 'Duelo Zeta 1v1', desc: 'Practicar movimiento, mira y Gloo', btn: 'IR A MODO', action: () => { modoActual = '1V1 DUELO'; document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('activo', b.dataset.modo === '1V1 DUELO')); lobbySubmodo.textContent = 'Arena 1v1 • Listo'; return 'Modo cambiado a 1V1 DUELO'; } }
+                            { icon: '🔥', name: 'Duelo Zeta 1v1', desc: 'Practicar movimiento, mira y Gloo', btn: 'IR A MODO', action: () => { modoActual = '1V1 DUELO'; document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('activo', b.dataset.modo === '1V1 DUELO')); lobbySubmodo.textContent = 'Arena táctica 1v1 • Listo'; return 'Modo cambiado a 1V1 DUELO'; } }
                         ],
                         TORNEO: [
-                            { icon: '🌍', name: 'BR Clasificatoria', desc: 'Mapa abierto con árboles, rocas y cajas', btn: 'IR A MODO', action: () => { modoActual = 'BR-CLASIFICATORIA'; document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('activo', b.dataset.modo === 'BR-CLASIFICATORIA')); lobbySubmodo.textContent = 'Mapa aleatorio • Listo'; return 'Modo cambiado a BR-CLASIFICATORIA'; } }
+                            { icon: '🌍', name: 'BR Clasificatoria', desc: 'Zona abierta con muros, rocas y cajas', btn: 'IR A MODO', action: () => { modoActual = 'BR-CLASIFICATORIA'; document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('activo', b.dataset.modo === 'BR-CLASIFICATORIA')); lobbySubmodo.textContent = 'Zona táctica de atardecer • Listo'; return 'Modo cambiado a BR-CLASIFICATORIA'; } }
                         ]
                     }
                 },
@@ -847,7 +849,7 @@
                     items: {
                         EQUIPO: [
                             { icon: '🔫', name: armaEquipada, desc: 'Arma principal lista', btn: 'LISTO', action: () => 'Arma lista para la partida' },
-                            { icon: '🎒', name: 'Mochila Táctica', desc: 'Equipada en el personaje', btn: 'EQUIPADA', action: () => 'Mochila equipada' }
+                            { icon: '🎒', name: 'Mochila Táctica', desc: 'Equipada en el operador', btn: 'EQUIPADA', action: () => 'Mochila equipada' }
                         ],
                         SUMINISTROS: [
                             { icon: '🧊', name: 'Muros Gloo', desc: 'Disponibles para partida', btn: 'VER', action: () => 'Tienes ' + glooRestantes + ' muros Gloo listos' }
@@ -955,7 +957,7 @@
                     document.querySelectorAll('.mode-pill').forEach((b) => b.classList.remove('activo'));
                     btn.classList.add('activo');
                     modoActual = btn.dataset.modo;
-                    lobbySubmodo.textContent = modoActual === '1V1 DUELO' ? 'Arena 1v1 • Listo' : 'Mapa aleatorio • Listo';
+                    lobbySubmodo.textContent = modoActual === '1V1 DUELO' ? 'Arena táctica 1v1 • Listo' : 'Zona táctica de atardecer • Listo';
                     hudVivosEl.textContent = modoActual === '1V1 DUELO' ? 'vivo: 2 / 2' : 'vivo: 12 / 50';
                 });
             });
@@ -974,9 +976,12 @@
                 entrarPartida();
             }, { passive: false });
 
+            // ==========================================
+            // ESCENA 3D TÁCTICA Y REALISTA
+            // ==========================================
             const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x4ea8de);
-            scene.fog = new THREE.FogExp2(0x90e0ef, 0.006);
+            scene.background = new THREE.Color(0xc27849);
+            scene.fog = new THREE.FogExp2(0xb87347, 0.0085);
 
             const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
             camera.position.set(0, 2.4, 6.5);
@@ -985,6 +990,9 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.05;
             container.appendChild(renderer.domElement);
 
             window.addEventListener('resize', () => {
@@ -993,44 +1001,122 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x2d6a4f, 1.05);
+            // Luz cálida de atardecer + rebote de tierra/sombra
+            const luzAmbiente = new THREE.HemisphereLight(0xffcf96, 0x3b332c, 0.95);
             scene.add(luzAmbiente);
 
-            const luzSol = new THREE.DirectionalLight(0xfff3b0, 1.3);
-            luzSol.position.set(35, 55, 25);
+            const luzSol = new THREE.DirectionalLight(0xffb36b, 1.85);
+            luzSol.position.set(36, 28, 22);
             luzSol.castShadow = true;
+            luzSol.shadow.mapSize.width = 2048;
+            luzSol.shadow.mapSize.height = 2048;
+            luzSol.shadow.camera.near = 2;
+            luzSol.shadow.camera.far = 140;
+            const dSombra = 48;
+            luzSol.shadow.camera.left = -dSombra;
+            luzSol.shadow.camera.right = dSombra;
+            luzSol.shadow.camera.top = dSombra;
+            luzSol.shadow.camera.bottom = -dSombra;
+            luzSol.shadow.bias = -0.0005;
             scene.add(luzSol);
 
-            function crearTexturaSuelo() {
+            // Textura detallada de suelo táctico (tierra seca, gravilla, grietas y parches de maleza)
+            function crearTexturaSueloTactico() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 512;
                 canvas.height = 512;
                 const ctx = canvas.getContext('2d');
 
-                ctx.fillStyle = '#38761d';
+                ctx.fillStyle = '#5c4d3c';
                 ctx.fillRect(0, 0, 512, 512);
 
-                for (let i = 0; i < 4000; i++) {
+                const parches = ['#4f4234', '#6b5945', '#495238', '#3e352b', '#75634e'];
+                for (let i = 0; i < 650; i++) {
                     const x = Math.random() * 512;
                     const y = Math.random() * 512;
-                    const r = 1 + Math.random() * 3.5;
-                    const tonos = ['#2f6617', '#468c26', '#539e2f', '#3d5a27'];
-                    ctx.fillStyle = tonos[Math.floor(Math.random() * tonos.length)];
+                    const rx = 6 + Math.random() * 24;
+                    const ry = 4 + Math.random() * 18;
+                    ctx.fillStyle = parches[Math.floor(Math.random() * parches.length)];
+                    ctx.globalAlpha = 0.28;
+                    ctx.beginPath();
+                    ctx.ellipse(x, y, rx, ry, Math.random() * Math.PI, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 0.45;
+                for (let i = 0; i < 4500; i++) {
+                    const x = Math.random() * 512;
+                    const y = Math.random() * 512;
+                    const r = 0.7 + Math.random() * 2.2;
+                    ctx.fillStyle = Math.random() > 0.5 ? '#2c251e' : '#8a765e';
                     ctx.beginPath();
                     ctx.arc(x, y, r, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
+                ctx.globalAlpha = 0.35;
+                ctx.strokeStyle = '#262019';
+                ctx.lineWidth = 1.2;
+                for (let i = 0; i < 32; i++) {
+                    let gx = Math.random() * 512;
+                    let gy = Math.random() * 512;
+                    ctx.beginPath();
+                    ctx.moveTo(gx, gy);
+                    for (let s = 0; s < 5; s++) {
+                        gx += (Math.random() - 0.5) * 28;
+                        gy += (Math.random() - 0.5) * 28;
+                        ctx.lineTo(gx, gy);
+                    }
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+
                 const tex = new THREE.CanvasTexture(canvas);
                 tex.wrapS = THREE.RepeatWrapping;
                 tex.wrapT = THREE.RepeatWrapping;
-                tex.repeat.set(22, 22);
+                tex.repeat.set(26, 26);
                 return tex;
             }
 
+            // Textura de concreto desgastado para muros y coberturas
+            function crearTexturaConcreto() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#7c7872';
+                ctx.fillRect(0, 0, 256, 256);
+
+                for (let i = 0; i < 1800; i++) {
+                    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(30,30,30,0.16)' : 'rgba(220,215,205,0.12)';
+                    ctx.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 4, 2 + Math.random() * 4);
+                }
+
+                ctx.strokeStyle = 'rgba(35,32,30,0.35)';
+                ctx.lineWidth = 1.5;
+                for (let i = 0; i < 10; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(Math.random() * 256, Math.random() * 256);
+                    ctx.lineTo(Math.random() * 256, Math.random() * 256);
+                    ctx.stroke();
+                }
+
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.wrapS = THREE.RepeatWrapping;
+                tex.wrapT = THREE.RepeatWrapping;
+                return tex;
+            }
+
+            const texConcreto = crearTexturaConcreto();
+            const matConcreto = new THREE.MeshStandardMaterial({
+                map: texConcreto,
+                roughness: 0.9,
+                metalness: 0.05
+            });
+
             const suelo = new THREE.Mesh(
                 new THREE.PlaneGeometry(160, 160),
-                new THREE.MeshStandardMaterial({ map: crearTexturaSuelo(), roughness: 0.88 })
+                new THREE.MeshStandardMaterial({ map: crearTexturaSueloTactico(), roughness: 0.92, metalness: 0.04 })
             );
             suelo.rotation.x = -Math.PI / 2;
             suelo.receiveShadow = true;
@@ -1039,11 +1125,11 @@
             const portalLobby = new THREE.Mesh(
                 new THREE.ConeGeometry(2.3, 4.4, 4),
                 new THREE.MeshStandardMaterial({
-                    color: 0x7c3aed,
-                    emissive: 0x4c1d95,
+                    color: 0xea580c,
+                    emissive: 0x9a3412,
                     emissiveIntensity: 0.45,
                     transparent: true,
-                    opacity: 0.55
+                    opacity: 0.45
                 })
             );
             portalLobby.position.set(0.8, 2.2, -2.6);
@@ -1052,13 +1138,13 @@
             const mascotaGrupo = new THREE.Group();
             const mascotaCuerpo = new THREE.Mesh(
                 new THREE.BoxGeometry(0.45, 0.36, 0.55),
-                new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6 })
+                new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.65 })
             );
             mascotaCuerpo.position.y = 0.28;
             mascotaCuerpo.castShadow = true;
             const mascotaCabeza = new THREE.Mesh(
                 new THREE.BoxGeometry(0.36, 0.32, 0.34),
-                new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.55 })
+                new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.6 })
             );
             mascotaCabeza.position.set(0, 0.52, 0.22);
             mascotaCabeza.castShadow = true;
@@ -1068,29 +1154,53 @@
 
             const obstaculos = [];
 
+            function crearMuroTactico(x, z, rotY = 0, ancho = 4.6, alto = 2.1) {
+                const grupo = new THREE.Group();
+                const muro = new THREE.Mesh(
+                    new THREE.BoxGeometry(ancho, alto, 0.55),
+                    matConcreto
+                );
+                muro.position.y = alto / 2;
+                muro.castShadow = true;
+                muro.receiveShadow = true;
+
+                const bordeSup = new THREE.Mesh(
+                    new THREE.BoxGeometry(ancho + 0.12, 0.14, 0.65),
+                    new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 })
+                );
+                bordeSup.position.y = alto + 0.05;
+                bordeSup.castShadow = true;
+
+                grupo.add(muro, bordeSup);
+                grupo.position.set(x, 0, z);
+                grupo.rotation.y = rotY;
+                scene.add(grupo);
+                obstaculos.push({ x, z, r: ancho * 0.45 });
+            }
+
             function crearArbolRealista(x, z, escala = 1) {
                 const grupo = new THREE.Group();
 
                 const tronco = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.28 * escala, 0.45 * escala, 2.8 * escala, 10),
-                    new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.95 })
+                    new THREE.CylinderGeometry(0.26 * escala, 0.44 * escala, 2.9 * escala, 10),
+                    new THREE.MeshStandardMaterial({ color: 0x3f2a1d, roughness: 0.95 })
                 );
-                tronco.position.y = 1.4 * escala;
+                tronco.position.y = 1.45 * escala;
                 tronco.castShadow = true;
 
                 const copaBaja = new THREE.Mesh(
                     new THREE.DodecahedronGeometry(2.0 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.8 })
+                    new THREE.MeshStandardMaterial({ color: 0x293d24, roughness: 0.86 })
                 );
-                copaBaja.position.set(0, 3.3 * escala, 0);
-                copaBaja.scale.set(1.1, 0.75, 1.1);
+                copaBaja.position.set(0, 3.35 * escala, 0);
+                copaBaja.scale.set(1.15, 0.72, 1.1);
                 copaBaja.castShadow = true;
 
                 const copaAlta = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.5 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.75 })
+                    new THREE.DodecahedronGeometry(1.45 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x38522d, roughness: 0.82 })
                 );
-                copaAlta.position.set(0.3 * escala, 4.4 * escala, -0.2 * escala);
+                copaAlta.position.set(0.3 * escala, 4.35 * escala, -0.2 * escala);
                 copaAlta.castShadow = true;
 
                 grupo.add(tronco, copaBaja, copaAlta);
@@ -1102,68 +1212,75 @@
             function crearCajaSuministro(x, z, rotY = 0) {
                 const grupo = new THREE.Group();
                 const base = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.4, 1.5, 2.4),
-                    new THREE.MeshStandardMaterial({ color: 0x9c4221, roughness: 0.7 })
+                    new THREE.BoxGeometry(2.3, 1.45, 2.3),
+                    new THREE.MeshStandardMaterial({ color: 0x5c3a24, roughness: 0.82 })
                 );
-                base.position.y = 0.75;
+                base.position.y = 0.725;
                 base.castShadow = true;
+                base.receiveShadow = true;
 
                 const marco = new THREE.Mesh(
-                    new THREE.BoxGeometry(2.5, 0.2, 2.5),
-                    new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
+                    new THREE.BoxGeometry(2.4, 0.16, 2.4),
+                    new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.45, roughness: 0.55 })
                 );
-                marco.position.y = 1.42;
+                marco.position.y = 1.38;
                 grupo.add(base, marco);
                 grupo.position.set(x, 0, z);
                 grupo.rotation.y = rotY;
                 scene.add(grupo);
-                obstaculos.push({ x, z, r: 1.55 });
+                obstaculos.push({ x, z, r: 1.5 });
             }
 
             function crearRoca(x, z, escala = 1) {
                 const roca = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(1.3 * escala, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.92 })
+                    new THREE.DodecahedronGeometry(1.35 * escala, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x52525b, roughness: 0.94 })
                 );
-                roca.position.set(x, 0.65 * escala, z);
-                roca.scale.set(1.25, 0.75, 1.05);
+                roca.position.set(x, 0.62 * escala, z);
+                roca.scale.set(1.3, 0.72, 1.08);
                 roca.castShadow = true;
+                roca.receiveShadow = true;
                 scene.add(roca);
                 obstaculos.push({ x, z, r: 1.2 * escala });
             }
 
-            for (let i = 0; i < 28; i++) {
-                const ang = (i / 28) * Math.PI * 2;
-                const dist = 15 + (i % 3) * 14;
+            for (let i = 0; i < 26; i++) {
+                const ang = (i / 26) * Math.PI * 2;
+                const dist = 17 + (i % 3) * 14;
                 const esc = 0.85 + (i % 4) * 0.14;
                 crearArbolRealista(Math.cos(ang) * dist, Math.sin(ang) * dist, esc);
             }
 
-            crearCajaSuministro(6, 6, 0.25);
-            crearCajaSuministro(-8, 10, -0.4);
-            crearCajaSuministro(10, -8, 0.7);
-            crearCajaSuministro(-6, -6, 0.1);
-            crearRoca(13, 4, 1.1);
-            crearRoca(-12, -3, 1.35);
-            crearRoca(3, -15, 0.95);
+            crearMuroTactico(5.5, 4.5, 0.35, 4.8, 2.15);
+            crearMuroTactico(-8.5, 7.5, -0.5, 4.2, 1.95);
+            crearMuroTactico(9.5, -7.5, 0.8, 4.5, 2.05);
+            crearCajaSuministro(2.5, 9.5, 0.25);
+            crearCajaSuministro(-6.5, -6.5, -0.35);
+            crearRoca(13.5, 3.5, 1.15);
+            crearRoca(-12.5, -2.5, 1.35);
+            crearRoca(3.5, -14.5, 1.0);
 
             const sombraJugador = new THREE.Mesh(
                 new THREE.CircleGeometry(0.75, 24),
-                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })
+                new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.42 })
             );
             sombraJugador.rotation.x = -Math.PI / 2;
             sombraJugador.position.y = 0.03;
             scene.add(sombraJugador);
 
+            // ==========================================
+            // OPERADOR TÁCTICO Y RIFLE DETALLADO
+            // ==========================================
             const jugadorMesh = new THREE.Group();
 
-            const matPiel = new THREE.MeshStandardMaterial({ color: 0xe8b48a, roughness: 0.62 });
-            const matCabello = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75 });
-            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.52 });
-            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x27303f, roughness: 0.65 });
-            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.75 });
-            const matBota = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 });
-            const matMochila = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.48 });
+            const matPiel = new THREE.MeshStandardMaterial({ color: 0xd8a378, roughness: 0.68 });
+            const matCasco = new THREE.MeshStandardMaterial({ color: 0x1e242b, roughness: 0.55, metalness: 0.25 });
+            const matVisor = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.6 });
+            const matCamisa = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65 });
+            const matChaleco = new THREE.MeshStandardMaterial({ color: 0x29322c, roughness: 0.72, metalness: 0.15 });
+            const matPantalon = new THREE.MeshStandardMaterial({ color: 0x1c2127, roughness: 0.82 });
+            const matBota = new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.65 });
+            const matMochila = new THREE.MeshStandardMaterial({ color: 0x5c3c24, roughness: 0.72 });
 
             const pivotePiernaIzq = new THREE.Group();
             pivotePiernaIzq.position.set(-0.17, 0.86, 0);
@@ -1192,9 +1309,19 @@
             pecho.position.y = 0.37;
             pecho.castShadow = true;
 
-            const chalecoTactico = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.42, 0.46), matChaleco);
-            chalecoTactico.position.set(0, 0.45, 0.01);
+            const chalecoTactico = new THREE.Mesh(new THREE.BoxGeometry(0.69, 0.46, 0.48), matChaleco);
+            chalecoTactico.position.set(0, 0.44, 0.01);
             chalecoTactico.castShadow = true;
+
+            // Bolsillos de cargadores en el pecho
+            for (const bx of [-0.18, -0.06, 0.06, 0.18]) {
+                const pouch = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.08, 0.16, 0.06),
+                    new THREE.MeshStandardMaterial({ color: 0x3f4a3c, roughness: 0.75 })
+                );
+                pouch.position.set(bx, 0.36, 0.26);
+                torsoGrupo.add(pouch);
+            }
 
             const cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.12, 0.14, 10), matPiel);
             cuello.position.set(0, 0.78, 0.01);
@@ -1202,27 +1329,28 @@
             const cabezaGrupo = new THREE.Group();
             cabezaGrupo.position.set(0, 1.04, 0.02);
 
-            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.27, 16, 16), matPiel);
-            craneo.scale.set(0.92, 1.05, 0.96);
+            const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), matPiel);
+            craneo.scale.set(0.92, 1.04, 0.96);
             craneo.castShadow = true;
 
-            const cabelloVolumen = new THREE.Mesh(new THREE.SphereGeometry(0.285, 16, 14), matCabello);
-            cabelloVolumen.scale.set(0.95, 0.95, 1.02);
-            cabelloVolumen.position.set(0, 0.06, -0.02);
+            // Casco táctico + visor/gafas
+            const cascoDomo = new THREE.Mesh(new THREE.SphereGeometry(0.285, 16, 14, 0, Math.PI * 2, 0, Math.PI * 0.62), matCasco);
+            cascoDomo.position.set(0, 0.03, -0.01);
+            cascoDomo.castShadow = true;
 
-            const flequillo = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.14), matCabello);
-            flequillo.position.set(0, 0.14, 0.21);
+            const visorGafas = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.09, 0.08), matVisor);
+            visorGafas.position.set(0, 0.07, 0.24);
 
-            const ojoIzq = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
-            ojoIzq.position.set(-0.085, 0.01, 0.255);
-            const ojoDer = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x111827 }));
-            ojoDer.position.set(0.085, 0.01, 0.255);
+            const orejeraIzq = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.12), matCasco);
+            orejeraIzq.position.set(-0.26, 0.01, 0);
+            const orejeraDer = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.12), matCasco);
+            orejeraDer.position.set(0.26, 0.01, 0);
 
-            cabezaGrupo.add(craneo, cabelloVolumen, flequillo, ojoIzq, ojoDer);
+            cabezaGrupo.add(craneo, cascoDomo, visorGafas, orejeraIzq, orejeraDer);
 
             const mochilaGrupo = new THREE.Group();
-            mochilaGrupo.position.set(0, 0.42, -0.26);
-            const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.52, 0.2), matMochila);
+            mochilaGrupo.position.set(0, 0.42, -0.27);
+            const bolsaPrincipal = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.54, 0.22), matMochila);
             bolsaPrincipal.castShadow = true;
             mochilaGrupo.add(bolsaPrincipal);
 
@@ -1242,38 +1370,33 @@
             const rifleGrupo = new THREE.Group();
             rifleGrupo.position.set(-0.04, -0.44, 0.26);
 
-            const receptor = new THREE.Mesh(
-                new THREE.BoxGeometry(0.085, 0.12, 0.68),
-                new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.35 })
-            );
-            const culata = new THREE.Mesh(
-                new THREE.BoxGeometry(0.075, 0.14, 0.24),
-                new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 })
-            );
+            const matMetalOscuro = new THREE.MeshStandardMaterial({ color: 0x181c22, metalness: 0.72, roughness: 0.32 });
+            const matMetalClaro = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.25 });
+
+            const receptor = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.12, 0.68), matMetalOscuro);
+            const culata = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.14, 0.25), new THREE.MeshStandardMaterial({ color: 0x272c33, roughness: 0.68 }));
             culata.position.set(0, -0.02, -0.42);
 
-            const cargador = new THREE.Mesh(
-                new THREE.BoxGeometry(0.055, 0.2, 0.11),
-                new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
-            );
+            const cargador = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.22, 0.11), matMetalOscuro);
             cargador.rotation.x = 0.2;
-            cargador.position.set(0, -0.13, 0.08);
+            cargador.position.set(0, -0.14, 0.08);
 
-            const canion = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.024, 0.024, 0.32, 8),
-                new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.25 })
-            );
+            // Mira óptica sobre el rifle
+            const miraOptica = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.07, 0.18), matMetalClaro);
+            miraOptica.position.set(0, 0.095, -0.02);
+
+            const canion = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.34, 8), matMetalClaro);
             canion.rotation.x = Math.PI / 2;
-            canion.position.set(0, 0.02, 0.46);
+            canion.position.set(0, 0.02, 0.48);
 
             const destelloDisparo = new THREE.Mesh(
-                new THREE.SphereGeometry(0.13, 8, 8),
-                new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.92 })
+                new THREE.SphereGeometry(0.16, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0xffb703, transparent: true, opacity: 0.95 })
             );
-            destelloDisparo.position.set(0, 0.02, 0.65);
+            destelloDisparo.position.set(0, 0.02, 0.68);
             destelloDisparo.visible = false;
 
-            rifleGrupo.add(receptor, culata, cargador, canion, destelloDisparo);
+            rifleGrupo.add(receptor, culata, cargador, miraOptica, canion, destelloDisparo);
             pivoteBrazoDer.add(brazoDerMesh, rifleGrupo);
 
             torsoGrupo.add(pecho, chalecoTactico, cuello, cabezaGrupo, mochilaGrupo, pivoteBrazoIzq, pivoteBrazoDer);
@@ -1412,8 +1535,8 @@
 
                 const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
                 const balaMesh = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.12, 8, 8),
-                    new THREE.MeshBasicMaterial({ color: 0xfef08a })
+                    new THREE.SphereGeometry(0.11, 8, 8),
+                    new THREE.MeshBasicMaterial({ color: 0xffd166 })
                 );
                 balaMesh.position.set(
                     jugadorMesh.position.x + dir.x * 1.45,
@@ -1421,7 +1544,7 @@
                     jugadorMesh.position.z + dir.z * 1.45
                 );
                 scene.add(balaMesh);
-                proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.55, vz: dir.z * 1.55, vida: 48 });
+                proyectiles.push({ mesh: balaMesh, vx: dir.x * 1.65, vz: dir.z * 1.65, vida: 48 });
             }
 
             btnDisparo.addEventListener('touchstart', (e) => {
