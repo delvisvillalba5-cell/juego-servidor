@@ -52,21 +52,177 @@
         }
 
         /* ==========================================
-           LOBBY TÁCTICO ESTILO SHOOTER
+           PANTALLA DE CUENTA / REGISTRO ESTILO FREE FIRE
            ========================================== */
-        #lobby-screen {
+        #auth-screen {
             position: absolute;
             inset: 0;
-            z-index: 20;
+            z-index: 35;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            align-items: center;
+            padding: 20px 16px 28px;
+            background: linear-gradient(180deg, rgba(12, 14, 20, 0.55) 0%, rgba(12, 14, 20, 0.86) 100%);
+            color: #f8fafc;
+        }
+        #auth-screen.oculto {
+            display: none;
+        }
+        .auth-header {
+            text-align: center;
+            margin-top: 6px;
+        }
+        .auth-badge {
+            display: inline-block;
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 6px;
+        }
+        .auth-title {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+            text-shadow: 0 3px 14px rgba(0, 0, 0, 0.85);
+        }
+        .auth-title span {
+            color: #fbbf24;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 390px;
+            background: rgba(15, 18, 26, 0.92);
+            border: 1px solid rgba(245, 158, 11, 0.65);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 6px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 7px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: #1e2430;
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .auth-tab.activa {
+            background: #f59e0b;
+            color: #0f172a;
+            border-color: #fde68a;
+        }
+        .auth-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .auth-field label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+        .auth-field input {
+            width: 100%;
+            padding: 9px 11px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #0b0e14;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            user-select: text;
+            -webkit-user-select: text;
+            touch-action: manipulation;
+        }
+        .auth-field input:focus {
+            border-color: #fbbf24;
+        }
+        .auth-row-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10.5px;
+            color: #fbbf24;
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 6px 9px;
+            border-radius: 6px;
+        }
+        .btn-auth-principal {
+            width: 100%;
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid #fde68a;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            cursor: pointer;
+        }
+        .auth-msg {
+            font-size: 11px;
+            font-weight: 700;
+            color: #86efac;
+            text-align: center;
+            min-height: 15px;
+        }
+        .tap-to-play-box {
+            width: 100%;
+            max-width: 390px;
+            text-align: center;
+        }
+        #btn-tocar-lobby {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 9px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            background: rgba(15, 18, 26, 0.88);
+            color: #fde68a;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1.3px;
+            cursor: pointer;
+            animation: pulsoSuave 1.6s infinite;
+        }
+        @keyframes pulsoSuave {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(251, 191, 36, 0); }
+            50% { transform: scale(1.02); box-shadow: 0 0 16px rgba(251, 191, 36, 0.35); }
+        }
+
+        /* ==========================================
+           LOBBY TÁCTICO ESTILO SHOOTER
+           ========================================== */
+        #lobby-screen {
+            display: none;
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            flex-direction: column;
+            justify-content: space-between;
             padding: 10px 12px 24px;
-            background: radial-gradient(circle at 75% 25%, rgba(249, 115, 22, 0.12), rgba(10, 12, 16, 0.45) 75%);
+            background: radial-gradient(circle at 50% 45%, rgba(249, 115, 22, 0.08), rgba(10, 12, 16, 0.35) 78%);
             pointer-events: none;
         }
-        #lobby-screen.oculto {
-            display: none;
+        #lobby-screen.activo {
+            display: flex;
         }
 
         .lobby-top {
@@ -84,7 +240,7 @@
             flex-wrap: wrap;
         }
         .profile-badge {
-            background: rgba(15, 18, 24, 0.88);
+            background: rgba(15, 18, 24, 0.9);
             border: 1px solid rgba(245, 158, 11, 0.85);
             border-radius: 6px;
             padding: 5px 9px;
@@ -95,6 +251,11 @@
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+        .uid-tag {
+            color: #fbbf24;
+            font-size: 10px;
+            font-weight: 800;
         }
         .currency-pill {
             background: rgba(15, 18, 24, 0.88);
@@ -590,12 +751,51 @@
     <div id="game-container">
         <div id="error-banner"></div>
 
+        <!-- PANTALLA DE CUENTA / REGISTRO -->
+        <div id="auth-screen">
+            <div class="auth-header">
+                <div class="auth-badge">ACCESO DE JUGADOR</div>
+                <div class="auth-title">ZETA <span>BATTLE</span></div>
+            </div>
+
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab activa" id="tab-crear-cuenta">CREAR CUENTA</button>
+                    <button type="button" class="auth-tab" id="tab-iniciar-cuenta">INICIAR SESIÓN</button>
+                </div>
+
+                <div class="auth-row-info">
+                    <span>ID ASIGNADO: <strong id="auth-uid-preview">ZB-104821</strong></span>
+                    <button type="button" id="btn-nuevo-uid" style="background:#1e293b;color:#fde68a;border:1px solid #f59e0b;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:800;cursor:pointer;">CAMBIAR ID</button>
+                </div>
+
+                <div class="auth-field">
+                    <label for="auth-nombre-input">Apodo o nombre en el juego</label>
+                    <input type="text" id="auth-nombre-input" maxlength="16" placeholder="Ej: ZetaPro_VE" autocomplete="off">
+                </div>
+
+                <div class="auth-field">
+                    <label for="auth-pin-input">PIN o clave rápida (4 a 12 caracteres)</label>
+                    <input type="password" id="auth-pin-input" maxlength="12" placeholder="Crea o escribe tu PIN" autocomplete="off">
+                </div>
+
+                <button type="button" class="btn-auth-principal" id="btn-guardar-cuenta">GUARDAR Y PREPARAR CUENTA</button>
+                <div class="auth-msg" id="auth-status-msg"></div>
+            </div>
+
+            <div class="tap-to-play-box">
+                <button type="button" id="btn-tocar-lobby">TOCAR PARA ENTRAR AL LOBBY</button>
+            </div>
+        </div>
+
         <!-- LOBBY -->
         <div id="lobby-screen">
             <div class="lobby-top">
                 <div class="top-left-group">
-                    <div class="profile-badge" id="lobby-player-btn">
-                        👤 <span id="lobby-nombre">Jugador_1</span> ✏️
+                    <div class="profile-badge" id="lobby-player-btn" title="Toca para ver/cambiar tu cuenta">
+                        👤 <span id="lobby-nombre">Jugador_1</span>
+                        <span class="uid-tag" id="lobby-uid">#ZB-104821</span>
+                        ✏️
                     </div>
                     <div class="currency-pill">🪙 <span id="lobby-oro">9,947</span></div>
                     <div class="currency-pill dia">💎 <span id="lobby-diamantes">85</span></div>
@@ -732,12 +932,41 @@
 
         function iniciarJuego() {
             const container = document.getElementById('game-container');
+            const authScreen = document.getElementById('auth-screen');
             const lobbyScreen = document.getElementById('lobby-screen');
             const gameplayUi = document.getElementById('gameplay-ui');
             const crosshair = document.getElementById('crosshair');
 
-            let enLobby = true;
+            let enPantallaCuenta = true;
+            let enLobby = false;
             let menuAbierto = false;
+
+            // ==========================================
+            // SISTEMA DE CUENTAS DE JUGADOR
+            // ==========================================
+            const STORAGE_ACCOUNTS_KEY = 'zeta_battle_cuentas_v1';
+            const STORAGE_SESSION_KEY = 'zeta_battle_sesion_v1';
+
+            function generarUid() {
+                return 'ZB-' + Math.floor(100000 + Math.random() * 900000);
+            }
+
+            function leerCuentas() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_ACCOUNTS_KEY) || '{}');
+                } catch (_) {
+                    return {};
+                }
+            }
+
+            function guardarCuentas(cuentas) {
+                try {
+                    localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(cuentas));
+                } catch (_) {}
+            }
+
+            let modoAuth = 'crear';
+            let uidActual = generarUid();
             let nombreJugador = 'Jugador_1';
             let modoActual = 'BR-CLASIFICATORIA';
             let oro = 9947;
@@ -745,10 +974,24 @@
             let armaEquipada = 'Rifle AR Zeta';
             let presetActivo = 'Táctico 3 Dedos';
 
+            const authUidPreview = document.getElementById('auth-uid-preview');
+            const authNombreInput = document.getElementById('auth-nombre-input');
+            const authPinInput = document.getElementById('auth-pin-input');
+            const authStatusMsg = document.getElementById('auth-status-msg');
+            const btnGuardarCuenta = document.getElementById('btn-guardar-cuenta');
+            const tabCrearCuenta = document.getElementById('tab-crear-cuenta');
+            const tabIniciarCuenta = document.getElementById('tab-iniciar-cuenta');
+            const btnNuevoUid = document.getElementById('btn-nuevo-uid');
+
             const lobbyOroEl = document.getElementById('lobby-oro');
             const lobbyDiaEl = document.getElementById('lobby-diamantes');
             const modalOroEl = document.getElementById('modal-oro');
             const modalDiaEl = document.getElementById('modal-diamantes');
+            const lobbyNombreEl = document.getElementById('lobby-nombre');
+            const lobbyUidEl = document.getElementById('lobby-uid');
+            const hudNombreEl = document.getElementById('hud-nombre');
+            const hudVivosEl = document.getElementById('hud-vivos');
+            const lobbySubmodo = document.getElementById('lobby-submodo');
 
             function refrescarMonedas() {
                 const oroFmt = oro.toLocaleString('en-US');
@@ -758,26 +1001,215 @@
                 modalDiaEl.textContent = diamantes;
             }
 
+            function aplicarDatosCuenta(cuenta) {
+                uidActual = cuenta.uid || uidActual;
+                nombreJugador = cuenta.nombre || 'Jugador_1';
+                oro = typeof cuenta.oro === 'number' ? cuenta.oro : 9947;
+                diamantes = typeof cuenta.diamantes === 'number' ? cuenta.diamantes : 85;
+                armaEquipada = cuenta.arma || 'Rifle AR Zeta';
+                presetActivo = cuenta.preset || 'Táctico 3 Dedos';
+                if (typeof cuenta.gloo === 'number') {
+                    glooRestantes = cuenta.gloo;
+                }
+
+                authUidPreview.textContent = uidActual;
+                authNombreInput.value = nombreJugador;
+                lobbyNombreEl.textContent = nombreJugador;
+                lobbyUidEl.textContent = '#' + uidActual;
+                hudNombreEl.textContent = nombreJugador;
+                refrescarMonedas();
+                actualizarHUD();
+            }
+
+            function persistirProgresoCuenta() {
+                const cuentas = leerCuentas();
+                const previa = cuentas[nombreJugador.toLowerCase()] || {};
+                cuentas[nombreJugador.toLowerCase()] = {
+                    uid: uidActual,
+                    nombre: nombreJugador,
+                    pin: previa.pin || authPinInput.value.trim() || '1234',
+                    oro,
+                    diamantes,
+                    arma: armaEquipada,
+                    preset: presetActivo,
+                    gloo: glooRestantes
+                };
+                guardarCuentas(cuentas);
+                try {
+                    localStorage.setItem(STORAGE_SESSION_KEY, nombreJugador.toLowerCase());
+                } catch (_) {}
+
+                // Intento opcional de sincronizar con el servidor en Render sin bloquear si está offline
+                if (window.location.hostname.includes('onrender.com')) {
+                    fetch('/api/jugador', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            uid: uidActual,
+                            nombre: nombreJugador,
+                            oro,
+                            diamantes,
+                            arma: armaEquipada
+                        })
+                    }).catch(() => {});
+                }
+            }
+
+            // Cargar última sesión guardada si existe
+            const sesionGuardada = localStorage.getItem(STORAGE_SESSION_KEY);
+            const cuentasGuardadas = leerCuentas();
+            if (sesionGuardada && cuentasGuardadas[sesionGuardada]) {
+                aplicarDatosCuenta(cuentasGuardadas[sesionGuardada]);
+                authStatusMsg.textContent = `Cuenta cargada: ${nombreJugador} (#${uidActual})`;
+            } else {
+                authUidPreview.textContent = uidActual;
+            }
+
+            tabCrearCuenta.addEventListener('click', () => {
+                modoAuth = 'crear';
+                tabCrearCuenta.classList.add('activa');
+                tabIniciarCuenta.classList.remove('activa');
+                uidActual = generarUid();
+                authUidPreview.textContent = uidActual;
+                btnGuardarCuenta.textContent = 'CREAR Y GUARDAR CUENTA';
+                authStatusMsg.textContent = '';
+            });
+
+            tabIniciarCuenta.addEventListener('click', () => {
+                modoAuth = 'login';
+                tabIniciarCuenta.classList.add('activa');
+                tabCrearCuenta.classList.remove('activa');
+                btnGuardarCuenta.textContent = 'INICIAR SESIÓN';
+                authStatusMsg.textContent = '';
+            });
+
+            btnNuevoUid.addEventListener('click', () => {
+                uidActual = generarUid();
+                authUidPreview.textContent = uidActual;
+            });
+
+            btnGuardarCuenta.addEventListener('click', () => {
+                const nombreLimpio = (authNombreInput.value || '').trim().slice(0, 16);
+                const pinLimpio = (authPinInput.value || '').trim();
+
+                if (nombreLimpio.length < 3) {
+                    authStatusMsg.style.color = '#fca5a5';
+                    authStatusMsg.textContent = 'Escribe un nombre de al menos 3 letras.';
+                    return;
+                }
+                if (pinLimpio.length < 4) {
+                    authStatusMsg.style.color = '#fca5a5';
+                    authStatusMsg.textContent = 'Escribe un PIN de al menos 4 caracteres.';
+                    return;
+                }
+
+                const cuentas = leerCuentas();
+                const clave = nombreLimpio.toLowerCase();
+
+                if (modoAuth === 'login') {
+                    if (!cuentas[clave]) {
+                        authStatusMsg.style.color = '#fca5a5';
+                        authStatusMsg.textContent = 'No existe una cuenta con ese nombre aquí. Cambia a CREAR CUENTA.';
+                        return;
+                    }
+                    if (cuentas[clave].pin !== pinLimpio) {
+                        authStatusMsg.style.color = '#fca5a5';
+                        authStatusMsg.textContent = 'PIN incorrecto para esta cuenta.';
+                        return;
+                    }
+                    aplicarDatosCuenta(cuentas[clave]);
+                    localStorage.setItem(STORAGE_SESSION_KEY, clave);
+                    authStatusMsg.style.color = '#86efac';
+                    authStatusMsg.textContent = `Sesión iniciada: ${nombreJugador} (#${uidActual})`;
+                } else {
+                    const nuevaCuenta = {
+                        uid: uidActual,
+                        nombre: nombreLimpio,
+                        pin: pinLimpio,
+                        oro: cuentas[clave]?.oro ?? 9947,
+                        diamantes: cuentas[clave]?.diamantes ?? 85,
+                        arma: cuentas[clave]?.arma ?? 'Rifle AR Zeta',
+                        preset: cuentas[clave]?.preset ?? 'Táctico 3 Dedos',
+                        gloo: cuentas[clave]?.gloo ?? 3
+                    };
+                    cuentas[clave] = nuevaCuenta;
+                    guardarCuentas(cuentas);
+                    localStorage.setItem(STORAGE_SESSION_KEY, clave);
+                    aplicarDatosCuenta(nuevaCuenta);
+                    persistirProgresoCuenta();
+                    authStatusMsg.style.color = '#86efac';
+                    authStatusMsg.textContent = `Cuenta creada: ${nombreJugador} (#${uidActual})`;
+                }
+            });
+
+            function pasarAlLobbyDesdeCuenta() {
+                const nombreEscrito = (authNombreInput.value || '').trim().slice(0, 16);
+                if (nombreEscrito.length >= 3 && nombreEscrito !== nombreJugador) {
+                    nombreJugador = nombreEscrito;
+                    const cuentas = leerCuentas();
+                    const clave = nombreJugador.toLowerCase();
+                    if (!cuentas[clave]) {
+                        cuentas[clave] = {
+                            uid: uidActual,
+                            nombre: nombreJugador,
+                            pin: authPinInput.value.trim() || '1234',
+                            oro,
+                            diamantes,
+                            arma: armaEquipada,
+                            preset: presetActivo,
+                            gloo: glooRestantes
+                        };
+                        guardarCuentas(cuentas);
+                    }
+                    localStorage.setItem(STORAGE_SESSION_KEY, clave);
+                    lobbyNombreEl.textContent = nombreJugador;
+                    lobbyUidEl.textContent = '#' + uidActual;
+                    hudNombreEl.textContent = nombreJugador;
+                }
+                enPantallaCuenta = false;
+                enLobby = true;
+                authScreen.classList.add('oculto');
+                lobbyScreen.classList.add('activo');
+            }
+
+            const btnTocarLobby = document.getElementById('btn-tocar-lobby');
+            btnTocarLobby.addEventListener('click', pasarAlLobbyDesdeCuenta);
+            btnTocarLobby.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                pasarAlLobbyDesdeCuenta();
+            }, { passive: false });
+
+            lobbyNombreEl.parentElement.addEventListener('click', () => {
+                enLobby = false;
+                enPantallaCuenta = true;
+                lobbyScreen.classList.remove('activo');
+                authScreen.classList.remove('oculto');
+                authNombreInput.value = nombreJugador;
+                authUidPreview.textContent = uidActual;
+                authStatusMsg.style.color = '#fde68a';
+                authStatusMsg.textContent = 'Edita tu cuenta o cambia de sesión.';
+            });
+
             const datosMenus = {
                 TIENDA: {
                     titulo: '🛒 TIENDA ZETA',
                     cats: ['DESTACADOS', 'ARMAS', 'ROPA', 'CARGAR'],
                     items: {
                         DESTACADOS: [
-                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cadencia estable • Precisión alta', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste: Rifle AR Zeta'; } },
-                            { icon: '🧊', name: 'Muro Gloo +2', desc: 'Refuerzo táctico para partida', btn: '200 🪙', action: () => { if (oro < 200) return 'Oro insuficiente'; oro -= 200; glooRestantes += 2; actualizarHUD(); refrescarMonedas(); return 'Compraste +2 Muros Gloo'; } },
+                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cadencia estable • Precisión alta', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; persistirProgresoCuenta(); return 'Equipaste: Rifle AR Zeta'; } },
+                            { icon: '🧊', name: 'Muro Gloo +2', desc: 'Refuerzo táctico para partida', btn: '200 🪙', action: () => { if (oro < 200) return 'Oro insuficiente'; oro -= 200; glooRestantes += 2; actualizarHUD(); refrescarMonedas(); persistirProgresoCuenta(); return 'Compraste +2 Muros Gloo'; } },
                             { icon: '🦖', name: 'Mascota Dino', desc: 'Acompañante del lobby', btn: 'ACTIVA', action: () => 'Mascota Dino activa en el lobby' }
                         ],
                         ARMAS: [
-                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Daño medio • 30 balas', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste: Rifle AR Zeta'; } },
-                            { icon: '⚡', name: 'Carabina Rápida', desc: 'Disparo ágil a media distancia', btn: '350 🪙', action: () => { if (oro < 350) return 'Oro insuficiente'; oro -= 350; armaEquipada = 'Carabina Rápida'; refrescarMonedas(); return 'Compraste y equipaste Carabina Rápida'; } }
+                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Daño medio • 30 balas', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; persistirProgresoCuenta(); return 'Equipaste: Rifle AR Zeta'; } },
+                            { icon: '⚡', name: 'Carabina Rápida', desc: 'Disparo ágil a media distancia', btn: '350 🪙', action: () => { if (oro < 350) return 'Oro insuficiente'; oro -= 350; armaEquipada = 'Carabina Rápida'; refrescarMonedas(); persistirProgresoCuenta(); return 'Compraste y equipaste Carabina Rápida'; } }
                         ],
                         ROPA: [
                             { icon: '🪖', name: 'Casco & Chaleco', desc: 'Equipamiento táctico de combate', btn: 'PUESTO', action: () => 'Casco y chaleco táctico equipados' },
                             { icon: '🎒', name: 'Mochila Táctica', desc: 'Capacidad de suministro', btn: 'PUESTA', action: () => 'Mochila táctica equipada' }
                         ],
                         CARGAR: [
-                            { icon: '💎', name: 'Paquete +50 Diamantes', desc: 'Recarga rápida de prueba', btn: 'GRATIS', action: () => { diamantes += 50; refrescarMonedas(); return 'Sumaste +50 Diamantes'; } }
+                            { icon: '💎', name: 'Paquete +50 Diamantes', desc: 'Recarga rápida de prueba', btn: 'GRATIS', action: () => { diamantes += 50; refrescarMonedas(); persistirProgresoCuenta(); return 'Sumaste +50 Diamantes'; } }
                         ]
                     }
                 },
@@ -796,6 +1228,7 @@
                                 ];
                                 const res = premios[Math.floor(Math.random() * premios.length)]();
                                 refrescarMonedas();
+                                persistirProgresoCuenta();
                                 return res;
                             } }
                         ],
@@ -810,8 +1243,8 @@
                     cats: ['RECOMPENSAS', 'NIVELES'],
                     items: {
                         RECOMPENSAS: [
-                            { icon: '🏆', name: 'Recompensa Nv. 1', desc: '300 de Oro de temporada', btn: 'RECLAMAR', action: () => { oro += 300; refrescarMonedas(); return 'Reclamaste +300 Oro'; } },
-                            { icon: '💎', name: 'Recompensa Nv. 2', desc: '10 Diamantes extra', btn: 'RECLAMAR', action: () => { diamantes += 10; refrescarMonedas(); return 'Reclamaste +10 Diamantes'; } }
+                            { icon: '🏆', name: 'Recompensa Nv. 1', desc: '300 de Oro de temporada', btn: 'RECLAMAR', action: () => { oro += 300; refrescarMonedas(); persistirProgresoCuenta(); return 'Reclamaste +300 Oro'; } },
+                            { icon: '💎', name: 'Recompensa Nv. 2', desc: '10 Diamantes extra', btn: 'RECLAMAR', action: () => { diamantes += 10; refrescarMonedas(); persistirProgresoCuenta(); return 'Reclamaste +10 Diamantes'; } }
                         ],
                         NIVELES: [
                             { icon: '⚡', name: 'Progreso Temporada', desc: 'Completa partidas para subir', btn: 'ACTIVO', action: () => 'Pase de temporada activo' }
@@ -823,11 +1256,11 @@
                     cats: ['DIARIA', 'SEMANAL'],
                     items: {
                         DIARIA: [
-                            { icon: '🎯', name: 'Dispara 20 tiros', desc: 'Recompensa: 250 Oro', btn: 'RECOGER', action: () => { oro += 250; refrescarMonedas(); return 'Recogiste +250 Oro de misión diaria'; } },
-                            { icon: '🧊', name: 'Coloca Muros Gloo', desc: 'Recompensa: +1 Muro Gloo', btn: 'RECOGER', action: () => { glooRestantes += 1; actualizarHUD(); return 'Recogiste +1 Muro Gloo'; } }
+                            { icon: '🎯', name: 'Dispara 20 tiros', desc: 'Recompensa: 250 Oro', btn: 'RECOGER', action: () => { oro += 250; refrescarMonedas(); persistirProgresoCuenta(); return 'Recogiste +250 Oro de misión diaria'; } },
+                            { icon: '🧊', name: 'Coloca Muros Gloo', desc: 'Recompensa: +1 Muro Gloo', btn: 'RECOGER', action: () => { glooRestantes += 1; actualizarHUD(); persistirProgresoCuenta(); return 'Recogiste +1 Muro Gloo'; } }
                         ],
                         SEMANAL: [
-                            { icon: '🗺️', name: 'Entra a la Arena 3D', desc: 'Recompensa: 15 Diamantes', btn: 'RECOGER', action: () => { diamantes += 15; refrescarMonedas(); return 'Recogiste +15 Diamantes semanales'; } }
+                            { icon: '🗺️', name: 'Entra a la Arena 3D', desc: 'Recompensa: 15 Diamantes', btn: 'RECOGER', action: () => { diamantes += 15; refrescarMonedas(); persistirProgresoCuenta(); return 'Recogiste +15 Diamantes semanales'; } }
                         ]
                     }
                 },
@@ -861,10 +1294,10 @@
                     cats: ['RIFLES', 'CARABINAS'],
                     items: {
                         RIFLES: [
-                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cargador 30 balas • Mira activa', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; return 'Equipaste Rifle AR Zeta'; } }
+                            { icon: '🔫', name: 'Rifle AR Zeta', desc: 'Cargador 30 balas • Mira activa', btn: 'EQUIPAR', action: () => { armaEquipada = 'Rifle AR Zeta'; persistirProgresoCuenta(); return 'Equipaste Rifle AR Zeta'; } }
                         ],
                         CARABINAS: [
-                            { icon: '⚡', name: 'Carabina Rápida', desc: 'Respuesta rápida al apuntar', btn: 'EQUIPAR', action: () => { armaEquipada = 'Carabina Rápida'; return 'Equipaste Carabina Rápida'; } }
+                            { icon: '⚡', name: 'Carabina Rápida', desc: 'Respuesta rápida al apuntar', btn: 'EQUIPAR', action: () => { armaEquipada = 'Carabina Rápida'; persistirProgresoCuenta(); return 'Equipaste Carabina Rápida'; } }
                         ]
                     }
                 },
@@ -873,8 +1306,8 @@
                     cats: ['CONTROLES'],
                     items: {
                         CONTROLES: [
-                            { icon: '🕹️', name: 'Táctico 3 Dedos', desc: 'Joystick izquierda + Disparo y Mira derecha', btn: 'USAR', action: () => { presetActivo = 'Táctico 3 Dedos'; return 'Preset activo: Táctico 3 Dedos'; } },
-                            { icon: '📱', name: 'Clásico Móvil', desc: 'Botones cómodos para pantalla vertical/horizontal', btn: 'USAR', action: () => { presetActivo = 'Clásico Móvil'; return 'Preset activo: Clásico Móvil'; } }
+                            { icon: '🕹️', name: 'Táctico 3 Dedos', desc: 'Joystick izquierda + Disparo y Mira derecha', btn: 'USAR', action: () => { presetActivo = 'Táctico 3 Dedos'; persistirProgresoCuenta(); return 'Preset activo: Táctico 3 Dedos'; } },
+                            { icon: '📱', name: 'Clásico Móvil', desc: 'Botones cómodos para pantalla vertical/horizontal', btn: 'USAR', action: () => { presetActivo = 'Clásico Móvil'; persistirProgresoCuenta(); return 'Preset activo: Clásico Móvil'; } }
                         ]
                     }
                 }
@@ -938,20 +1371,6 @@
                 btn.addEventListener('click', () => abrirMenu(btn.dataset.menu));
             });
 
-            const lobbyNombreEl = document.getElementById('lobby-nombre');
-            const hudNombreEl = document.getElementById('hud-nombre');
-            const hudVivosEl = document.getElementById('hud-vivos');
-            const lobbySubmodo = document.getElementById('lobby-submodo');
-
-            document.getElementById('lobby-player-btn').addEventListener('click', () => {
-                const nuevo = prompt('Escribe tu nombre de jugador:', nombreJugador);
-                if (nuevo && nuevo.trim()) {
-                    nombreJugador = nuevo.trim().slice(0, 16);
-                    lobbyNombreEl.textContent = nombreJugador;
-                    hudNombreEl.textContent = nombreJugador;
-                }
-            });
-
             document.querySelectorAll('.mode-pill').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.mode-pill').forEach((b) => b.classList.remove('activo'));
@@ -964,8 +1383,10 @@
 
             function entrarPartida() {
                 cerrarMenu();
+                enPantallaCuenta = false;
                 enLobby = false;
-                lobbyScreen.classList.add('oculto');
+                authScreen.classList.add('oculto');
+                lobbyScreen.classList.remove('activo');
                 gameplayUi.classList.add('activo');
             }
 
@@ -984,7 +1405,7 @@
             scene.fog = new THREE.FogExp2(0xb87347, 0.0082);
 
             const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 320);
-            camera.position.set(0, 2.4, 6.5);
+            camera.position.set(0, 1.55, 5.85);
 
             const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1489,9 +1910,6 @@
             const pivoteBrazoIzq = construirBrazo(-1);
             const pivoteBrazoDer = construirBrazo(1);
 
-            // ==========================================
-            // RIFLE DE ASALTO TÁCTICO (ESTILO M4A1)
-            // ==========================================
             const rifleGrupo = new THREE.Group();
             rifleGrupo.position.set(0.09, -0.44, 0.30);
 
@@ -1605,7 +2023,7 @@
             }
 
             joystickBase.addEventListener('touchstart', (e) => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 joyActivo = true;
@@ -1614,7 +2032,7 @@
             }, { passive: false });
 
             joystickBase.addEventListener('touchmove', (e) => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 if (!joyActivo) return;
@@ -1646,7 +2064,7 @@
             }
 
             aimZone.addEventListener('touchstart', (e) => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 e.preventDefault();
                 if (aimTouchId !== null) return;
                 const t = e.changedTouches[0];
@@ -1656,7 +2074,7 @@
             }, { passive: false });
 
             aimZone.addEventListener('touchmove', (e) => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 e.preventDefault();
                 if (aimTouchId === null) return;
                 for (const t of e.changedTouches) {
@@ -1689,7 +2107,7 @@
             const intervaloDisparo = 140;
 
             function disparar() {
-                if (enLobby || menuAbierto || balas <= 0) return;
+                if (enLobby || enPantallaCuenta || menuAbierto || balas <= 0) return;
                 balas--;
                 actualizarHUD();
 
@@ -1701,7 +2119,6 @@
                 const origenCanion = new THREE.Vector3();
                 puntaCanion.getWorldPosition(origenCanion);
 
-                // Apuntar hacia el centro/frente de la cámara para alinear con la mira
                 const puntoObjetivo = new THREE.Vector3();
                 camera.getWorldDirection(puntoObjetivo);
                 const distanciaMira = 45;
@@ -1729,7 +2146,7 @@
             }
 
             btnDisparo.addEventListener('touchstart', (e) => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 if (fireTouchId !== null) return;
@@ -1744,7 +2161,7 @@
             }, { passive: false });
 
             btnDisparo.addEventListener('touchmove', (e) => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 e.preventDefault();
                 e.stopPropagation();
                 if (!disparando || fireTouchId === null) return;
@@ -1771,7 +2188,7 @@
             btnDisparo.addEventListener('touchend', soltarDisparo);
             btnDisparo.addEventListener('touchcancel', soltarDisparo);
             btnDisparo.addEventListener('mousedown', () => {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 disparando = true;
                 disparar();
                 ultimoDisparoTime = performance.now();
@@ -1780,7 +2197,7 @@
 
             const btnMira = document.getElementById('btn-mira');
             function toggleMira() {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 apuntando = !apuntando;
                 btnMira.classList.toggle('active', apuntando);
                 crosshair.style.display = apuntando ? 'block' : 'none';
@@ -1793,9 +2210,10 @@
             btnMira.addEventListener('click', toggleMira);
 
             function ponerGloo() {
-                if (enLobby || menuAbierto || glooRestantes <= 0) return;
+                if (enLobby || enPantallaCuenta || menuAbierto || glooRestantes <= 0) return;
                 glooRestantes--;
                 actualizarHUD();
+                persistirProgresoCuenta();
 
                 const dir = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), jugadorMesh.rotation.y);
                 const glooGrupo = new THREE.Group();
@@ -1823,20 +2241,20 @@
             }
 
             function recargar() {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 balas = maxBalas;
                 actualizarHUD();
             }
 
             function saltar() {
-                if (enLobby || menuAbierto || !enSuelo) return;
+                if (enLobby || enPantallaCuenta || menuAbierto || !enSuelo) return;
                 if (agachado) agachado = false;
                 velY = 0.36;
                 enSuelo = false;
             }
 
             function toggleAgachar() {
-                if (enLobby || menuAbierto) return;
+                if (enLobby || enPantallaCuenta || menuAbierto) return;
                 agachado = !agachado;
             }
 
@@ -1872,27 +2290,28 @@
                     retrocesoArma = 0;
                 }
 
-                if (enLobby) {
+                if (enLobby || enPantallaCuenta) {
                     portalLobby.visible = true;
                     mascotaGrupo.visible = true;
                     portalLobby.rotation.y += dt * 0.0008;
                     mascotaGrupo.position.y = Math.abs(Math.sin(ahora * 0.004)) * 0.08;
 
-                    jugadorMesh.rotation.y = 0.16;
+                    jugadorMesh.rotation.y = 0.14;
                     torsoGrupo.rotation.y = -0.12;
-                    torsoGrupo.rotation.x = 0.02;
+                    torsoGrupo.rotation.x = 0.01;
                     cabezaGrupo.rotation.y = 0.12;
 
-                    pivotePiernaIzq.rotation.x = -0.05;
-                    pivotePiernaDer.rotation.x = 0.06;
+                    pivotePiernaIzq.rotation.x = -0.04;
+                    pivotePiernaDer.rotation.x = 0.05;
 
                     pivoteBrazoDer.rotation.set(-0.78, -0.44, -0.22);
                     pivoteBrazoIzq.rotation.set(-0.92, 0.64, 0.22);
                     rifleGrupo.position.set(0.09, -0.44, 0.30);
                     rifleGrupo.rotation.set(0.78, 0.56, 0);
 
-                    camera.position.set(0.22, 1.72, 4.75);
-                    camera.lookAt(0.12, 1.22, 0);
+                    // Encuadre de cuerpo entero centrado en el lobby
+                    camera.position.set(0.0, 1.48, 5.75);
+                    camera.lookAt(0.0, 1.02, 0.0);
 
                     sombraJugador.position.set(jugadorMesh.position.x, 0.03, jugadorMesh.position.z);
                     renderer.render(scene, camera);
@@ -1948,7 +2367,6 @@
                 torsoGrupo.rotation.y += (targetGiroTorso - torsoGrupo.rotation.y) * 0.2;
                 cabezaGrupo.rotation.y = -torsoGrupo.rotation.y;
 
-                // Rifle más asomado hacia el costado derecho para que se distinga claramente desde atrás
                 const targetBrazoDerX = apuntando ? -1.46 : -1.16;
                 const targetBrazoDerY = apuntando ? -0.34 : -0.48;
                 const targetBrazoIzqX = apuntando ? -1.36 : -1.08;
